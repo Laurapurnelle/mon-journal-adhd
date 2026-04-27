@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=Shrikhand&family=Quicksand:wght@300;500;700&family=Caveat:wght@400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 1. FOND ET TYPO DE BASE (Vibe Journal Papier) */
+body {
+  color: #4A4A4A;
+  background-color: #FFFDF9;
+  background-image: 
+    radial-gradient(#F4D6D2 2px, transparent 2px),
+    linear-gradient(rgba(244, 214, 210, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(244, 214, 210, 0.3) 1px, transparent 1px);
+  background-size: 40px 40px, 20px 20px, 20px 20px;
+  font-family: 'Quicksand', sans-serif;
+  overflow-x: hidden;
+}
+
+/* 2. LES TITRES (Typo Retro Y2K Lisible) */
+.title-big {
+  font-family: 'Shrikhand', cursive;
+  @apply text-rouge-cerise uppercase tracking-widest;
+  text-shadow: 3px 3px 0px #FF85A1;
+}
+
+.title-case {
+  font-family: 'Shrikhand', cursive;
+  @apply text-rouge-cerise uppercase text-xl tracking-wider;
+}
+
+.title-case-orange {
+  font-family: 'Shrikhand', cursive;
+  @apply text-orange-400 uppercase text-xl tracking-wider;
+}
+
+/* 3. LES STICKERS (Fixes par défaut pour éviter le mal de mer) */
+.sticker-card {
+  @apply bg-white border-4 border-white shadow-[8px_8px_0px_0px_rgba(255,133,161,0.2)] rounded-[30px] p-5;
+  transition: none; 
+}
+
+/* 4. INTERACTIVITÉ (Uniquement pour les petites cases du calendrier) */
+.sticker-interactive {
+  @apply transition-all duration-200 cursor-pointer bg-white;
+}
+
+.sticker-interactive:hover {
+  transform: rotate(-1.5deg) scale(1.05);
+  @apply shadow-[12px_12px_0px_0px_rgba(255,133,161,0.3)] z-10;
+}
+
+/* 5. POLAROID, POST-IT ET HANDWRITING */
+.polaroid {
+  @apply bg-white p-3 pb-10 shadow-xl rotate-[-2deg] border border-gray-100 relative;
+}
+
+.post-it {
+  @apply bg-[#FFF9C4] p-6 shadow-md rotate-[-1deg] border-l-8 border-yellow-200/50;
+  font-family: 'Caveat', cursive;
+}
+
+.post-it-rose {
+  @apply bg-[#FFE4E1] p-6 shadow-md rotate-[1deg] border-l-8 border-rose-200/50;
+  font-family: 'Caveat', cursive; /* Ajouté pour que tes notes soient manuscrites ici aussi */
+}
+
+.font-handwriting {
+  font-family: 'Caveat', cursive;
+}
+
+.font-retro {
+  font-family: 'Shrikhand', cursive;
+}
+
+/* 6. BOUTONS ET DÉCORATIONS */
+.btn-rose {
+  @apply bg-rouge-cerise hover:bg-rose-400 text-white font-bold py-2 px-4 rounded-full transition-all transform active:scale-95 shadow-md uppercase text-[10px] tracking-widest;
+}
+
+.vibe-decor {
+  @apply fixed pointer-events-none opacity-40 z-[-1];
+  filter: drop-shadow(2px 2px 0px white);
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+.sparkle {
+  animation: sparkle 2s infinite;
+}
