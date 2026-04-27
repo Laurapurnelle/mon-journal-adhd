@@ -1,8 +1,8 @@
-# Dépendances
+# Dépendances (ne JAMAIS commiter)
 node_modules/
 
-# Build local (optionnel selon déploiement)
-# dist/
+# Build (géré par GitHub Actions)
+dist/
 
 # Environnement
 .env
