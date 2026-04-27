@@ -1,20 +1,6 @@
-# Dépendances (ne JAMAIS commiter)
 node_modules/
-
-# Build (géré par GitHub Actions)
 dist/
-
-# Environnement
 .env
 .env.local
-.env.*.local
-
-# Éditeurs
 .DS_Store
-*.local
-.vscode/
-.idea/
-
-# Logs
 *.log
-npm-debug.log*
