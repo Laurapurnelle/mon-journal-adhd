@@ -18,22 +18,25 @@
 :root {
   --cerise: #D2143A;
   --rose:   #FF85A1;
-  --creme:  #FFFDF9;
+  --creme:  #FFF5F8;
   --orange: #FFB38E;
-  --texte:  #4A4A4A;
+  --texte:  #3D2535;
   --fond:   #F4D6D2;
   --vert:   #22c55e;
+  --glass:  rgba(255,255,255,.72);
+  --glass-b: rgba(255,255,255,.88);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   font-family: 'Quicksand', sans-serif;
-  background-color: var(--creme);
-  background-image:
-    radial-gradient(var(--fond) 1.5px, transparent 1.5px),
-    linear-gradient(rgba(244,214,210,.2) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(244,214,210,.2) 1px, transparent 1px);
-  background-size: 40px 40px, 20px 20px, 20px 20px;
+  background:
+    radial-gradient(ellipse at 15% 10%, rgba(255,182,215,.55) 0%, transparent 45%),
+    radial-gradient(ellipse at 85% 15%, rgba(200,180,255,.45) 0%, transparent 40%),
+    radial-gradient(ellipse at 80% 85%, rgba(255,160,190,.4) 0%, transparent 45%),
+    radial-gradient(ellipse at 20% 80%, rgba(180,200,255,.35) 0%, transparent 40%),
+    linear-gradient(145deg, #ffe8f0 0%, #f8e4ff 40%, #e4eeff 70%, #ffe8f0 100%);
+  background-attachment: fixed;
   color: var(--texte);
   min-height: 100vh;
   overflow-x: hidden;
@@ -42,7 +45,14 @@ body {
 }
 
 /* ── TYPO ── */
-.t-big   { font-family:'Shrikhand',cursive; color:var(--cerise); text-transform:uppercase; letter-spacing:.08em; text-shadow:3px 3px 0 rgba(210,20,58,.12); }
+.t-big {
+  font-family:'Shrikhand',cursive;
+  background: linear-gradient(135deg, #D2143A 0%, #e8174a 35%, #ff6b8a 70%, #ff85a1 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-transform:uppercase; letter-spacing:.08em;
+  filter: drop-shadow(0 3px 8px rgba(210,20,58,.22));
+}
 .t-case  { font-family:'Shrikhand',cursive; color:var(--cerise); text-transform:uppercase; letter-spacing:.08em; }
 .t-orange{ font-family:'Shrikhand',cursive; color:#f97316; text-transform:uppercase; letter-spacing:.08em; }
 .t-green { font-family:'Shrikhand',cursive; color:var(--vert);   text-transform:uppercase; letter-spacing:.08em; }
@@ -51,14 +61,18 @@ body {
 
 /* ── CARDS ── */
 .card {
-  background: white;
-  border: 1px solid rgba(255,133,161,.15);
-  border-radius: 24px;
-  padding: 18px;
+  background: rgba(255,255,255,.78);
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  border: 1.5px solid rgba(255,255,255,.92);
+  border-radius: 28px;
+  padding: 20px;
   box-shadow:
-    0 1px 3px rgba(210,20,58,.05),
-    0 4px 14px rgba(210,20,58,.09),
-    0 12px 32px rgba(210,20,58,.05);
+    inset 0 1px 0 rgba(255,255,255,.95),
+    inset 0 -1px 0 rgba(210,20,58,.03),
+    0 4px 16px rgba(210,20,58,.08),
+    0 16px 48px rgba(180,120,160,.10),
+    0 32px 64px rgba(100,80,120,.06);
 }
 
 .polaroid {
@@ -76,22 +90,22 @@ body {
 .s-dot.on { background:var(--cerise); transform:scale(1.3); }
 
 .post-it {
-  background: #FFF9C4;
-  padding: 18px;
-  border-left: 7px solid rgba(253,230,138,.7);
-  border-radius: 4px 20px 20px 4px;
+  background: linear-gradient(145deg, #fffde7, #fff9c4);
+  padding: 20px;
+  border-left: 6px solid #f6c90e;
+  border-radius: 6px 22px 22px 6px;
   font-family: 'Caveat', cursive;
-  box-shadow: 3px 3px 8px rgba(0,0,0,.06);
-  transform: rotate(-.7deg);
+  box-shadow: 4px 6px 18px rgba(180,150,0,.13), 0 2px 6px rgba(0,0,0,.06);
+  transform: rotate(-.6deg);
 }
 .post-rose {
-  background: #FFE4E1;
-  padding: 18px;
-  border-left: 7px solid rgba(251,207,232,.7);
-  border-radius: 4px 20px 20px 4px;
+  background: linear-gradient(145deg, #fff0ee, #ffe4e1);
+  padding: 20px;
+  border-left: 6px solid #ffaaa0;
+  border-radius: 6px 22px 22px 6px;
   font-family: 'Caveat', cursive;
-  box-shadow: 3px 3px 8px rgba(0,0,0,.06);
-  transform: rotate(.7deg);
+  box-shadow: 4px 6px 18px rgba(200,80,80,.1), 0 2px 6px rgba(0,0,0,.06);
+  transform: rotate(.6deg);
 }
 
 /* ── BOUTONS ── */
@@ -166,21 +180,25 @@ body {
 /* ── NAV ── */
 #nav {
   position: fixed;
-  bottom: 16px;
+  bottom: 18px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 100;
-  background: rgba(255,255,255,.88);
-  backdrop-filter: blur(14px);
-  border: 4px solid white;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 2.5px solid rgba(255,255,255,.98);
   border-radius: 99px;
   padding: 7px 10px;
   display: flex;
   gap: 4px;
-  box-shadow: 0 8px 28px rgba(0,0,0,.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,1),
+    0 4px 16px rgba(210,20,58,.1),
+    0 16px 40px rgba(0,0,0,.1);
 }
 .nbtn {
-  padding: 9px 22px;
+  padding: 10px 22px;
   border: none;
   border-radius: 99px;
   font-family: 'Quicksand', sans-serif;
@@ -189,11 +207,16 @@ body {
   text-transform: uppercase;
   letter-spacing: .1em;
   cursor: pointer;
-  transition: all .2s;
+  transition: all .22s cubic-bezier(.34,1.56,.64,1);
   background: transparent;
-  color: #bbb;
+  color: #c0a8b0;
 }
-.nbtn.on { background:linear-gradient(135deg,#D2143A 0%,#e8174a 100%); color:white; box-shadow:0 2px 10px rgba(210,20,58,.35),inset 0 1px 0 rgba(255,255,255,.2); }
+.nbtn.on {
+  background: linear-gradient(135deg, #D2143A 0%, #e8174a 50%, #ff6080 100%);
+  color: white;
+  box-shadow: 0 3px 12px rgba(210,20,58,.4), inset 0 1px 0 rgba(255,255,255,.25);
+  transform: scale(1.04);
+}
 
 /* ── CALENDRIER ── */
 .chead { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; margin-bottom:6px; }
@@ -261,33 +284,54 @@ body {
 .home-grid {
   display:grid;
   grid-template-columns:repeat(2,1fr);
-  gap:14px;
-  padding:14px;
-  max-width:900px;
+  gap:16px;
+  padding:16px;
+  max-width:960px;
   margin:0 auto;
 }
-@media(min-width:640px){ .home-grid { grid-template-columns:repeat(3,1fr); gap:18px; padding:18px; } }
+@media(min-width:640px){ .home-grid { grid-template-columns:repeat(2,1fr); gap:20px; padding:20px; } }
+@media(min-width:900px){ .home-grid { grid-template-columns:repeat(4,1fr); } }
 
 .app-card {
-  background:linear-gradient(145deg,white 0%,#fff8fb 100%);
-  border-radius:24px;
-  padding:22px 18px;
-  cursor:pointer;
-  border:1px solid rgba(255,133,161,.18);
-  box-shadow:0 2px 6px rgba(210,20,58,.06),0 8px 20px rgba(210,20,58,.08),0 16px 40px rgba(210,20,58,.04);
-  transition:transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .22s;
-  text-align:left;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  width:100%;
+  background: rgba(255,255,255,.75);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1.5px solid rgba(255,255,255,.92);
+  border-radius: 28px;
+  padding: 26px 20px 22px;
+  cursor: pointer;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.95),
+    0 6px 20px rgba(210,20,58,.09),
+    0 24px 60px rgba(180,100,140,.08);
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
 }
-.app-card:hover { transform:translateY(-6px) scale(1.01); box-shadow:0 4px 12px rgba(210,20,58,.1),0 16px 36px rgba(210,20,58,.12); }
+.app-card::before {
+  content:'';
+  position:absolute; top:-30px; right:-20px;
+  width:90px; height:90px; border-radius:50%;
+  background: radial-gradient(circle, rgba(210,20,58,.07) 0%, transparent 70%);
+  pointer-events:none;
+}
+.app-card:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.95),
+    0 12px 32px rgba(210,20,58,.14),
+    0 40px 80px rgba(180,100,140,.12);
+}
 .app-card:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
-.ac-icon { font-size:32px; line-height:1; }
-.ac-title { font-family:'Shrikhand',cursive; color:var(--cerise); font-size:15px; text-transform:uppercase; letter-spacing:.08em; }
-.ac-stat { font-family:'Caveat',cursive; font-size:20px; color:var(--texte); }
-.ac-sub { font-size:12px; color:#767676; }
+.ac-icon { font-size:38px; line-height:1; filter:drop-shadow(0 4px 8px rgba(210,20,58,.2)); }
+.ac-title { font-family:'Shrikhand',cursive; color:var(--cerise); font-size:16px; text-transform:uppercase; letter-spacing:.08em; }
+.ac-stat { font-family:'Caveat',cursive; font-size:21px; color:var(--texte); }
+.ac-sub { font-size:12px; color:#888; }
 
 /* ── NAV LABEL (caché sur très petit écran) ── */
 .nlbl { display:none; }
@@ -904,18 +948,24 @@ function renderHome(){
   var bCol=bPct>=100?'#dc2626':bPct>=80?'#d97706':'#16a34a';
 
   document.getElementById('hh').innerHTML=
-    '<div style="text-align:center;padding:28px 16px 8px">'+
-      '<h1 class="t-big" style="font-size:clamp(26px,6vw,48px)">Mon Journal 🍒</h1>'+
-      '<p style="font-size:13px;color:#555;margin-top:4px">'+
-        esc(jours[now.getDay()])+' '+now.getDate()+' '+esc(MOIS[now.getMonth()])+' '+now.getFullYear()+
-      '</p>'+
-      '<div style="font-family:Shrikhand,cursive;font-size:clamp(26px,5vw,42px);color:var(--cerise);line-height:1.2;margin-top:4px">'+
-        '<span id="hclk"></span><span id="hclks" style="font-size:.5em;opacity:.5;vertical-align:middle"></span>'+
+    '<div style="text-align:center;padding:36px 16px 12px;position:relative">'+
+      '<div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:min(600px,100%);height:100%;'+
+        'background:radial-gradient(ellipse at 50% 0%,rgba(210,20,58,.08) 0%,transparent 70%);pointer-events:none"></div>'+
+      '<div style="font-size:12px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#d2799a;margin-bottom:8px">'+
+        esc(jours[now.getDay()])+' · '+now.getDate()+' '+esc(MOIS[now.getMonth()])+' '+now.getFullYear()+
+      '</div>'+
+      '<h1 class="t-big" style="font-size:clamp(32px,7vw,64px);line-height:1">Mon Journal 🍒</h1>'+
+      '<div style="margin-top:10px">'+
+        '<span style="font-family:Shrikhand,cursive;font-size:clamp(28px,5vw,46px);'+
+          'background:linear-gradient(135deg,#D2143A,#e8174a,#ff85a1);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;'+
+          'filter:drop-shadow(0 2px 6px rgba(210,20,58,.2))">'+
+          '<span id="hclk"></span></span>'+
+        '<span id="hclks" style="font-family:Shrikhand,cursive;font-size:clamp(16px,2.5vw,26px);opacity:.5;vertical-align:middle;color:#D2143A"></span>'+
       '</div>'+
     '</div>'+
-    '<div class="post-it" style="max-width:560px;margin:10px auto 4px;font-size:16px;transform:rotate(-.3deg)">'+
-      '<span style="font-size:9px;font-weight:800;color:#92400e;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:3px">✨ Citation du moment</span>'+
-      '<span class="hand">'+esc(S.quote)+'</span>'+
+    '<div class="post-it" style="max-width:560px;margin:14px auto 6px;font-size:16px;transform:rotate(-.3deg)">'+
+      '<span style="font-size:9px;font-weight:800;color:#92400e;text-transform:uppercase;letter-spacing:.14em;display:block;margin-bottom:4px">✨ Citation du moment</span>'+
+      '<span class="hand" style="font-size:18px;color:#5a3e28">'+esc(S.quote)+'</span>'+
     '</div>';
   tickClock();
 
@@ -980,6 +1030,64 @@ function initWeather(){
       function(){applyWeather(48.8566,2.3522);}
     );
   } else { applyWeather(48.8566,2.3522); }
+}
+
+/* ══ SEMAINE ══ */
+function renderWeek(){
+  var today=td();
+  var JOURS=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  var ws=new Date(weekStart);
+  var we=new Date(weekStart); we.setDate(we.getDate()+6);
+
+  document.getElementById('wh').innerHTML=
+    '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:4px">'+
+      '<div>'+
+        '<div class="t-big" style="font-size:clamp(22px,4vw,36px)">Semaine 📆</div>'+
+        '<div style="font-size:12px;color:#c088a0;margin-top:2px;font-weight:700">'+
+          ws.getDate()+' '+esc(MOIS[ws.getMonth()])+(ws.getFullYear()!==we.getFullYear()?' '+ws.getFullYear():'')+
+          ' → '+we.getDate()+' '+esc(MOIS[we.getMonth()])+' '+we.getFullYear()+
+        '</div>'+
+      '</div>'+
+      '<div style="display:flex;gap:8px">'+
+        '<button class="btn" onclick="navWeek(-1)">◀</button>'+
+        '<button class="btn" style="background:rgba(255,255,255,.7);color:var(--cerise);box-shadow:none;border:1.5px solid var(--rose)" onclick="weekStart=getWeekStart(new Date());renderWeek()">Auj.</button>'+
+        '<button class="btn" onclick="navWeek(1)">▶</button>'+
+      '</div>'+
+    '</div>';
+
+  var cols='';
+  for(var i=0;i<7;i++){
+    var d=new Date(weekStart); d.setDate(d.getDate()+i);
+    var ds=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    var isToday=ds===today;
+    var evts=S.events.filter(function(e){return e.date===ds;}).sort(function(a,b){return a.time.localeCompare(b.time);});
+    var logs=S.habitLogs[ds]||{};
+    var mood=(S.daysData[ds]||{}).mood;
+    var ha=(S.daysData[ds]||{}).headache;
+
+    var evHtml=evts.map(function(e){
+      return '<div class="wevt '+e.type+'" onclick="event.stopPropagation();openAddEvent(\''+ds+'\')">'+
+        esc(e.time)+' '+esc(e.title)+'</div>';
+    }).join('');
+
+    var habHtml=S.habits.map(function(h){
+      return '<span class="whab'+(logs[h.id]?' done':'')+'" title="'+esc(h.name)+'">'+h.icon+'</span>';
+    }).join('');
+
+    cols+='<div class="wday'+(isToday?' wtoday':'')+'" onclick="openAddEvent(\''+ds+'\')">'+
+      '<div class="wday-hd">'+JOURS[i]+'</div>'+
+      '<div class="wday-num">'+d.getDate()+'</div>'+
+      (mood!==undefined?'<div style="font-size:16px;margin-bottom:4px">'+MOODS[mood].e+'</div>':'')+
+      (ha?'<div style="font-size:11px;color:var(--cerise);margin-bottom:3px">🤕</div>':'')+
+      (evHtml||'<div style="font-size:10px;color:#ddd;text-align:center;margin-top:6px">libre</div>')+
+      '<div class="whabs" style="margin-top:auto;padding-top:6px">'+habHtml+'</div>'+
+    '</div>';
+  }
+
+  document.getElementById('wg').innerHTML='<div class="wgrid">'+cols+'</div>';
+}
+function navWeek(dir){
+  weekStart=new Date(weekStart); weekStart.setDate(weekStart.getDate()+dir*7); renderWeek();
 }
 
 /* ══ HELPERS ══ */
@@ -1210,8 +1318,8 @@ try{
   load();
   renderHome();
 }catch(err){
-  document.getElementById('jh').innerHTML=
-    '<div style="background:#fee2e2;border:2px solid #ef4444;border-radius:16px;padding:20px;font-family:monospace;color:#b91c1c">'+
+  document.getElementById('hh').innerHTML=
+    '<div style="background:#fee2e2;border:2px solid #ef4444;border-radius:20px;padding:20px;margin:16px;font-family:monospace;color:#b91c1c">'+
     '<b>Erreur JS :</b> '+String(err.message)+'<br><br>'+
     '<small>'+String(err.stack||'').replace(/</g,'&lt;')+'</small>'+
     '<br><br><button onclick="localStorage.clear();location.reload()" style="background:#ef4444;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer">Effacer le cache et recharger</button>'+
