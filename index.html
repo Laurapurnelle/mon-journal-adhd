@@ -328,7 +328,29 @@ let editHabits = false;
 let evType = 'perso';
 let evDate = null, evId = null;
 
-function load(){ try{ const d=localStorage.getItem(KEY); if(d) S={...DEF,...JSON.parse(d)}; }catch(e){} }
+function load(){
+  try{
+    var raw=localStorage.getItem(KEY);
+    if(!raw) return;
+    var p=JSON.parse(raw);
+    S=JSON.parse(JSON.stringify(DEF));
+    if(p.tasks)      S.tasks=p.tasks;
+    if(p.habits)     S.habits=p.habits;
+    if(p.habitLogs)  S.habitLogs=p.habitLogs;
+    if(p.daysData)   S.daysData=p.daysData;
+    if(p.events)     S.events=p.events;
+    if(p.projects)   S.projects=p.projects;
+    if(p.brainDump)  S.brainDump=p.brainDump;
+    if(p.monthlyNotes) S.monthlyNotes=p.monthlyNotes;
+    if(p.monthlyTodo)  S.monthlyTodo=p.monthlyTodo;
+    if(p.quote)      S.quote=p.quote;
+    if(p.budget){
+      if(p.budget.monthlyLimit) S.budget.monthlyLimit=p.budget.monthlyLimit;
+      if(p.budget.dailyLimit)   S.budget.dailyLimit=p.budget.dailyLimit;
+      if(p.budget.spending)     S.budget.spending=p.budget.spending;
+    }
+  }catch(e){ localStorage.removeItem(KEY); }
+}
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
 function td(){ return new Date().toISOString().split('T')[0]; }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2); }
@@ -898,8 +920,17 @@ function delProjTask(projId,taskId){
   save();renderCal();
 }
 
-load();
-renderJ();
+try{
+  load();
+  renderJ();
+}catch(err){
+  document.getElementById('jh').innerHTML=
+    '<div style="background:#fee2e2;border:2px solid #ef4444;border-radius:16px;padding:20px;font-family:monospace;color:#b91c1c">'+
+    '<b>Erreur JS :</b> '+String(err.message)+'<br><br>'+
+    '<small>'+String(err.stack||'').replace(/</g,'&lt;')+'</small>'+
+    '<br><br><button onclick="localStorage.clear();location.reload()" style="background:#ef4444;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer">Effacer le cache et recharger</button>'+
+    '</div>';
+}
 </script>
 </body>
 </html>
