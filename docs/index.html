@@ -52,10 +52,13 @@ body {
 /* ── CARDS ── */
 .card {
   background: white;
-  border: 4px solid white;
-  border-radius: 28px;
+  border: 1px solid rgba(255,133,161,.15);
+  border-radius: 24px;
   padding: 18px;
-  box-shadow: 6px 6px 0 rgba(255,133,161,.18);
+  box-shadow:
+    0 1px 3px rgba(210,20,58,.05),
+    0 4px 14px rgba(210,20,58,.09),
+    0 12px 32px rgba(210,20,58,.05);
 }
 
 .polaroid {
@@ -93,7 +96,7 @@ body {
 
 /* ── BOUTONS ── */
 .btn {
-  background: var(--cerise);
+  background: linear-gradient(135deg, #D2143A 0%, #e8174a 100%);
   color: white;
   border: none;
   border-radius: 99px;
@@ -104,11 +107,11 @@ body {
   text-transform: uppercase;
   letter-spacing: .15em;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(210,20,58,.28);
+  box-shadow: 0 2px 8px rgba(210,20,58,.32), inset 0 1px 0 rgba(255,255,255,.2);
   transition: all .18s;
 }
-.btn:hover { filter:brightness(1.1); }
-.btn:active { transform:scale(.96); }
+.btn:hover { filter:brightness(1.08); transform:translateY(-1px); }
+.btn:active { transform:scale(.96) translateY(0); }
 .btn-xs {
   background: #fff0f3;
   color: var(--cerise);
@@ -190,7 +193,7 @@ body {
   background: transparent;
   color: #bbb;
 }
-.nbtn.on { background:var(--cerise); color:white; box-shadow:0 2px 10px rgba(210,20,58,.3); }
+.nbtn.on { background:linear-gradient(135deg,#D2143A 0%,#e8174a 100%); color:white; box-shadow:0 2px 10px rgba(210,20,58,.35),inset 0 1px 0 rgba(255,255,255,.2); }
 
 /* ── CALENDRIER ── */
 .chead { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; margin-bottom:6px; }
@@ -266,20 +269,20 @@ body {
 @media(min-width:640px){ .home-grid { grid-template-columns:repeat(3,1fr); gap:18px; padding:18px; } }
 
 .app-card {
-  background:white;
+  background:linear-gradient(145deg,white 0%,#fff8fb 100%);
   border-radius:24px;
-  padding:20px 18px;
+  padding:22px 18px;
   cursor:pointer;
-  border:3px solid transparent;
-  box-shadow:6px 6px 0 rgba(255,133,161,.18);
-  transition:transform .2s, box-shadow .2s;
+  border:1px solid rgba(255,133,161,.18);
+  box-shadow:0 2px 6px rgba(210,20,58,.06),0 8px 20px rgba(210,20,58,.08),0 16px 40px rgba(210,20,58,.04);
+  transition:transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .22s;
   text-align:left;
   display:flex;
   flex-direction:column;
-  gap:7px;
+  gap:8px;
   width:100%;
 }
-.app-card:hover { transform:translateY(-4px); box-shadow:8px 14px 0 rgba(255,133,161,.22); }
+.app-card:hover { transform:translateY(-6px) scale(1.01); box-shadow:0 4px 12px rgba(210,20,58,.1),0 16px 36px rgba(210,20,58,.12); }
 .app-card:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
 .ac-icon { font-size:32px; line-height:1; }
 .ac-title { font-family:'Shrikhand',cursive; color:var(--cerise); font-size:15px; text-transform:uppercase; letter-spacing:.08em; }
@@ -299,6 +302,31 @@ body {
   .cday { min-height:52px; padding:2px; }
   .cdnum { font-size:9px; }
 }
+
+/* ── SEMAINE ── */
+.wgrid { display:grid; grid-template-columns:repeat(7,minmax(130px,1fr)); gap:8px; min-width:700px; }
+.wday { background:white; border:1px solid rgba(255,133,161,.18); border-radius:18px; padding:10px 8px; min-height:180px;
+  box-shadow:0 2px 8px rgba(210,20,58,.06); transition:border-color .15s; }
+.wday.wtoday { border-color:var(--cerise); background:#fff5f8; }
+.wday-hd { font-size:10px; font-weight:800; color:#aaa; text-transform:uppercase; letter-spacing:.08em; margin-bottom:2px; }
+.wday-num { font-family:'Shrikhand',cursive; font-size:22px; color:var(--texte); line-height:1; margin-bottom:6px; }
+.wday.wtoday .wday-num { color:var(--cerise); }
+.wevt { font-size:10px; border-radius:6px; padding:2px 5px; margin-bottom:3px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; cursor:pointer; }
+.wevt.pro { background:#dbeafe; color:#1e40af; }
+.wevt.perso { background:#fce7f3; color:#9d174d; }
+.whabs { display:flex; flex-wrap:wrap; gap:3px; margin-top:6px; }
+.whab { font-size:12px; opacity:.35; }
+.whab.done { opacity:1; }
+
+/* ── TODO BULLES ── */
+.todo-bbl { display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid #fff0f3; }
+.todo-bbl input[type=checkbox] { appearance:none; -webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+  border:2px solid #fca5a5; background:white; cursor:pointer; flex-shrink:0; position:relative; transition:all .15s; }
+.todo-bbl input[type=checkbox]:checked { background:var(--cerise); border-color:var(--cerise); }
+.todo-bbl input[type=checkbox]:checked::after { content:'✓'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  color:white; font-size:10px; font-weight:900; }
+.todo-bbl label { font-family:'Caveat',cursive; font-size:17px; flex:1; cursor:pointer; transition:color .15s; }
+.todo-bbl.done label { text-decoration:line-through; color:#bbb; }
 
 /* ── ACCESSIBILITÉ ── */
 :focus-visible { outline:3px solid var(--cerise); outline-offset:2px; border-radius:4px; }
@@ -320,13 +348,15 @@ button:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
   <button class="nbtn on" id="btn-h" onclick="goPage('home')" aria-label="Accueil">🏠 <span class="nlbl">Accueil</span></button>
   <div style="width:1px;background:#f0dde4;height:22px;margin:0 2px"></div>
   <button class="nbtn" id="btn-j" onclick="goPage('journal')" aria-label="Journal du jour">📓 <span class="nlbl">Journal</span></button>
-  <button class="nbtn" id="btn-c" onclick="goPage('calendar')" aria-label="Calendrier mensuel">📅 <span class="nlbl">Mensuel</span></button>
+  <button class="nbtn" id="btn-w" onclick="goPage('week')" aria-label="Semaine">📆 <span class="nlbl">Semaine</span></button>
+  <button class="nbtn" id="btn-c" onclick="goPage('calendar')" aria-label="Calendrier mensuel">🗓️ <span class="nlbl">Mensuel</span></button>
 </nav>
 
 <!-- ═══ ACCUEIL ═══ -->
 <div class="page on" id="page-home" role="main">
   <header id="hh"></header>
   <div id="hgrid" class="home-grid"></div>
+  <div id="htoday" style="max-width:900px;margin:0 auto;padding:0 14px 80px"></div>
 </div>
 
 <!-- ═══ JOURNAL ═══ -->
@@ -349,9 +379,10 @@ button:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
   <div class="pitrow" id="cp"></div>
 </div>
 
-<!-- ═══ MODAL ═══ -->
-<div id="modal" class="off">
-  <div id="minr"></div>
+<!-- ═══ SEMAINE ═══ -->
+<div class="page" id="page-week" role="main">
+  <div id="wh" style="margin-bottom:16px"></div>
+  <div id="wg" style="overflow-x:auto;padding-bottom:10px"></div>
 </div>
 
 <script>
@@ -378,7 +409,7 @@ const DEF = {
   habits:[{id:'h1',name:'Skin Care',icon:'✨'},{id:'h2',name:'Marche',icon:'🚶‍♀️'},{id:'h3',name:'Eau',icon:'💧'},{id:'h4',name:'Lecture',icon:'📖'}],
   habitLogs:{}, daysData:{}, events:[], projects:[],
   budget:{monthlyLimit:1500, chargesFixe:[], depenses:{}},
-  brainDump:'', monthlyNotes:'', monthlyTodo:'',
+  brainDump:'', monthlyNotes:'', monthlyTodos:{},
   quote:'"Fais de ta vie un rêve, et d\'un rêve une réalité." ✨',
 };
 
@@ -391,6 +422,7 @@ let pomSec = 1500, pomOn = false;
 let editHabits = false;
 let evType = 'perso';
 let evDate = null, evId = null;
+let weekStart = null;
 
 function load(){
   try{
@@ -413,6 +445,7 @@ function load(){
       if(p.budget.chargesFixe)  S.budget.chargesFixe=p.budget.chargesFixe;
       if(p.budget.depenses)     S.budget.depenses=p.budget.depenses;
     }
+    if(p.monthlyTodos)  S.monthlyTodos=p.monthlyTodos;
   }catch(e){ localStorage.removeItem(KEY); }
 }
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
@@ -423,17 +456,24 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 /* ── Page switch ── */
 function goPage(p){
   curPage=p;
-  ['home','journal','calendar'].forEach(function(id){
+  ['home','journal','week','calendar'].forEach(function(id){
     var el=document.getElementById('page-'+id);
     if(el) el.className=p===id?'page on':'page';
   });
-  [['h','home'],['j','journal'],['c','calendar']].forEach(function(pair){
+  [['h','home'],['j','journal'],['w','week'],['c','calendar']].forEach(function(pair){
     var el=document.getElementById('btn-'+pair[0]);
     if(el) el.className=p===pair[1]?'nbtn on':'nbtn';
   });
   if(p==='home')     renderHome();
   if(p==='journal')  renderJ();
+  if(p==='week')     { if(!weekStart) weekStart=getWeekStart(new Date()); renderWeek(); }
   if(p==='calendar') renderCal();
+}
+function getWeekStart(d){
+  var day=new Date(d); day.setHours(0,0,0,0);
+  var dow=day.getDay(); var diff=dow===0?-6:1-dow;
+  day.setDate(day.getDate()+diff);
+  return day;
 }
 
 /* ── Horloge ── */
@@ -532,13 +572,7 @@ function renderJ(){
       '</div>'+
       '<div style="margin-top:8px;text-align:center;font-size:10px;color:#ccc">25 min de focus · Pause méritée 🍒</div>'+
     '</div>'+
-    '<div class="card">'+
-      '<div class="t-case" style="font-size:12px;margin-bottom:8px">☀️ Note du matin</div>'+
-      '<textarea class="hand iline" id="mrnote" rows="5" placeholder="Comment tu te sens ce matin ?" '+
-        'style="resize:none;font-size:17px;line-height:1.5;border-bottom:none;padding:0;width:100%" '+
-        'oninput="saveMrNote(this.value)">'+esc((S.daysData[today]||{}).morningNote||'')+'</textarea>'+
-      '<div style="margin-top:6px;font-size:10px;color:#ccc;text-align:right">Sauvegarde auto ✓</div>'+
-    '</div>';
+    '';
 
   /* — COL 2 : events + budget + tâches — */
   var todayEvts=S.events.filter(function(e){return e.date===today;}).sort(function(a,b){return a.time.localeCompare(b.time);});
@@ -633,6 +667,7 @@ function renderJ(){
         '<div style="text-align:center;margin-top:10px;font-size:22px">'+MOODS[todayMood].e+
         ' <span style="font-family:Caveat,cursive;font-size:16px;color:#aaa;vertical-align:middle">'+esc(MOODS[todayMood].l)+'</span></div>':'')+
     '</div>'+
+    headacheCard(today)+
     '<div class="post-it card" style="background:#FFF9C4;box-shadow:3px 5px 12px rgba(0,0,0,.06)">'+
       '<div class="t-case" style="font-size:12px;margin-bottom:8px;color:#b45309">🧠 Brain Dump</div>'+
       '<textarea class="hand" id="braindump" rows="8" placeholder="Vide ton esprit ici, sans filtre…" '+
@@ -1107,6 +1142,24 @@ function setMood(i){
   var t=td();
   if(!S.daysData[t])S.daysData[t]={};
   S.daysData[t].mood=i;
+  save();renderJ();
+}
+function headacheCard(today){
+  var hasHa=(S.daysData[today]||{}).headache;
+  var mKey=today.slice(0,7);
+  var count=Object.keys(S.daysData).filter(function(d){return d.slice(0,7)===mKey&&S.daysData[d].headache;}).length;
+  return '<div class="card" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px">'+
+    '<div>'+
+      '<div class="t-case" style="font-size:12px;margin-bottom:2px">🤕 Mal de tête</div>'+
+      '<div style="font-size:11px;color:#aaa">Ce mois-ci : <strong style="color:var(--cerise)">'+count+' fois</strong></div>'+
+    '</div>'+
+    '<button onclick="togHeadache()" style="width:52px;height:52px;border-radius:50%;border:2px solid '+(hasHa?'var(--cerise)':'#fca5a5')+';background:'+(hasHa?'var(--cerise)':'white')+';color:'+(hasHa?'white':'#fca5a5')+';font-size:24px;cursor:pointer;transition:all .2s">🤕</button>'+
+  '</div>';
+}
+function togHeadache(){
+  var t=td();
+  if(!S.daysData[t])S.daysData[t]={};
+  S.daysData[t].headache=!S.daysData[t].headache;
   save();renderJ();
 }
 function addProject(){
