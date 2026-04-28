@@ -193,9 +193,9 @@ body {
 .clbl  { text-align:center; font-size:9px; font-weight:800; color:var(--rose); letter-spacing:.08em; }
 .cgrd  { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
 .cday  {
-  aspect-ratio:1; border:2px solid #fff0f3; border-radius:12px;
-  padding:3px; cursor:pointer; background:white; transition:all .15s;
-  overflow:hidden; position:relative;
+  min-height:80px; border:2px solid #fff0f3; border-radius:12px;
+  padding:4px; cursor:pointer; background:white; transition:all .15s;
+  overflow:hidden; position:relative; vertical-align:top;
 }
 .cday:hover { border-color:var(--rose); transform:scale(1.06); z-index:2; }
 .cday.today { border-color:var(--cerise); background:#fff5f8; }
@@ -259,12 +259,6 @@ body {
 </head>
 <body>
 
-<!-- TEST DE CHARGEMENT -->
-<div id="load-test" style="position:fixed;top:0;left:0;right:0;background:#D2143A;color:white;text-align:center;padding:12px;font-family:sans-serif;font-size:16px;font-weight:bold;z-index:9999">
-  ✅ Page chargée — JavaScript en cours…
-</div>
-<script>document.getElementById('load-test').textContent='✅ JavaScript OK — Chargement du journal…';</script>
-
 <!-- ═══ NAVIGATION ═══ -->
 <nav id="nav">
   <button class="nbtn on" id="btn-j" onclick="goPage('journal')">📓 Journal</button>
@@ -319,7 +313,7 @@ const DEF = {
   tasks:[],
   habits:[{id:'h1',name:'Skin Care',icon:'✨'},{id:'h2',name:'Marche',icon:'🚶‍♀️'},{id:'h3',name:'Eau',icon:'💧'},{id:'h4',name:'Lecture',icon:'📖'}],
   habitLogs:{}, daysData:{}, events:[], projects:[],
-  budget:{monthlyLimit:600, dailyLimit:25, spending:{}},
+  budget:{monthlyLimit:1500, chargesFixe:[], depenses:{}},
   brainDump:'', monthlyNotes:'', monthlyTodo:'',
   quote:'"Fais de ta vie un rêve, et d\'un rêve une réalité." ✨',
 };
@@ -352,8 +346,8 @@ function load(){
     if(p.quote)      S.quote=p.quote;
     if(p.budget){
       if(p.budget.monthlyLimit) S.budget.monthlyLimit=p.budget.monthlyLimit;
-      if(p.budget.dailyLimit)   S.budget.dailyLimit=p.budget.dailyLimit;
-      if(p.budget.spending)     S.budget.spending=p.budget.spending;
+      if(p.budget.chargesFixe)  S.budget.chargesFixe=p.budget.chargesFixe;
+      if(p.budget.depenses)     S.budget.depenses=p.budget.depenses;
     }
   }catch(e){ localStorage.removeItem(KEY); }
 }
@@ -489,12 +483,6 @@ function renderJ(){
       }).join('')
     : '<div class="empty">Journée libre 🌸</div>';
 
-  var daySpend=S.budget.spending[today]||{};
-  var todaySpent=Object.values(daySpend).reduce(function(a,v){return a+(v.amount||0);},0);
-  var dLimit=S.budget.dailyLimit||25;
-  var dPct=Math.min(100,Math.round(todaySpent/dLimit*100));
-  var dColor=dPct>=100?'#ef4444':dPct>=80?'#f97316':'var(--vert)';
-
   var taskHtml=S.tasks.length
     ? S.tasks.map(function(t){
         return '<div class="trow'+(t.done?' done':'')+'">'+
@@ -513,20 +501,6 @@ function renderJ(){
       '</div>'+evHtml+
     '</div>'+
     '<div class="card">'+
-      '<div class="t-case" style="font-size:12px;margin-bottom:8px">💸 Budget du jour</div>'+
-      '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">'+
-        '<div style="font-family:Caveat,cursive;font-size:22px;color:'+dColor+'">'+todaySpent.toFixed(2)+' €</div>'+
-        '<div style="font-size:11px;color:#aaa">/ '+dLimit+' €</div>'+
-      '</div>'+
-      '<div class="pbar"><div class="pfill" style="width:'+dPct+'%;background:'+dColor+'"></div></div>'+
-      '<div id="spndList" style="margin-top:8px;max-height:100px;overflow-y:auto"></div>'+
-      '<div style="display:flex;gap:6px;margin-top:8px;align-items:flex-end">'+
-        '<input class="iline" id="spndLabel" placeholder="Café, courses…" style="flex:1;font-size:14px">'+
-        '<input class="iline" id="spndAmt" type="number" min="0" step="0.01" placeholder="€" style="width:60px;font-size:14px">'+
-        '<button class="btn btn-xs" onclick="addSpending()">OK</button>'+
-      '</div>'+
-    '</div>'+
-    '<div class="card">'+
       '<div class="t-case" style="font-size:12px;margin-bottom:8px">✅ Mes Tâches</div>'+
       '<div id="tasklist">'+taskHtml+'</div>'+
       '<div class="sep"></div>'+
@@ -535,7 +509,6 @@ function renderJ(){
         '<button class="btn btn-xs" onclick="addTask()">+</button>'+
       '</div>'+
     '</div>';
-  renderSpending(today);
 
   /* — COL 3 : habitudes + humeur + brain dump — */
   var logs=S.habitLogs[today]||{};
@@ -600,34 +573,38 @@ function renderJ(){
 }
 
 /* ══════════════════════════════════════════════
-   ÉTAPE 4 — CALENDRIER
+   ÉTAPE 4 — CALENDRIER (PLEINE PAGE)
 ══════════════════════════════════════════════ */
 function renderCal(){
   var today=td(), now=new Date();
   var y=calY, m=calM;
+  var mKey=y+'-'+String(m+1).padStart(2,'0');
   var daysInMonth=new Date(y,m+1,0).getDate();
-  var firstDay=new Date(y,m,1).getDay();
-  var offset=(firstDay+6)%7;
+  var offset=(new Date(y,m,1).getDay()+6)%7;
+
+  /* calendrier pleine largeur */
+  var cg=document.querySelector('.cgrid');
+  if(cg) cg.style.gridTemplateColumns='1fr';
 
   /* taux de succès */
-  var doneCount=0, totalPast=0;
+  var doneCount=0,totalPast=0;
   for(var d=1;d<=daysInMonth;d++){
     var ds=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
     if(new Date(y,m,d)>now) break;
     totalPast++;
-    var logs2=S.habitLogs[ds]||{};
-    if(S.habits.length && S.habits.every(function(h){return logs2[h.id];})) doneCount++;
+    var lg=S.habitLogs[ds]||{};
+    if(S.habits.length&&S.habits.every(function(h){return lg[h.id];})) doneCount++;
   }
   var rate=totalPast?Math.round(doneCount/totalPast*100):0;
 
-  /* — HEADER — */
+  /* HEADER */
   document.getElementById('ch').innerHTML=
     '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">'+
       '<div>'+
         '<div class="t-big" style="font-size:clamp(22px,4vw,36px)">'+esc(MOIS[m])+' '+y+'</div>'+
         '<div style="font-size:12px;color:#aaa;margin-top:2px">'+
           doneCount+' jour'+(doneCount>1?'s':'')+' parfait'+(doneCount>1?'s':'')+
-          ' · Taux de succès : <strong style="color:'+(rate>=70?'var(--vert)':'var(--cerise)')+'">'+rate+'%</strong>'+
+          ' · Taux : <strong style="color:'+(rate>=70?'var(--vert)':'var(--cerise)')+'">'+rate+'%</strong>'+
         '</div>'+
       '</div>'+
       '<div style="display:flex;gap:8px">'+
@@ -637,41 +614,68 @@ function renderCal(){
       '</div>'+
     '</div>';
 
-  /* — GRILLE CALENDRIER (gauche) — */
-  var dayLabels=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
-  var calHtml='<div class="card" style="padding:12px;margin-bottom:16px">'+
-    '<div class="chead">'+dayLabels.map(function(l){return '<div class="clbl">'+l+'</div>';}).join('')+'</div>'+
+  /* GRILLE PLEINE LARGEUR */
+  var lbls=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  var ch='<div class="card" style="padding:14px">'+
+    '<div class="chead">'+lbls.map(function(l){return '<div class="clbl">'+l+'</div>';}).join('')+'</div>'+
     '<div class="cgrd">';
-  for(var i=0;i<offset;i++) calHtml+='<div class="cday empty"></div>';
+  for(var i=0;i<offset;i++) ch+='<div class="cday empty"></div>';
   for(var d2=1;d2<=daysInMonth;d2++){
     var ds2=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d2).padStart(2,'0');
-    var isToday=ds2===today;
+    var isT=ds2===today;
     var mood2=(S.daysData[ds2]||{}).mood;
-    var dayEvts=S.events.filter(function(e){return e.date===ds2;});
-    var hasPro=dayEvts.some(function(e){return e.type==='pro';});
-    var hasPerso=dayEvts.some(function(e){return e.type==='perso';});
-    calHtml+=
-      '<div class="cday'+(isToday?' today':'')+'" onclick="openAddEvent(\''+ds2+'\')">'+
+    var evts=S.events.filter(function(e){return e.date===ds2;}).sort(function(a,b){return a.time.localeCompare(b.time);});
+    var chips='';
+    for(var ei=0;ei<Math.min(evts.length,3);ei++){
+      var ev=evts[ei];
+      var bg=ev.type==='pro'?'#dbeafe':'#fce7f3';
+      var tc=ev.type==='pro'?'#1d4ed8':'#be123c';
+      chips+='<div style="font-size:9px;background:'+bg+';color:'+tc+';border-radius:3px;padding:1px 4px;margin-top:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+
+        esc(ev.time)+' '+esc(ev.title)+'</div>';
+    }
+    if(evts.length>3) chips+='<div style="font-size:8px;color:#aaa;margin-top:1px">+'+( evts.length-3)+' autres</div>';
+    ch+='<div class="cday'+(isT?' today':'')+'" onclick="openAddEvent(\''+ds2+'\')">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start">'+
         '<div class="cdnum">'+d2+'</div>'+
-        (mood2!==undefined?'<div class="cdmood">'+MOODS[mood2].e+'</div>':'')+
-        '<div class="cdevts">'+
-          (hasPro?'<div class="cdot pro"></div>':'')+
-          (hasPerso?'<div class="cdot perso"></div>':'')+
-        '</div>'+
-      '</div>';
+        (mood2!==undefined?'<div style="font-size:12px">'+MOODS[mood2].e+'</div>':'')+
+      '</div>'+chips+'</div>';
   }
-  calHtml+='</div></div>';
-  document.getElementById('cl').innerHTML=calHtml;
+  ch+='</div></div>';
+  document.getElementById('cl').innerHTML=ch;
+  document.getElementById('cr').innerHTML='';
 
-  /* — DROITE : budget mensuel + projets — */
-  var monthSpent=0;
-  for(var d3=1;d3<=daysInMonth;d3++){
-    var ds3=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d3).padStart(2,'0');
-    monthSpent+=Object.values(S.budget.spending[ds3]||{}).reduce(function(a,v){return a+(v.amount||0);},0);
-  }
-  var mLimit=S.budget.monthlyLimit||600;
-  var mPct=Math.min(100,Math.round(monthSpent/mLimit*100));
-  var mColor=mPct>=100?'#ef4444':mPct>=80?'#f97316':'var(--vert)';
+  /* BUDGET + PROJETS + POST-ITS dans #cp */
+  var cf=S.budget.chargesFixe||[];
+  var deps=(S.budget.depenses||{})[mKey]||[];
+  var cfTotal=cf.reduce(function(a,c){return a+(c.amount||0);},0);
+  var depTotal=deps.reduce(function(a,d){return a+(d.amount||0);},0);
+  var grand=cfTotal+depTotal;
+  var mLim=S.budget.monthlyLimit||1500;
+  var mPct=Math.min(100,Math.round(grand/mLim*100));
+  var mCol=mPct>=100?'#ef4444':mPct>=80?'#f97316':'var(--vert)';
+
+  var cfHtml=cf.map(function(c){
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #fff0f3">'+
+      '<span style="font-family:Caveat,cursive;font-size:17px">'+esc(c.label)+'</span>'+
+      '<div style="display:flex;gap:8px;align-items:center">'+
+        '<span style="font-weight:700;color:var(--cerise)">'+Number(c.amount).toFixed(2)+' €</span>'+
+        '<button class="btn-xs" style="color:#ef4444" onclick="delChargeFixe(\''+c.id+'\')">✕</button>'+
+      '</div></div>';
+  }).join('')||'<div class="empty" style="font-size:12px">Aucune charge fixe</div>';
+
+  var depHtml=deps.map(function(d){
+    var bg=d.type==='achat'?'#fce7f3':'#dbeafe';
+    var tc=d.type==='achat'?'#be123c':'#1d4ed8';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #fff0f3">'+
+      '<div style="display:flex;align-items:center;gap:6px">'+
+        '<span style="font-size:9px;background:'+bg+';color:'+tc+';border-radius:99px;padding:2px 7px;font-weight:800;white-space:nowrap">'+(d.type==='achat'?'Achat':'Variable')+'</span>'+
+        '<span style="font-family:Caveat,cursive;font-size:17px">'+esc(d.label)+'</span>'+
+      '</div>'+
+      '<div style="display:flex;gap:8px;align-items:center">'+
+        '<span style="font-weight:700">'+Number(d.amount).toFixed(2)+' €</span>'+
+        '<button class="btn-xs" style="color:#ef4444" onclick="delDepense(\''+mKey+'\',\''+d.id+'\')">✕</button>'+
+      '</div></div>';
+  }).join('')||'<div class="empty" style="font-size:12px">Aucune dépense</div>';
 
   var projHtml=S.projects.length
     ? S.projects.map(function(p){
@@ -698,56 +702,108 @@ function renderCal(){
           '<div style="display:flex;gap:5px;margin-top:7px">'+
             '<input class="iline" id="pt-'+p.id+'" placeholder="Sous-tâche…" style="font-size:14px;flex:1" onkeydown="if(event.key===\'Enter\')addProjTask(\''+p.id+'\')">'+
             '<button class="btn-xs" onclick="addProjTask(\''+p.id+'\')">+</button>'+
-          '</div>'+
-        '</div>';
+          '</div></div>';
       }).join('')
     : '<div class="empty">Pas encore de projets 🚀</div>';
 
-  document.getElementById('cr').innerHTML=
-    '<div class="card" style="margin-bottom:14px">'+
-      '<div class="t-case" style="font-size:12px;margin-bottom:10px">💰 Budget mensuel</div>'+
-      '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">'+
-        '<div style="font-family:Caveat,cursive;font-size:26px;color:'+mColor+'">'+monthSpent.toFixed(2)+' €</div>'+
-        '<div style="font-size:12px;color:#aaa">/ '+mLimit+' €</div>'+
-      '</div>'+
-      '<div class="pbar"><div class="pfill" style="width:'+mPct+'%;background:'+mColor+'"></div></div>'+
-      '<div class="sep"></div>'+
-      '<div style="display:flex;gap:10px">'+
-        '<div style="flex:1">'+
-          '<div style="color:#aaa;font-size:10px;margin-bottom:3px">Limite mensuelle (€)</div>'+
-          '<input class="iline" type="number" value="'+mLimit+'" style="font-size:15px" onchange="S.budget.monthlyLimit=Math.max(1,parseFloat(this.value)||600);save();renderCal()">'+
+  document.getElementById('cp').innerHTML=
+    /* budget */
+    '<div class="card" style="grid-column:1/-1;margin-bottom:0">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px">'+
+        '<div class="t-case" style="font-size:14px">💰 Budget '+esc(MOIS[m])+' '+y+'</div>'+
+        '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#aaa">'+
+          'Limite : <input type="number" value="'+mLim+'" style="width:70px;border:none;border-bottom:2px solid #fca5a5;font-size:14px;font-weight:700;color:var(--cerise);background:transparent;outline:none;text-align:right" onchange="S.budget.monthlyLimit=Math.max(1,parseFloat(this.value)||1500);save();renderCal()"> €'+
         '</div>'+
-        '<div style="flex:1">'+
-          '<div style="color:#aaa;font-size:10px;margin-bottom:3px">Limite quotidienne (€)</div>'+
-          '<input class="iline" type="number" value="'+S.budget.dailyLimit+'" style="font-size:15px" onchange="S.budget.dailyLimit=Math.max(1,parseFloat(this.value)||25);save()">'+
+      '</div>'+
+      '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">'+
+        '<div style="flex:1;min-width:130px;background:#fff5f8;border-radius:12px;padding:10px;text-align:center">'+
+          '<div style="font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:.08em">Charges fixes</div>'+
+          '<div style="font-family:Caveat,cursive;font-size:26px;color:var(--cerise)">'+cfTotal.toFixed(0)+' €</div>'+
+        '</div>'+
+        '<div style="flex:1;min-width:130px;background:#f0fdf4;border-radius:12px;padding:10px;text-align:center">'+
+          '<div style="font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:.08em">Dépenses</div>'+
+          '<div style="font-family:Caveat,cursive;font-size:26px;color:var(--vert)">'+depTotal.toFixed(0)+' €</div>'+
+        '</div>'+
+        '<div style="flex:1;min-width:130px;background:#fff;border:2px solid '+mCol+';border-radius:12px;padding:10px;text-align:center">'+
+          '<div style="font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:.08em">Total / Limite</div>'+
+          '<div style="font-family:Caveat,cursive;font-size:22px;color:'+mCol+'">'+grand.toFixed(0)+' / '+mLim+' €</div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="pbar" style="margin-bottom:18px"><div class="pfill" style="width:'+mPct+'%;background:'+mCol+'"></div></div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">'+
+        '<div>'+
+          '<div style="font-size:11px;font-weight:800;color:#9d174d;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">🔒 Charges fixes mensuelles</div>'+
+          cfHtml+
+          '<div style="display:flex;gap:6px;margin-top:10px;align-items:flex-end">'+
+            '<input class="iline" id="cfLabel" placeholder="Loyer, abonnement…" style="flex:1;font-size:14px">'+
+            '<input class="iline" id="cfAmt" type="number" min="0" step="0.01" placeholder="€" style="width:60px;font-size:14px">'+
+            '<button class="btn btn-xs" onclick="addChargeFixe()">+</button>'+
+          '</div>'+
+        '</div>'+
+        '<div>'+
+          '<div style="font-size:11px;font-weight:800;color:#1d4ed8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">📝 Dépenses & achats du mois</div>'+
+          depHtml+
+          '<div style="display:flex;gap:4px;margin-top:10px;flex-wrap:wrap;align-items:flex-end">'+
+            '<input class="iline" id="depLabel" placeholder="Libellé…" style="flex:1;min-width:100px;font-size:14px">'+
+            '<input class="iline" id="depAmt" type="number" min="0" step="0.01" placeholder="€" style="width:55px;font-size:14px">'+
+            '<select id="depType" style="border:none;border-bottom:2px solid #fca5a5;outline:none;background:transparent;font-size:13px;padding:4px 0">'+
+              '<option value="variable">Variable</option><option value="achat">Achat</option>'+
+            '</select>'+
+            '<button class="btn btn-xs" onclick="addDepense(\''+mKey+'\')">+</button>'+
+          '</div>'+
         '</div>'+
       '</div>'+
     '</div>'+
+    /* projets */
     '<div class="card">'+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
         '<div class="t-case" style="font-size:12px">🚀 Boost Projets</div>'+
         '<button class="btn-xs" onclick="addProject()">+ Projet</button>'+
-      '</div>'+
-      projHtml+
-    '</div>';
-
-  /* — POST-ITS — */
-  document.getElementById('cp').innerHTML=
+      '</div>'+projHtml+
+    '</div>'+
+    /* post-its */
     '<div class="post-it">'+
       '<div style="font-size:11px;font-weight:800;color:#b45309;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">📋 Todo du mois</div>'+
-      '<textarea class="hand" id="monthlytodo" rows="9" placeholder="Liste des choses à faire ce mois-ci…" '+
+      '<textarea class="hand" rows="8" placeholder="Liste des choses à faire ce mois-ci…" '+
         'style="width:100%;border:none;background:transparent;outline:none;resize:none;font-size:18px;color:var(--texte);line-height:1.5" '+
         'oninput="S.monthlyTodo=this.value;save()">'+esc(S.monthlyTodo)+'</textarea>'+
     '</div>'+
     '<div class="post-rose">'+
       '<div style="font-size:11px;font-weight:800;color:#9d174d;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">💭 Notes du mois</div>'+
-      '<textarea class="hand" id="monthlynotes" rows="9" placeholder="Réflexions, idées, pensées du mois…" '+
+      '<textarea class="hand" rows="8" placeholder="Réflexions, idées, pensées du mois…" '+
         'style="width:100%;border:none;background:transparent;outline:none;resize:none;font-size:18px;color:var(--texte);line-height:1.5" '+
         'oninput="S.monthlyNotes=this.value;save()">'+esc(S.monthlyNotes)+'</textarea>'+
     '</div>';
 }
 
 /* ══ HELPERS ══ */
+function addChargeFixe(){
+  var label=(document.getElementById('cfLabel')||{value:''}).value.trim();
+  var amt=parseFloat((document.getElementById('cfAmt')||{value:''}).value);
+  if(!label||isNaN(amt)||amt<=0) return;
+  if(!S.budget.chargesFixe) S.budget.chargesFixe=[];
+  S.budget.chargesFixe.push({id:uid(),label:label,amount:amt});
+  save();renderCal();
+}
+function delChargeFixe(id){
+  S.budget.chargesFixe=(S.budget.chargesFixe||[]).filter(function(c){return c.id!==id;});
+  save();renderCal();
+}
+function addDepense(mKey){
+  var label=(document.getElementById('depLabel')||{value:''}).value.trim();
+  var amt=parseFloat((document.getElementById('depAmt')||{value:''}).value);
+  var type=(document.getElementById('depType')||{value:'variable'}).value;
+  if(!label||isNaN(amt)||amt<=0) return;
+  if(!S.budget.depenses) S.budget.depenses={};
+  if(!S.budget.depenses[mKey]) S.budget.depenses[mKey]=[];
+  S.budget.depenses[mKey].push({id:uid(),label:label,amount:amt,type:type});
+  save();renderCal();
+}
+function delDepense(mKey,id){
+  if(S.budget.depenses&&S.budget.depenses[mKey])
+    S.budget.depenses[mKey]=(S.budget.depenses[mKey]).filter(function(d){return d.id!==id;});
+  save();renderCal();
+}
 function navMonth(dir){
   calM+=dir;
   if(calM>11){calM=0;calY++;}
@@ -929,7 +985,6 @@ function delProjTask(projId,taskId){
 try{
   load();
   renderJ();
-  document.getElementById('load-test').style.display='none';
 }catch(err){
   document.getElementById('jh').innerHTML=
     '<div style="background:#fee2e2;border:2px solid #ef4444;border-radius:16px;padding:20px;font-family:monospace;color:#b91c1c">'+
