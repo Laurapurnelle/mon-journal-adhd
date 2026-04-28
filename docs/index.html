@@ -2,10 +2,14 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Mon Journal Cerise 🍒</title>
-  <meta name="description" content="Journal de bord digital : tâches, humeur, habitudes, budget et agenda.">
+  <meta name="description" content="Journal de bord digital ADHD-friendly : agenda, habitudes, budget, humeur et brain dump — tout en un.">
   <meta name="theme-color" content="#D2143A">
+  <meta name="robots" content="noindex">
+  <meta property="og:title" content="Mon Journal Cerise 🍒">
+  <meta property="og:description" content="Journal de bord digital : agenda, habitudes, budget et humeur.">
+  <meta property="og:type" content="website">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Quicksand:wght@400;500;700&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
@@ -250,6 +254,58 @@ body {
 .sep  { height:1px; background:#fff0f3; margin:8px 0; }
 .empty{ text-align:center; padding:16px; font-size:12px; color:#ccc; font-style:italic; }
 
+/* ── HOME PAGE ── */
+.home-grid {
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+  padding:14px;
+  max-width:900px;
+  margin:0 auto;
+}
+@media(min-width:640px){ .home-grid { grid-template-columns:repeat(3,1fr); gap:18px; padding:18px; } }
+
+.app-card {
+  background:white;
+  border-radius:24px;
+  padding:20px 18px;
+  cursor:pointer;
+  border:3px solid transparent;
+  box-shadow:6px 6px 0 rgba(255,133,161,.18);
+  transition:transform .2s, box-shadow .2s;
+  text-align:left;
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  width:100%;
+}
+.app-card:hover { transform:translateY(-4px); box-shadow:8px 14px 0 rgba(255,133,161,.22); }
+.app-card:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
+.ac-icon { font-size:32px; line-height:1; }
+.ac-title { font-family:'Shrikhand',cursive; color:var(--cerise); font-size:15px; text-transform:uppercase; letter-spacing:.08em; }
+.ac-stat { font-family:'Caveat',cursive; font-size:20px; color:var(--texte); }
+.ac-sub { font-size:12px; color:#767676; }
+
+/* ── NAV LABEL (caché sur très petit écran) ── */
+.nlbl { display:none; }
+@media(min-width:400px){ .nlbl { display:inline; } }
+
+/* ── RESPONSIVE FIXES ── */
+@media(max-width:480px){
+  .jgrid { grid-template-columns:1fr !important; }
+  .card { padding:14px; border-radius:20px; }
+  .pitrow { grid-template-columns:1fr !important; }
+  .cgrd { grid-template-columns:repeat(7,1fr); gap:2px; }
+  .cday { min-height:52px; padding:2px; }
+  .cdnum { font-size:9px; }
+}
+
+/* ── ACCESSIBILITÉ ── */
+:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; border-radius:4px; }
+button:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
+/* contraste renforcé sur les textes secondaires */
+.ac-sub, .empty { color:#666; }
+
 /* ── ANIMATIONS ── */
 @keyframes float {
   0%,100% { transform:rotate(-1.5deg) translateY(0); }
@@ -260,13 +316,21 @@ body {
 <body>
 
 <!-- ═══ NAVIGATION ═══ -->
-<nav id="nav">
-  <button class="nbtn on" id="btn-j" onclick="goPage('journal')">📓 Journal</button>
-  <button class="nbtn"    id="btn-c" onclick="goPage('calendar')">📅 Mensuel</button>
+<nav id="nav" role="navigation" aria-label="Navigation principale">
+  <button class="nbtn on" id="btn-h" onclick="goPage('home')" aria-label="Accueil">🏠 <span class="nlbl">Accueil</span></button>
+  <div style="width:1px;background:#f0dde4;height:22px;margin:0 2px"></div>
+  <button class="nbtn" id="btn-j" onclick="goPage('journal')" aria-label="Journal du jour">📓 <span class="nlbl">Journal</span></button>
+  <button class="nbtn" id="btn-c" onclick="goPage('calendar')" aria-label="Calendrier mensuel">📅 <span class="nlbl">Mensuel</span></button>
 </nav>
 
+<!-- ═══ ACCUEIL ═══ -->
+<div class="page on" id="page-home" role="main">
+  <header id="hh"></header>
+  <div id="hgrid" class="home-grid"></div>
+</div>
+
 <!-- ═══ JOURNAL ═══ -->
-<div class="page on" id="page-journal">
+<div class="page" id="page-journal" role="main">
   <div id="jh" style="margin-bottom:18px"></div>
   <div class="jgrid">
     <div class="col" id="jc1"></div>
@@ -319,7 +383,7 @@ const DEF = {
 };
 
 let S = JSON.parse(JSON.stringify(DEF));
-let curPage = 'journal';
+let curPage = 'home';
 let calY = new Date().getFullYear();
 let calM = new Date().getMonth();
 let pIdx = 0;
@@ -359,20 +423,26 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 /* ── Page switch ── */
 function goPage(p){
   curPage=p;
-  document.getElementById('page-journal').className=p==='journal'?'page on':'page';
-  document.getElementById('page-calendar').className=p==='calendar'?'page on':'page';
-  document.getElementById('btn-j').className=p==='journal'?'nbtn on':'nbtn';
-  document.getElementById('btn-c').className=p==='calendar'?'nbtn on':'nbtn';
+  ['home','journal','calendar'].forEach(function(id){
+    var el=document.getElementById('page-'+id);
+    if(el) el.className=p===id?'page on':'page';
+  });
+  [['h','home'],['j','journal'],['c','calendar']].forEach(function(pair){
+    var el=document.getElementById('btn-'+pair[0]);
+    if(el) el.className=p===pair[1]?'nbtn on':'nbtn';
+  });
+  if(p==='home')     renderHome();
+  if(p==='journal')  renderJ();
   if(p==='calendar') renderCal();
 }
 
 /* ── Horloge ── */
 function tickClock(){
-  const now=new Date();
-  const t=document.getElementById('clk');
-  const s=document.getElementById('clks');
-  if(t) t.textContent=now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-  if(s) s.textContent=':'+String(now.getSeconds()).padStart(2,'0');
+  var now=new Date();
+  var time=now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  var secs=':'+String(now.getSeconds()).padStart(2,'0');
+  ['clk','hclk'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=time;});
+  ['clks','hclks'].forEach(function(id){var e=document.getElementById(id);if(e)e.textContent=secs;});
 }
 setInterval(tickClock,1000);
 
@@ -776,6 +846,107 @@ function renderCal(){
     '</div>';
 }
 
+/* ══════════════════════════════════════════════
+   ACCUEIL
+══════════════════════════════════════════════ */
+function renderHome(){
+  var today=td(), now=new Date();
+  var jours=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  var logs=S.habitLogs[today]||{};
+  var habDone=S.habits.filter(function(h){return logs[h.id];}).length;
+  var pct=S.habits.length?Math.round(habDone/S.habits.length*100):0;
+  var pctCol=pct>=80?'#16a34a':pct>=50?'#d97706':'var(--cerise)';
+  var mood=(S.daysData[today]||{}).mood;
+  var todayEvts=S.events.filter(function(e){return e.date===today;});
+  var nextEvt=S.events.filter(function(e){return e.date>=today;})
+    .sort(function(a,b){return a.date.localeCompare(b.date)||a.time.localeCompare(b.time);})[0];
+  var mKey=today.slice(0,7);
+  var cf=S.budget.chargesFixe||[];
+  var deps=(S.budget.depenses||{})[mKey]||[];
+  var budTotal=cf.reduce(function(a,c){return a+(c.amount||0);},0)+deps.reduce(function(a,d){return a+(d.amount||0);},0);
+  var mLim=S.budget.monthlyLimit||1500;
+  var bPct=Math.min(100,Math.round(budTotal/mLim*100));
+  var bCol=bPct>=100?'#dc2626':bPct>=80?'#d97706':'#16a34a';
+
+  document.getElementById('hh').innerHTML=
+    '<div style="text-align:center;padding:28px 16px 8px">'+
+      '<h1 class="t-big" style="font-size:clamp(26px,6vw,48px)">Mon Journal 🍒</h1>'+
+      '<p style="font-size:13px;color:#555;margin-top:4px">'+
+        esc(jours[now.getDay()])+' '+now.getDate()+' '+esc(MOIS[now.getMonth()])+' '+now.getFullYear()+
+      '</p>'+
+      '<div style="font-family:Shrikhand,cursive;font-size:clamp(26px,5vw,42px);color:var(--cerise);line-height:1.2;margin-top:4px">'+
+        '<span id="hclk"></span><span id="hclks" style="font-size:.5em;opacity:.5;vertical-align:middle"></span>'+
+      '</div>'+
+    '</div>'+
+    '<div class="post-it" style="max-width:560px;margin:10px auto 4px;font-size:16px;transform:rotate(-.3deg)">'+
+      '<span style="font-size:9px;font-weight:800;color:#92400e;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:3px">✨ Citation du moment</span>'+
+      '<span class="hand">'+esc(S.quote)+'</span>'+
+    '</div>';
+  tickClock();
+
+  document.getElementById('hgrid').innerHTML=
+    '<button class="app-card" onclick="goPage(\'journal\')" aria-label="Ouvrir le journal">'+
+      '<div class="ac-icon">📓</div>'+
+      '<div class="ac-title">Journal</div>'+
+      '<div class="ac-stat">'+(mood!==undefined?MOODS[mood].e+' '+esc(MOODS[mood].l):'Humeur à définir')+'</div>'+
+      '<div class="ac-sub">'+habDone+'/'+S.habits.length+' habitudes</div>'+
+      '<div class="pbar" style="margin-top:2px"><div class="pfill" style="width:'+pct+'%;background:'+pctCol+'"></div></div>'+
+    '</button>'+
+    '<button class="app-card" onclick="goPage(\'calendar\')" aria-label="Ouvrir le calendrier">'+
+      '<div class="ac-icon">📅</div>'+
+      '<div class="ac-title">Calendrier</div>'+
+      '<div class="ac-stat">'+esc(MOIS[now.getMonth()])+'</div>'+
+      '<div class="ac-sub">'+(todayEvts.length?todayEvts.length+' événement'+(todayEvts.length>1?'s':'')+' auj.':'Journée libre 🌸')+
+        (nextEvt&&nextEvt.date>today?' · Prochain : '+esc(nextEvt.date.slice(5).replace('-','/'))+' '+esc(nextEvt.time):'')+'</div>'+
+    '</button>'+
+    '<button class="app-card" onclick="goPage(\'calendar\')" aria-label="Voir le budget">'+
+      '<div class="ac-icon">💰</div>'+
+      '<div class="ac-title">Budget</div>'+
+      '<div class="ac-stat" style="color:'+bCol+'">'+budTotal.toFixed(0)+' / '+mLim+' €</div>'+
+      '<div class="pbar" style="margin-top:2px"><div class="pfill" style="width:'+bPct+'%;background:'+bCol+'"></div></div>'+
+    '</button>'+
+    '<button class="app-card" style="cursor:default" aria-label="Météo">'+
+      '<div class="ac-icon" id="w-icon">🌤️</div>'+
+      '<div class="ac-title">Météo</div>'+
+      '<div class="ac-stat" id="w-temp">—</div>'+
+      '<div class="ac-sub" id="w-desc">Localisation…</div>'+
+    '</button>';
+
+  initWeather();
+}
+
+/* ── Météo (Open-Meteo, sans clé API) ── */
+function wCode(c){
+  if(c===0)  return {e:'☀️',t:'Ensoleillé'};
+  if(c<=3)   return {e:'⛅',t:'Nuageux'};
+  if(c<=48)  return {e:'🌫️',t:'Brumeux'};
+  if(c<=55)  return {e:'🌦️',t:'Bruine'};
+  if(c<=65)  return {e:'🌧️',t:'Pluie'};
+  if(c<=75)  return {e:'❄️',t:'Neige'};
+  if(c<=82)  return {e:'🌦️',t:'Averses'};
+  return {e:'⛈️',t:'Orage'};
+}
+function applyWeather(lat,lon){
+  fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,weather_code&timezone=auto')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      var w=wCode(d.current.weather_code);
+      var i=document.getElementById('w-icon'),t=document.getElementById('w-temp'),s=document.getElementById('w-desc');
+      if(i) i.textContent=w.e;
+      if(t) t.textContent=Math.round(d.current.temperature_2m)+'°C';
+      if(s) s.textContent=w.t;
+    })
+    .catch(function(){var s=document.getElementById('w-desc');if(s) s.textContent='Indisponible';});
+}
+function initWeather(){
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      function(p){applyWeather(p.coords.latitude,p.coords.longitude);},
+      function(){applyWeather(48.8566,2.3522);}
+    );
+  } else { applyWeather(48.8566,2.3522); }
+}
+
 /* ══ HELPERS ══ */
 function addChargeFixe(){
   var label=(document.getElementById('cfLabel')||{value:''}).value.trim();
@@ -984,7 +1155,7 @@ function delProjTask(projId,taskId){
 
 try{
   load();
-  renderJ();
+  renderHome();
 }catch(err){
   document.getElementById('jh').innerHTML=
     '<div style="background:#fee2e2;border:2px solid #ef4444;border-radius:16px;padding:20px;font-family:monospace;color:#b91c1c">'+
