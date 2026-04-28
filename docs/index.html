@@ -259,6 +259,12 @@ body {
 </head>
 <body>
 
+<!-- TEST DE CHARGEMENT -->
+<div id="load-test" style="position:fixed;top:0;left:0;right:0;background:#D2143A;color:white;text-align:center;padding:12px;font-family:sans-serif;font-size:16px;font-weight:bold;z-index:9999">
+  ✅ Page chargée — JavaScript en cours…
+</div>
+<script>document.getElementById('load-test').textContent='✅ JavaScript OK — Chargement du journal…';</script>
+
 <!-- ═══ NAVIGATION ═══ -->
 <nav id="nav">
   <button class="nbtn on" id="btn-j" onclick="goPage('journal')">📓 Journal</button>
@@ -923,6 +929,7 @@ function delProjTask(projId,taskId){
 try{
   load();
   renderJ();
+  document.getElementById('load-test').style.display='none';
 }catch(err){
   document.getElementById('jh').innerHTML=
     '<div style="background:#fee2e2;border:2px solid #ef4444;border-radius:16px;padding:20px;font-family:monospace;color:#b91c1c">'+
