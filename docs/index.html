@@ -454,6 +454,58 @@ const SPECIAL_DAYS = {
   '12-25':'🎄','12-31':'🥂'
 };
 
+/* Thèmes saisonniers — photo Unsplash + palette couleur par mois */
+const MONTH_THEMES = [
+  /* Jan */ {s:'❄️ Hiver · Janvier',
+    p:'https://images.unsplash.com/photo-1491002052546-bf38f186af56?w=1400&q=75',
+    g:'linear-gradient(160deg,rgba(10,30,70,.78) 0%,rgba(29,78,216,.55) 60%,rgba(96,165,250,.3) 100%)',
+    c:'rgba(239,246,255,.85)',bd:'#bfdbfe',t:'#1d4ed8',tx:'white',grid:'rgba(219,234,254,.18)'},
+  /* Fév */ {s:'🌹 Hiver doux · Février',
+    p:'https://images.unsplash.com/photo-1516912481808-3406841bd33c?w=1400&q=75',
+    g:'linear-gradient(160deg,rgba(76,29,149,.72) 0%,rgba(190,24,93,.52) 60%,rgba(249,168,212,.25) 100%)',
+    c:'rgba(253,242,248,.85)',bd:'#fbcfe8',t:'#be185d',tx:'white',grid:'rgba(251,207,232,.15)'},
+  /* Mar */ {s:'🌸 Printemps · Mars',
+    p:'https://images.unsplash.com/photo-1490750967868-88df5691cc6c?w=1400&q=75',
+    g:'linear-gradient(160deg,rgba(20,83,45,.7) 0%,rgba(21,128,61,.48) 60%,rgba(134,239,172,.22) 100%)',
+    c:'rgba(240,253,244,.85)',bd:'#bbf7d0',t:'#15803d',tx:'white',grid:'rgba(187,247,208,.12)'},
+  /* Avr */ {s:'🌷 Printemps · Avril',
+    p:'https://images.unsplash.com/photo-1462275646964-a0e3386b89fa?w=1400&q=75',
+    g:'linear-gradient(160deg,rgba(112,26,117,.68) 0%,rgba(192,38,211,.46) 60%,rgba(240,171,252,.22) 100%)',
+    c:'rgba(253,244,255,.85)',bd:'#e9d5ff',t:'#9333ea',tx:'white',grid:'rgba(233,213,255,.12)'},
+  /* Mai */ {s:'🌿 Printemps · Mai',
+    p:'https://images.unsplash.com/photo-1455099318735-2be35e0b7dad?w=1400&q=75',
+    g:'linear-gradient(160deg,rgba(6,78,59,.72) 0%,rgba(5,150,105,.5) 60%,rgba(110,231,183,.22) 100%)',
+    c:'rgba(236,253,245,.85)',bd:'#a7f3d0',t:'#059669',tx:'white',grid:'rgba(167,243,208,.12)'},
+  /* Jun */ {s:'☀️ Été · Juin',
+    p:'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1400&q=75',
+    g:'linear-gradient(160deg,rgba(120,53,15,.7) 0%,rgba(245,158,11,.48) 60%,rgba(253,230,138,.22) 100%)',
+    c:'rgba(255,251,235,.85)',bd:'#fde68a',t:'#d97706',tx:'white',grid:'rgba(253,230,138,.12)'},
+  /* Jul */ {s:'🏖️ Été · Juillet',
+    p:'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1400&q=75',
+    g:'linear-gradient(160deg,rgba(124,45,18,.7) 0%,rgba(234,88,12,.48) 60%,rgba(254,215,170,.22) 100%)',
+    c:'rgba(255,247,237,.85)',bd:'#fed7aa',t:'#ea580c',tx:'white',grid:'rgba(254,215,170,.12)'},
+  /* Aoû */ {s:'🌻 Été · Août',
+    p:'https://images.unsplash.com/photo-1518133910546-b6c2fb7d79e3?w=1400&q=75',
+    g:'linear-gradient(160deg,rgba(113,63,18,.72) 0%,rgba(202,138,4,.5) 60%,rgba(254,240,138,.22) 100%)',
+    c:'rgba(254,252,232,.85)',bd:'#fef08a',t:'#ca8a04',tx:'white',grid:'rgba(254,240,138,.12)'},
+  /* Sep */ {s:'🍂 Automne · Septembre',
+    p:'https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=1400&q=75',
+    g:'linear-gradient(160deg,rgba(124,45,18,.74) 0%,rgba(194,65,12,.52) 60%,rgba(251,146,60,.22) 100%)',
+    c:'rgba(255,247,237,.85)',bd:'#fed7aa',t:'#c2410c',tx:'white',grid:'rgba(251,146,60,.12)'},
+  /* Oct */ {s:'🎃 Automne profond · Octobre',
+    p:'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?w=1400&q=75',
+    g:'linear-gradient(160deg,rgba(28,25,23,.82) 0%,rgba(120,53,15,.62) 60%,rgba(249,115,22,.28) 100%)',
+    c:'rgba(255,250,245,.85)',bd:'#f5a878',t:'#9a3412',tx:'white',grid:'rgba(249,115,22,.1)'},
+  /* Nov */ {s:'🕯️ Automne tardif · Novembre',
+    p:'https://images.unsplash.com/photo-1511797040766-52e40f16d9a6?w=1400&q=75',
+    g:'linear-gradient(160deg,rgba(28,25,23,.82) 0%,rgba(68,64,60,.65) 60%,rgba(168,162,158,.28) 100%)',
+    c:'rgba(250,250,249,.85)',bd:'#d6d3d1',t:'#57534e',tx:'white',grid:'rgba(214,211,209,.12)'},
+  /* Déc */ {s:'🎄 Noël · Décembre',
+    p:'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=1400&q=75',
+    g:'linear-gradient(160deg,rgba(20,83,45,.75) 0%,rgba(21,128,61,.45) 45%,rgba(220,38,38,.5) 80%,rgba(153,27,27,.65) 100%)',
+    c:'rgba(240,253,244,.85)',bd:'#bbf7d0',t:'#dc2626',tx:'white',grid:'rgba(187,247,208,.12)'},
+];
+
 const DEF = {
   tasks:[],
   habits:[{id:'h1',name:'Skin Care',icon:'✨'},{id:'h2',name:'Marche',icon:'🚶‍♀️'},{id:'h3',name:'Eau',icon:'💧'},{id:'h4',name:'Lecture',icon:'📖'}],
@@ -578,23 +630,41 @@ function renderJ(){
   const today=td(), now=new Date();
   const jours=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
 
-  /* — HEADER — */
+  /* — HEADER BANNIÈRE — */
+  var jtheme=MONTH_THEMES[now.getMonth()];
+  var logs0=S.habitLogs[today]||{};
+  var hDone0=S.habits.filter(function(h){return logs0[h.id];}).length;
+  var mood0=(S.daysData[today]||{}).mood;
   document.getElementById('jh').innerHTML=
-    '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px">'+
-      '<div>'+
-        '<div class="t-big" style="font-size:clamp(22px,5vw,40px)">'+esc(jours[now.getDay()])+'</div>'+
-        '<div style="font-size:13px;color:#aaa;font-weight:600">'+now.getDate()+' '+esc(MOIS[now.getMonth()])+' '+now.getFullYear()+'</div>'+
-      '</div>'+
-      '<div style="text-align:right">'+
-        '<div style="font-family:Shrikhand,cursive;font-size:clamp(30px,6vw,50px);color:var(--cerise);line-height:1">'+
-          '<span id="clk"></span><span id="clks" style="font-size:.5em;opacity:.6;vertical-align:middle"></span>'+
+    '<div style="position:relative;border-radius:26px;overflow:hidden;margin-bottom:20px;padding:clamp(20px,4vw,32px) clamp(20px,4vw,36px)">'+
+      '<img src="'+jtheme.p+'" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.45)" onerror="this.style.opacity=0">'+
+      '<div style="position:absolute;inset:0;background:'+jtheme.g+';opacity:.88"></div>'+
+      '<div style="position:relative;color:white;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">'+
+        '<div>'+
+          '<div style="font-size:10px;font-weight:800;letter-spacing:.28em;text-transform:uppercase;opacity:.65;margin-bottom:6px">📓 Journal du jour</div>'+
+          '<div style="font-family:Shrikhand,cursive;font-size:clamp(26px,5vw,46px);line-height:.95;text-shadow:0 2px 16px rgba(0,0,0,.25)">'+esc(jours[now.getDay()])+'</div>'+
+          '<div style="font-size:13px;opacity:.78;margin-top:5px;font-weight:600">'+now.getDate()+' '+esc(MOIS[now.getMonth()])+' '+now.getFullYear()+'</div>'+
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+
+            '<span style="background:rgba(255,255,255,.2);backdrop-filter:blur(6px);border-radius:99px;padding:4px 11px;font-size:11px;font-weight:800">'+
+              hDone0+'/'+S.habits.length+' habitudes ✓'+
+            '</span>'+
+            (mood0!==undefined?
+              '<span style="background:rgba(255,255,255,.2);backdrop-filter:blur(6px);border-radius:99px;padding:4px 11px;font-size:11px;font-weight:800">'+
+                MOODS[mood0].e+' '+esc(MOODS[mood0].l)+
+              '</span>':'')+
+          '</div>'+
+        '</div>'+
+        '<div style="text-align:right">'+
+          '<div style="font-family:Shrikhand,cursive;font-size:clamp(32px,5.5vw,52px);line-height:1;text-shadow:0 2px 14px rgba(0,0,0,.2)">'+
+            '<span id="clk"></span><span id="clks" style="font-size:.5em;opacity:.6;vertical-align:middle"></span>'+
+          '</div>'+
         '</div>'+
       '</div>'+
     '</div>'+
-    '<div class="post-it" style="font-size:17px">'+
-      '<span style="font-size:10px;font-weight:800;color:#b45309;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:4px">✨ Citation du moment</span>'+
-      '<span class="hand">'+esc(S.quote)+'</span>'+
-      '<button class="btn-xs" style="margin-top:8px" onclick="editQuote()">Modifier</button>'+
+    '<div class="post-it" style="font-size:17px;margin-bottom:14px">'+
+      '<span style="font-size:9px;font-weight:800;color:#92400e;text-transform:uppercase;letter-spacing:.14em;display:block;margin-bottom:4px">✨ Citation du moment</span>'+
+      '<span class="hand" style="font-size:18px;color:#5a3e28">'+esc(S.quote)+'</span>'+
+      '<button class="btn-xs" style="margin-top:8px;display:block" onclick="editQuote()">Modifier</button>'+
     '</div>';
   tickClock();
 
@@ -752,54 +822,76 @@ function renderCal(){
   }
   var rate=totalPast?Math.round(doneCount/totalPast*100):0;
 
-  /* HEADER */
+  /* HEADER SAISONNIER */
+  var th=MONTH_THEMES[m];
+  var glBtn='background:rgba(255,255,255,.22);backdrop-filter:blur(10px);border:1.5px solid rgba(255,255,255,.38);border-radius:99px;padding:9px 16px;color:white;font-family:Quicksand,sans-serif;font-weight:800;font-size:12px;letter-spacing:.06em;cursor:pointer;transition:all .18s';
   document.getElementById('ch').innerHTML=
-    '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">'+
-      '<div>'+
-        '<div class="t-big" style="font-size:clamp(22px,4vw,36px)">'+esc(MOIS[m])+' '+y+'</div>'+
-        '<div style="font-size:12px;color:#aaa;margin-top:2px">'+
-          doneCount+' jour'+(doneCount>1?'s':'')+' parfait'+(doneCount>1?'s':'')+
-          ' · Taux : <strong style="color:'+(rate>=70?'var(--vert)':'var(--cerise)')+'">'+rate+'%</strong>'+
+    '<div style="position:relative;border-radius:28px;overflow:hidden;margin-bottom:24px;min-height:clamp(180px,22vw,260px)">'+
+      '<img src="'+th.p+'" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .4s" '+
+        'onerror="this.style.opacity=0">'+
+      '<div style="position:absolute;inset:0;background:'+th.g+'"></div>'+
+      '<div style="position:absolute;inset:0;display:flex;justify-content:space-between;align-items:flex-end;padding:clamp(18px,3vw,32px)">'+
+        '<div style="color:white">'+
+          '<div style="font-size:10px;font-weight:800;letter-spacing:.28em;text-transform:uppercase;opacity:.72;margin-bottom:8px">'+esc(th.s)+'</div>'+
+          '<div style="font-family:Shrikhand,cursive;font-size:clamp(30px,5vw,56px);line-height:.9;text-shadow:0 3px 20px rgba(0,0,0,.3)">'+esc(MOIS[m])+' '+y+'</div>'+
+          '<div style="margin-top:10px;font-size:12px;opacity:.72;font-weight:600">'+
+            doneCount+' jour'+(doneCount>1?'s':'')+' parfait'+(doneCount>1?'s':'')+
+            ' &nbsp;·&nbsp; <strong>'+rate+'%</strong> de réussite'+
+          '</div>'+
         '</div>'+
-      '</div>'+
-      '<div style="display:flex;gap:8px">'+
-        '<button class="btn" onclick="navMonth(-1)">◀</button>'+
-        '<button class="btn" style="background:#fff0f3;color:var(--cerise);box-shadow:none" onclick="calY=new Date().getFullYear();calM=new Date().getMonth();renderCal()">Auj.</button>'+
-        '<button class="btn" onclick="navMonth(1)">▶</button>'+
+        '<div style="display:flex;gap:8px;align-self:flex-start;margin-top:clamp(10px,2vw,20px)">'+
+          '<button onclick="navMonth(-1)" style="'+glBtn+'">◀</button>'+
+          '<button onclick="calY=new Date().getFullYear();calM=new Date().getMonth();renderCal()" style="'+glBtn+'">Auj.</button>'+
+          '<button onclick="navMonth(1)" style="'+glBtn+'">▶</button>'+
+        '</div>'+
       '</div>'+
     '</div>';
 
-  /* GRILLE PLEINE LARGEUR */
+  /* GRILLE SAISONNIÈRE */
   var lbls=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
-  var ch='<div class="card" style="padding:14px">'+
-    '<div class="chead">'+lbls.map(function(l){return '<div class="clbl">'+l+'</div>';}).join('')+'</div>'+
+  var evBgPro=isT?'rgba(219,234,254,.9)':'#dbeafe';
+  var ch='<div class="card" style="padding:14px 10px;background:rgba(255,255,255,.82)">'+
+    '<div class="chead">'+
+      lbls.map(function(l,li){
+        var wkd=li>=5;
+        return '<div class="clbl" style="'+(wkd?'opacity:.5':'')+'">'+l+'</div>';
+      }).join('')+
+    '</div>'+
     '<div class="cgrd">';
   for(var i=0;i<offset;i++) ch+='<div class="cday empty"></div>';
   for(var d2=1;d2<=daysInMonth;d2++){
     var ds2=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d2).padStart(2,'0');
     var isT=ds2===today;
     var mood2=(S.daysData[ds2]||{}).mood;
+    var ha2=(S.daysData[ds2]||{}).headache;
+    var dow2=(new Date(y,m,d2).getDay()+6)%7; /* 0=Lun…6=Dim */
+    var isWkd=dow2>=5;
     var evts=S.events.filter(function(e){return e.date===ds2;}).sort(function(a,b){return a.time.localeCompare(b.time);});
     var chips='';
     for(var ei=0;ei<Math.min(evts.length,3);ei++){
       var ev=evts[ei];
-      var bg=ev.type==='pro'?'#dbeafe':'#fce7f3';
-      var tc=ev.type==='pro'?'#1d4ed8':'#be123c';
-      chips+='<div style="font-size:9px;background:'+bg+';color:'+tc+';border-radius:3px;padding:1px 4px;margin-top:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+
+      var ebg=ev.type==='pro'?(isT?'rgba(219,234,254,.9)':'#dbeafe'):(isT?'rgba(252,231,243,.9)':'#fce7f3');
+      var etc=ev.type==='pro'?'#1d4ed8':'#be123c';
+      chips+='<div style="font-size:9px;background:'+ebg+';color:'+etc+';border-radius:3px;padding:1px 4px;margin-top:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+
         esc(ev.time)+' '+esc(ev.title)+'</div>';
     }
-    if(evts.length>3) chips+='<div style="font-size:8px;color:#aaa;margin-top:1px">+'+( evts.length-3)+' autres</div>';
+    if(evts.length>3) chips+='<div style="font-size:8px;opacity:.5;margin-top:1px">+'+( evts.length-3)+' autres</div>';
     var mmdd=String(m+1).padStart(2,'0')+'-'+String(d2).padStart(2,'0');
     var special=SPECIAL_DAYS[mmdd]||'';
-    ch+='<div class="cday'+(isT?' today':'')+'" onclick="openAddEvent(\''+ds2+'\')">'+
-      '<div style="display:flex;justify-content:space-between;align-items:flex-start">'+
-        '<div class="cdnum">'+d2+'</div>'+
-        '<div style="font-size:11px;line-height:1">'+
-          (special?'<span title="">'+special+'</span>':'')+
-          (mood2!==undefined?'<span style="margin-left:1px">'+MOODS[mood2].e+'</span>':'')+
+    var cellSt=isT
+      ? 'background:'+th.t+';border-color:'+th.t
+      : 'background:'+th.c+';border-color:'+th.bd+(isWkd?';opacity:.75':'');
+    var numSt='color:'+(isT?th.tx:'#bbb');
+    ch+='<div class="cday'+(isT?' today':'')+'" style="'+cellSt+'" onclick="openAddEvent(\''+ds2+'\')">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center">'+
+        '<div class="cdnum" style="'+numSt+'">'+d2+'</div>'+
+        '<div style="font-size:10px;line-height:1;display:flex;gap:1px">'+
+          (special?special:'')+
+          (mood2!==undefined?'<span>'+MOODS[mood2].e+'</span>':'')+
+          (ha2?'<span style="font-size:8px">🤕</span>':'')+
         '</div>'+
       '</div>'+
-      (chips||'')+
+      chips+
     '</div>';
   }
   ch+='</div></div>';
