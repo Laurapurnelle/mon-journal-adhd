@@ -61,18 +61,16 @@ body {
 
 /* ── CARDS ── */
 .card {
-  background: rgba(255,255,255,.78);
-  backdrop-filter: blur(22px) saturate(180%);
-  -webkit-backdrop-filter: blur(22px) saturate(180%);
-  border: 1.5px solid rgba(255,255,255,.92);
-  border-radius: 28px;
+  background: rgba(255,255,255,.58);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 20px;
   padding: 20px;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.95),
-    inset 0 -1px 0 rgba(210,20,58,.03),
-    0 4px 16px rgba(210,20,58,.08),
-    0 16px 48px rgba(180,120,160,.10),
-    0 32px 64px rgba(100,80,120,.06);
+    inset 0 1px 0 rgba(255,255,255,.7),
+    0 2px 12px rgba(0,0,0,.06),
+    0 8px 32px rgba(0,0,0,.05);
 }
 
 .polaroid {
@@ -425,13 +423,13 @@ button:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
 
 <!-- ═══ NAVIGATION ═══ -->
 <nav id="nav" role="navigation" aria-label="Navigation principale">
-  <button class="nbtn on" id="btn-h" onclick="goPage('home')" aria-label="Accueil">🏠 <span class="nlbl">Accueil</span></button>
-  <div style="width:1px;background:#f0dde4;height:22px;margin:0 2px"></div>
-  <button class="nbtn" id="btn-j" onclick="goPage('journal')" aria-label="Journal du jour">📓 <span class="nlbl">Journal</span></button>
-  <button class="nbtn" id="btn-w" onclick="goPage('week')" aria-label="Semaine">📆 <span class="nlbl">Semaine</span></button>
-  <button class="nbtn" id="btn-c" onclick="goPage('calendar')" aria-label="Calendrier mensuel">🗓️ <span class="nlbl">Mensuel</span></button>
-  <div style="width:1px;background:#f0dde4;height:22px;margin:0 2px"></div>
-  <button class="nbtn" id="btn-k" onclick="goPage('cuisine')" aria-label="Ma cuisine">🍽️ <span class="nlbl">Cuisine</span></button>
+  <button class="nbtn on" id="btn-h" onclick="goPage('home')" aria-label="Accueil">Accueil</button>
+  <div style="width:1px;background:rgba(210,20,58,.12);height:18px;margin:0 2px"></div>
+  <button class="nbtn" id="btn-j" onclick="goPage('journal')" aria-label="Journal du jour">Journal</button>
+  <button class="nbtn" id="btn-w" onclick="goPage('week')" aria-label="Semaine">Semaine</button>
+  <button class="nbtn" id="btn-c" onclick="goPage('calendar')" aria-label="Calendrier mensuel">Mensuel</button>
+  <div style="width:1px;background:rgba(210,20,58,.12);height:18px;margin:0 2px"></div>
+  <button class="nbtn" id="btn-k" onclick="goPage('cuisine')" aria-label="Ma cuisine">Cuisine</button>
 </nav>
 
 <!-- ═══ ACCUEIL ═══ -->
@@ -615,7 +613,8 @@ const DEF = {
   habits:[{id:'h1',name:'Skin Care',icon:'✨'},{id:'h2',name:'Marche',icon:'🚶‍♀️'},{id:'h3',name:'Eau',icon:'💧'},{id:'h4',name:'Lecture',icon:'📖'}],
   habitLogs:{}, daysData:{}, events:[], projects:[],
   budget:{monthlyLimit:1500, chargesFixe:[], depenses:{}},
-  brainDump:'', monthlyNotes:'', monthlyTodos:{},
+  brainDump:'', monthlyNotes:'', monthlyTodo:'', monthlyTodos:{},
+  weekTasks:[], monthlyTasks:[],
   quote:'"Fais de ta vie un rêve, et d\'un rêve une réalité." ✨',
   cuisine:{inventory:[], cycleStart:null, cycleLength:28, cycleDays:{}},
 };
@@ -653,6 +652,8 @@ function load(){
       if(p.budget.depenses)     S.budget.depenses=p.budget.depenses;
     }
     if(p.monthlyTodos)  S.monthlyTodos=p.monthlyTodos;
+    if(p.weekTasks)     S.weekTasks=p.weekTasks;
+    if(p.monthlyTasks)  S.monthlyTasks=p.monthlyTasks;
     if(p.cuisine){
       if(p.cuisine.inventory)   S.cuisine.inventory=p.cuisine.inventory;
       if(p.cuisine.cycleStart)  S.cuisine.cycleStart=p.cuisine.cycleStart;
@@ -811,7 +812,7 @@ function renderJ(){
     '</div>'+
     /* Pomodoro avec cercle SVG */
     '<div class="card" style="text-align:center;padding:18px 16px">'+
-      '<div class="t-case" style="font-size:11px;margin-bottom:14px">⏱ Focus Pomodoro</div>'+
+      '<div class="t-case" style="font-size:11px;margin-bottom:14px">Pomodoro Focus</div>'+
       '<div style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:108px;height:108px">'+
         '<svg width="108" height="108" style="position:absolute;top:0;left:0;transform:rotate(-90deg)">'+
           '<circle cx="54" cy="54" r="'+pomR+'" fill="none" stroke="#ffd6e7" stroke-width="8"/>'+
@@ -871,15 +872,31 @@ function renderJ(){
     taskHtml='<div class="empty">Ajouter une tâche ↓</div>';
   }
 
+  /* Widget suggestion repas */
+  var rndRec=RECIPES[Math.floor(Math.random()*RECIPES.length)];
+  var mealWidget=
+    '<div class="card" style="background:linear-gradient(135deg,rgba(255,248,242,.85),rgba(255,237,220,.75));'+
+      'border-color:rgba(249,115,22,.12);padding:14px 16px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center">'+
+        '<div>'+
+          '<div style="font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#d97706;margin-bottom:3px">Suggestion repas</div>'+
+          '<div style="font-family:Shrikhand,cursive;font-size:16px;color:var(--texte)">'+rndRec.ic+' '+esc(rndRec.n)+'</div>'+
+          '<div style="font-size:10px;color:#aaa;margin-top:2px">'+rndRec.t+' min</div>'+
+        '</div>'+
+        '<button class="btn-xs" onclick="showRecipe('+RECIPES.indexOf(rndRec)+')" style="white-space:nowrap">Voir →</button>'+
+      '</div>'+
+    '</div>';
+
   document.getElementById('jc2').innerHTML=
     '<div class="card">'+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'+
-        '<div class="t-case" style="font-size:12px">📅 Aujourd\'hui</div>'+
+        '<div class="t-case" style="font-size:12px">Aujourd\'hui</div>'+
         '<button class="btn-xs" onclick="openAddEvent(\''+today+'\')">+ Événement</button>'+
       '</div>'+evHtml+
     '</div>'+
+    mealWidget+
     '<div class="card">'+
-      '<div class="t-case" style="font-size:12px;margin-bottom:12px">✅ Mes Tâches</div>'+
+      '<div class="t-case" style="font-size:12px;margin-bottom:12px">Mes Tâches</div>'+
       '<div id="tasklist">'+taskHtml+'</div>'+
       '<div class="sep"></div>'+
       '<div style="display:flex;gap:6px;margin-top:10px;align-items:flex-end">'+
@@ -928,7 +945,7 @@ function renderJ(){
   document.getElementById('jc3').innerHTML=
     '<div class="card">'+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'+
-        '<div class="t-case" style="font-size:12px">💪 Habitudes</div>'+
+        '<div class="t-case" style="font-size:12px">Habitudes</div>'+
         '<div style="display:flex;gap:6px;align-items:center">'+
           '<span style="font-size:10px;font-weight:800;color:'+pctColor+'">'+pct+'%</span>'+
           '<button class="btn-xs" onclick="togEditHabits()">'+(editHabits?'✓ OK':'✏️')+'</button>'+
@@ -956,7 +973,7 @@ function renderJ(){
       '</div>'+
     '</div>'+
     '<div class="card">'+
-      '<div class="t-case" style="font-size:12px;margin-bottom:10px">🌈 Humeur du jour</div>'+
+      '<div class="t-case" style="font-size:12px;margin-bottom:10px">Humeur du jour</div>'+
       '<div class="mgrid">'+moodHtml+'</div>'+
       (todayMood!==undefined?
         '<div style="text-align:center;margin-top:10px;font-size:20px">'+MOODS[todayMood].e+
@@ -967,7 +984,7 @@ function renderJ(){
       'box-shadow:4px 8px 28px rgba(180,150,0,.13),0 2px 8px rgba(0,0,0,.05);position:relative;overflow:hidden">'+
       '<div style="position:absolute;top:-14px;right:-14px;font-size:80px;opacity:.055;transform:rotate(14deg);pointer-events:none;user-select:none">🧠</div>'+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'+
-        '<div style="font-family:Shrikhand,cursive;font-size:14px;color:#b45309;text-transform:uppercase;letter-spacing:.08em">🧠 Brain Dump</div>'+
+        '<div style="font-family:Shrikhand,cursive;font-size:14px;color:#b45309;text-transform:uppercase;letter-spacing:.08em">Brain Dump</div>'+
         '<div style="font-size:9px;color:#b45309;opacity:.45;font-weight:700">auto-save ✓</div>'+
       '</div>'+
       '<textarea class="hand" id="braindump" rows="9" '+
@@ -1205,16 +1222,36 @@ function renderCal(){
         '<button class="btn-xs" onclick="addProject()">+ Projet</button>'+
       '</div>'+projHtml+
     '</div>'+
-    /* post-its */
-    '<div class="post-it">'+
-      '<div style="font-size:11px;font-weight:800;color:#b45309;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">📋 Todo du mois</div>'+
-      '<textarea class="hand" rows="8" placeholder="Liste des choses à faire ce mois-ci…" '+
-        'style="width:100%;border:none;background:transparent;outline:none;resize:none;font-size:18px;color:var(--texte);line-height:1.5" '+
-        'oninput="S.monthlyTodo=this.value;save()">'+esc(S.monthlyTodo)+'</textarea>'+
-    '</div>'+
-    '<div class="post-rose">'+
-      '<div style="font-size:11px;font-weight:800;color:#9d174d;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">💭 Notes du mois</div>'+
-      '<textarea class="hand" rows="8" placeholder="Réflexions, idées, pensées du mois…" '+
+    /* To-Do du mois — checklist cochable avec transfert vers semaine */
+    (function(){
+      var mtHtml=S.monthlyTasks.length
+        ? S.monthlyTasks.map(function(t){
+            return '<div class="todo-bbl'+(t.done?' done':'')+'">'+
+              '<input type="checkbox" id="mt-'+t.id+'"'+(t.done?' checked':'')+' onchange="togMonthTask(\''+t.id+'\')">'+
+              '<label for="mt-'+t.id+'">'+esc(t.text)+'</label>'+
+              '<button title="Envoyer dans Semaine" onclick="monthTaskToWeek(\''+t.id+'\')" '+
+                'style="background:none;border:none;color:#a855f7;font-size:11px;cursor:pointer;'+
+                'padding:2px 5px;font-weight:800;border-radius:6px;transition:all .15s;white-space:nowrap" '+
+                'onmouseover="this.style.background=\'#f3e8ff\'" onmouseout="this.style.background=\'none\'">→ Sem.</button>'+
+              '<button class="tdel" onclick="delMonthTask(\''+t.id+'\')">✕</button>'+
+            '</div>';
+          }).join('')
+        : '<div class="empty">Aucune tâche ce mois · ajoute-en une ↓</div>';
+      return '<div class="card" style="background:rgba(255,253,237,.82);border-color:rgba(253,224,71,.25)">'+
+        '<div style="font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#b45309;margin-bottom:10px">Todo du mois</div>'+
+        '<div id="monthtasklist">'+mtHtml+'</div>'+
+        '<div class="sep"></div>'+
+        '<div style="display:flex;gap:6px;margin-top:10px;align-items:flex-end">'+
+          '<input class="iline" id="newMonthTask" placeholder="Nouvelle tâche du mois…" style="flex:1;font-size:14px" '+
+            'onkeydown="if(event.key===\'Enter\')addMonthTask()">'+
+          '<button class="btn btn-xs" onclick="addMonthTask()">+</button>'+
+        '</div>'+
+      '</div>';
+    })()+
+    /* Notes libres */
+    '<div class="card" style="background:rgba(255,240,238,.75);border-color:rgba(255,170,160,.2)">'+
+      '<div style="font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#9d174d;margin-bottom:10px">Notes du mois</div>'+
+      '<textarea class="hand" rows="7" placeholder="Réflexions, idées, pensées du mois…" '+
         'style="width:100%;border:none;background:transparent;outline:none;resize:none;font-size:18px;color:var(--texte);line-height:1.5" '+
         'oninput="S.monthlyNotes=this.value;save()">'+esc(S.monthlyNotes)+'</textarea>'+
     '</div>';
@@ -1428,7 +1465,38 @@ function renderWeek(){
       '</div>';
   }
 
-  document.getElementById('wg').innerHTML='<div class="wgrid">'+cols+'</div>';
+  document.getElementById('wg').innerHTML=
+    '<div class="wgrid">'+cols+'</div>'+
+    /* Liste de tâches de la semaine */
+    (function(){
+      var wt=S.weekTasks||[];
+      var wtHtml=wt.length
+        ? wt.map(function(t){
+            return '<div class="todo-bbl'+(t.done?' done':'')+'">'+
+              '<input type="checkbox" id="wt-'+t.id+'"'+(t.done?' checked':'')+' onchange="togWeekTask(\''+t.id+'\')">'+
+              '<label for="wt-'+t.id+'">'+esc(t.text)+'</label>'+
+              '<button title="Envoyer dans le Journal du jour" onclick="weekTaskToJournal(\''+t.id+'\')" '+
+                'style="background:none;border:none;color:var(--cerise);font-size:11px;cursor:pointer;'+
+                'padding:2px 5px;font-weight:800;border-radius:6px;transition:all .15s;white-space:nowrap" '+
+                'onmouseover="this.style.background=\'#fff0f3\'" onmouseout="this.style.background=\'none\'">→ Jour</button>'+
+              '<button class="tdel" onclick="delWeekTask(\''+t.id+'\')">✕</button>'+
+            '</div>';
+          }).join('')
+        : '<div class="empty">Aucune tâche pour cette semaine</div>';
+      return '<div class="card" style="margin-top:16px">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'+
+          '<div style="font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--cerise)">Tâches de la semaine</div>'+
+          '<div style="font-size:10px;color:#aaa">→ Jour = copier dans le Journal du jour</div>'+
+        '</div>'+
+        '<div id="weektasklist">'+wtHtml+'</div>'+
+        '<div class="sep"></div>'+
+        '<div style="display:flex;gap:6px;margin-top:10px;align-items:flex-end">'+
+          '<input class="iline" id="newWeekTask" placeholder="Nouvelle tâche de la semaine…" style="flex:1;font-size:14px" '+
+            'onkeydown="if(event.key===\'Enter\')addWeekTask()">'+
+          '<button class="btn btn-xs" onclick="addWeekTask()">+</button>'+
+        '</div>'+
+      '</div>';
+    })();
 }
 function navWeek(dir){
   weekStart=new Date(weekStart); weekStart.setDate(weekStart.getDate()+dir*7); renderWeek();
@@ -1470,18 +1538,48 @@ function delCuisineItem(id){
 
 function scanTicket(){
   openModal(
-    '<div class="t-case" style="font-size:14px;margin-bottom:6px">🧾 Scanner des produits</div>'+
-    '<div style="font-size:11px;color:#aaa;margin-bottom:12px">Un produit par ligne — la catégorie se devine automatiquement ✨</div>'+
-    '<textarea id="scan-in" class="hand" rows="9" '+
-      'placeholder="pâtes&#10;lait demi-écrémé&#10;confiture de fraises&#10;oeufs&#10;riz basmati&#10;chocolat noir&#10;courgettes&#10;pizza surgelée" '+
+    '<div class="t-case" style="font-size:14px;margin-bottom:6px">Scanner des produits</div>'+
+    /* Bouton photo caméra */
+    '<div style="display:flex;gap:8px;margin-bottom:14px">'+
+      '<label style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;'+
+        'padding:10px;border-radius:12px;border:2px dashed #fca5a5;cursor:pointer;'+
+        'font-size:11px;font-weight:800;color:var(--cerise);transition:background .15s" '+
+        'onmouseover="this.style.background=\'#fff0f3\'" onmouseout="this.style.background=\'transparent\'">'+
+        '📷 Prendre une photo'+
+        '<input type="file" accept="image/*" capture="environment" style="display:none" onchange="previewScanPhoto(this)">'+
+      '</label>'+
+      '<label style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;'+
+        'padding:10px;border-radius:12px;border:2px dashed #fca5a5;cursor:pointer;'+
+        'font-size:11px;font-weight:800;color:var(--cerise);transition:background .15s" '+
+        'onmouseover="this.style.background=\'#fff0f3\'" onmouseout="this.style.background=\'transparent\'">'+
+        '🖼️ Importer une image'+
+        '<input type="file" accept="image/*" style="display:none" onchange="previewScanPhoto(this)">'+
+      '</label>'+
+    '</div>'+
+    '<div id="scan-preview" style="display:none;margin-bottom:12px;border-radius:12px;overflow:hidden;max-height:160px">'+
+      '<img id="scan-img" style="width:100%;object-fit:cover;max-height:160px">'+
+    '</div>'+
+    '<div style="font-size:10px;color:#aaa;margin-bottom:8px">Tape les produits vus sur le ticket (un par ligne) :</div>'+
+    '<textarea id="scan-in" class="hand" rows="7" '+
+      'placeholder="pâtes&#10;lait demi-écrémé&#10;confiture&#10;riz basmati&#10;chocolat noir&#10;pizza surgelée" '+
       'style="width:100%;border:none;border-bottom:2px solid #fca5a5;outline:none;resize:none;'+
-      'font-size:17px;line-height:1.65;font-family:Caveat,cursive;color:var(--texte)"></textarea>'+
+      'font-size:17px;line-height:1.6;font-family:Caveat,cursive;color:var(--texte)"></textarea>'+
     '<div style="display:flex;gap:8px;margin-top:14px">'+
-      '<button class="btn btn-green" style="flex:1" onclick="dispatchScan()">✨ Dispatcher automatiquement</button>'+
+      '<button class="btn btn-green" style="flex:1" onclick="dispatchScan()">Dispatcher automatiquement</button>'+
       '<button class="btn" style="background:#f0f0f0;color:#999;flex:1" onclick="closeModal()">Annuler</button>'+
     '</div>'
   );
   setTimeout(function(){var el=document.getElementById('scan-in');if(el)el.focus();},60);
+}
+function previewScanPhoto(input){
+  if(!input.files||!input.files[0]) return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var prev=document.getElementById('scan-preview');
+    var img=document.getElementById('scan-img');
+    if(prev&&img){ prev.style.display='block'; img.src=e.target.result; }
+  };
+  reader.readAsDataURL(input.files[0]);
 }
 
 function dispatchScan(){
@@ -1536,6 +1634,35 @@ function setCycleStart(){
   S.cuisine.cycleStart=td(); S.cuisine.cycleDays={};
   save(); renderCuisine();
 }
+function openCycleSettings(){
+  var cur=S.cuisine.cycleStart||td();
+  var len=S.cuisine.cycleLength||28;
+  openModal(
+    '<div style="font-size:14px;font-family:Shrikhand,cursive;color:var(--cerise);text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px">Paramètres du cycle</div>'+
+    '<label style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#aaa;display:block;margin-bottom:6px">Date des dernières règles</label>'+
+    '<input type="date" id="cyc-date" value="'+cur+'" '+
+      'style="width:100%;border:none;border-bottom:2px solid #fca5a5;outline:none;background:transparent;'+
+      'font-size:16px;padding:6px 0;font-family:Quicksand,sans-serif;color:var(--texte);margin-bottom:16px">'+
+    '<label style="font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#aaa;display:block;margin-bottom:6px">Durée du cycle (jours)</label>'+
+    '<input type="range" id="cyc-len" min="21" max="45" value="'+len+'" '+
+      'style="width:100%;accent-color:var(--cerise);margin-bottom:6px" '+
+      'oninput="document.getElementById(\'cyc-len-val\').textContent=this.value">'+
+    '<div style="text-align:center;font-family:Shrikhand,cursive;font-size:28px;color:var(--cerise)" id="cyc-len-val">'+len+'</div>'+
+    '<div style="font-size:10px;color:#aaa;text-align:center;margin-bottom:16px">jours</div>'+
+    '<div style="display:flex;gap:8px;margin-top:4px">'+
+      '<button class="btn btn-green" style="flex:1" onclick="saveCycleSettings()">Enregistrer</button>'+
+      '<button class="btn" style="background:#f0f0f0;color:#999;flex:1" onclick="closeModal()">Annuler</button>'+
+    '</div>'
+  );
+}
+function saveCycleSettings(){
+  var d=(document.getElementById('cyc-date')||{value:td()}).value;
+  var l=parseInt((document.getElementById('cyc-len')||{value:'28'}).value)||28;
+  S.cuisine.cycleStart=d||td();
+  S.cuisine.cycleLength=Math.max(21,Math.min(45,l));
+  S.cuisine.cycleDays={};
+  save(); closeModal(); renderCuisine();
+}
 
 function getCyclePhase(dayNum){
   if(dayNum<=5)  return {n:'Règles',     c:'#ef4444', bg:'rgba(239,68,68,.14)'};
@@ -1572,10 +1699,10 @@ function renderCuisine(){
 
   /* ── INVENTAIRE (4 sections) ── */
   var SECS=[
-    {k:'sale',   ic:'🧂', n:'Salé',    col:'#f97316', bg:'rgba(255,247,237,.92)', bd:'#fed7aa'},
-    {k:'sucre',  ic:'🍯', n:'Sucré',   col:'#ec4899', bg:'rgba(253,242,248,.92)', bd:'#fbcfe8'},
-    {k:'frais',  ic:'🥛', n:'Frais',   col:'#16a34a', bg:'rgba(240,253,244,.92)', bd:'#bbf7d0'},
-    {k:'surgele',ic:'❄️', n:'Surgelé', col:'#3b82f6', bg:'rgba(239,246,255,.92)', bd:'#bfdbfe'},
+    {k:'sale',   n:'Salé',    col:'#f97316', bg:'rgba(255,247,237,.92)', bd:'#fed7aa'},
+    {k:'sucre',  n:'Sucré',   col:'#ec4899', bg:'rgba(253,242,248,.92)', bd:'#fbcfe8'},
+    {k:'frais',  n:'Frais',   col:'#16a34a', bg:'rgba(240,253,244,.92)', bd:'#bbf7d0'},
+    {k:'surgele',n:'Surgelé', col:'#3b82f6', bg:'rgba(239,246,255,.92)', bd:'#bfdbfe'},
   ];
 
   var leftHtml='';
@@ -1584,7 +1711,7 @@ function renderCuisine(){
     leftHtml+=
       '<div class="csec" style="background:'+sec.bg+';border-color:'+sec.bd+';margin-bottom:14px">'+
         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'+
-          '<div style="font-size:22px">'+sec.ic+'</div>'+
+          '<div style="width:10px;height:10px;border-radius:3px;background:'+sec.col+';flex-shrink:0"></div>'+
           '<div style="font-family:Shrikhand,cursive;font-size:14px;color:'+sec.col+';text-transform:uppercase;letter-spacing:.08em">'+sec.n+'</div>'+
           '<div style="background:'+sec.bd+';color:'+sec.col+';border-radius:99px;padding:1px 9px;font-size:9px;font-weight:900;margin-left:2px">'+items.length+'</div>'+
         '</div>'+
@@ -1709,19 +1836,22 @@ function renderCuisine(){
           '</div>';
         }).join('')+
       '</div>'+
-      '<button class="btn-xs" onclick="setCycleStart()">🔄 Nouveau cycle · Aujourd\'hui = J1</button>';
+      '<button class="btn-xs" onclick="openCycleSettings()" style="font-size:9px">Ajuster mon cycle</button>';
   }
 
   document.getElementById('kr').innerHTML=
     '<div class="csec" style="margin-bottom:14px">'+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'+
-        '<div style="font-family:Shrikhand,cursive;font-size:14px;color:var(--cerise);text-transform:uppercase;letter-spacing:.08em">🍳 Cuisiner maintenant</div>'+
+        '<div style="font-family:Shrikhand,cursive;font-size:14px;color:var(--cerise);text-transform:uppercase;letter-spacing:.08em">Cuisiner maintenant</div>'+
         '<button class="btn-xs" onclick="renderCuisine()">↺ Actualiser</button>'+
       '</div>'+
       recHtml+
     '</div>'+
     '<div class="csec">'+
-      '<div style="font-family:Shrikhand,cursive;font-size:14px;color:#a855f7;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">🌸 Mon Cycle</div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'+
+        '<div style="font-family:Shrikhand,cursive;font-size:14px;color:#a855f7;text-transform:uppercase;letter-spacing:.08em">Mon Cycle</div>'+
+        '<button class="btn-xs" onclick="openCycleSettings()" style="font-size:9px">Paramètres</button>'+
+      '</div>'+
       cycHtml+
     '</div>';
 }
@@ -1882,6 +2012,56 @@ function delHabit(id){
   S.habits=S.habits.filter(function(h){return h.id!==id;});
   save();renderJ();
 }
+/* ── Tâches mensuelles ── */
+function addMonthTask(){
+  var text=(document.getElementById('newMonthTask')||{value:''}).value.trim();
+  if(!text) return;
+  if(!S.monthlyTasks) S.monthlyTasks=[];
+  S.monthlyTasks.push({id:uid(),text:text,done:false});
+  save(); renderCal();
+}
+function togMonthTask(id){
+  var t=(S.monthlyTasks||[]).find(function(t){return t.id===id;});
+  if(t){t.done=!t.done; save(); renderCal();}
+}
+function delMonthTask(id){
+  S.monthlyTasks=(S.monthlyTasks||[]).filter(function(t){return t.id!==id;});
+  save(); renderCal();
+}
+function monthTaskToWeek(id){
+  var t=(S.monthlyTasks||[]).find(function(t){return t.id===id;});
+  if(!t) return;
+  if(!S.weekTasks) S.weekTasks=[];
+  S.weekTasks.push({id:uid(),text:t.text,done:false});
+  save();
+  if(curPage==='week') renderWeek();
+}
+
+/* ── Tâches hebdomadaires ── */
+function addWeekTask(){
+  var text=(document.getElementById('newWeekTask')||{value:''}).value.trim();
+  if(!text) return;
+  if(!S.weekTasks) S.weekTasks=[];
+  S.weekTasks.push({id:uid(),text:text,done:false});
+  save(); renderWeek();
+}
+function togWeekTask(id){
+  var t=(S.weekTasks||[]).find(function(t){return t.id===id;});
+  if(t){t.done=!t.done; save(); renderWeek();}
+}
+function delWeekTask(id){
+  S.weekTasks=(S.weekTasks||[]).filter(function(t){return t.id!==id;});
+  save(); renderWeek();
+}
+function weekTaskToJournal(id){
+  var t=(S.weekTasks||[]).find(function(t){return t.id===id;});
+  if(!t) return;
+  if(!S.tasks) S.tasks=[];
+  S.tasks.push({id:uid(),text:t.text,done:false});
+  save();
+  if(curPage==='journal') renderJ();
+}
+
 function setMood(i){
   var t=td();
   if(!S.daysData[t])S.daysData[t]={};
