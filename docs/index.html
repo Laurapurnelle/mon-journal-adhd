@@ -411,7 +411,7 @@ button:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
 
 <!-- ═══ ACCUEIL ═══ -->
 <div class="page on" id="page-home" role="main">
-  <header id="hh"></header>
+  <header id="hh"><div style="min-height:88vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#ffe8f0,#f8e4ff)"><div style="font-family:Shrikhand,cursive;font-size:52px;color:var(--cerise);opacity:.35;animation:float 2s ease-in-out infinite">🍒</div></div></header>
   <div id="hgrid" class="home-grid"></div>
   <div id="htoday" style="max-width:900px;margin:0 auto;padding:0 14px 80px"></div>
 </div>
@@ -632,17 +632,20 @@ function fmtP(s){ return Math.floor(s/60)+':'+(s%60<10?'0':'')+(s%60); }
 function togPom(){
   pomOn=!pomOn;
   const b=document.getElementById('pbtn');
-  if(b) b.textContent=pomOn?'⏸ PAUSE':'▶ START';
+  if(b) b.textContent=pomOn?'⏸ Pause':'▶ Start';
 }
 function rstPom(){
   pomOn=false; pomSec=1500;
-  const b=document.getElementById('pbtn'); if(b) b.textContent='▶ START';
+  const b=document.getElementById('pbtn'); if(b) b.textContent='▶ Start';
   const t=document.getElementById('ptim'); if(t) t.textContent=fmtP(pomSec);
+  const ring=document.getElementById('pring'); if(ring) ring.setAttribute('stroke-dashoffset','0');
 }
 setInterval(()=>{
   if(!pomOn) return;
   pomSec--;
   const t=document.getElementById('ptim'); if(t) t.textContent=fmtP(pomSec);
+  const ring=document.getElementById('pring');
+  if(ring) ring.setAttribute('stroke-dashoffset',(2*Math.PI*42*(1-pomSec/1500)).toFixed(1));
   if(pomSec<=0){ pomOn=false; pomSec=1500; alert("Pause cerise ! 🍒"); renderJ(); }
 },1000);
 
@@ -696,88 +699,139 @@ function renderJ(){
     '</div>';
   tickClock();
 
-  /* — COL 1 : photo + pomodoro + note matin — */
+  /* — COL 1 : Photo immersive + Pomodoro ring — */
   var dots=PHOTOS.map(function(_,i){
-    return '<button class="s-dot'+(i===pIdx?' on':'')+'" onclick="pIdx='+i+';showPhoto()"></button>';
+    return '<button class="s-dot'+(i===pIdx?' on':'')+'" onclick="pIdx='+i+';showPhoto()" '+
+      'style="background:'+(i===pIdx?'white':'rgba(255,255,255,.45)')+'"></button>';
   }).join('');
+  var pomR=42, pomCirc=+(2*Math.PI*pomR).toFixed(1);
+  var pomOff=+(pomCirc*(1-pomSec/1500)).toFixed(1);
+
   document.getElementById('jc1').innerHTML=
-    '<div class="card">'+
-      '<div class="polaroid">'+
-        '<img id="simg" src="'+esc(PHOTOS[pIdx])+'" alt="photo" style="opacity:1">'+
-        '<div style="position:absolute;bottom:40px;left:6px;right:6px;display:flex;justify-content:space-between">'+
-          '<button class="btn-xs" onclick="goPhoto(-1)" style="border-radius:50%;width:26px;height:26px;padding:0">◀</button>'+
-          '<button class="btn-xs" onclick="goPhoto(1)"  style="border-radius:50%;width:26px;height:26px;padding:0">▶</button>'+
+    /* Photo immersive — no polaroid frame */
+    '<div class="card" style="padding:0;overflow:hidden;position:relative;border-radius:22px;min-height:200px">'+
+      '<img id="simg" src="'+esc(PHOTOS[pIdx])+'" alt="photo" '+
+        'style="width:100%;height:215px;object-fit:cover;display:block;transition:opacity .35s">'+
+      '<div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.68) 0%,rgba(0,0,0,.12) 45%,transparent 70%)"></div>'+
+      '<div style="position:absolute;bottom:0;left:0;right:0;padding:14px 16px 12px">'+
+        '<div style="font-family:Shrikhand,cursive;font-size:21px;color:white;line-height:1">'+esc(jours[now.getDay()])+'</div>'+
+        '<div style="font-size:10px;color:rgba(255,255,255,.65);margin-top:3px">'+now.getDate()+' '+esc(MOIS[now.getMonth()])+' '+now.getFullYear()+'</div>'+
+        '<div style="display:flex;gap:4px;margin-top:9px">'+dots+'</div>'+
+      '</div>'+
+      '<button onclick="goPhoto(-1)" style="position:absolute;left:8px;top:calc(50% - 36px);transform:translateY(-50%);'+
+        'background:rgba(255,255,255,.22);backdrop-filter:blur(6px);border:none;border-radius:50%;'+
+        'width:28px;height:28px;cursor:pointer;color:white;font-size:12px">◀</button>'+
+      '<button onclick="goPhoto(1)" style="position:absolute;right:8px;top:calc(50% - 36px);transform:translateY(-50%);'+
+        'background:rgba(255,255,255,.22);backdrop-filter:blur(6px);border:none;border-radius:50%;'+
+        'width:28px;height:28px;cursor:pointer;color:white;font-size:12px">▶</button>'+
+    '</div>'+
+    /* Pomodoro avec cercle SVG */
+    '<div class="card" style="text-align:center;padding:18px 16px">'+
+      '<div class="t-case" style="font-size:11px;margin-bottom:14px">⏱ Focus Pomodoro</div>'+
+      '<div style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:108px;height:108px">'+
+        '<svg width="108" height="108" style="position:absolute;top:0;left:0;transform:rotate(-90deg)">'+
+          '<circle cx="54" cy="54" r="'+pomR+'" fill="none" stroke="#ffd6e7" stroke-width="8"/>'+
+          '<circle id="pring" cx="54" cy="54" r="'+pomR+'" fill="none" stroke="var(--cerise)" stroke-width="8" '+
+            'stroke-dasharray="'+pomCirc+'" stroke-dashoffset="'+pomOff+'" stroke-linecap="round" '+
+            'style="transition:stroke-dashoffset .9s linear"/>'+
+        '</svg>'+
+        '<div style="position:relative;text-align:center">'+
+          '<div id="ptim" style="font-family:Shrikhand,cursive;font-size:23px;color:var(--cerise);line-height:1">'+fmtP(pomSec)+'</div>'+
+          '<div style="font-size:8px;color:#ccc;font-weight:800;letter-spacing:.1em;margin-top:2px">FOCUS</div>'+
         '</div>'+
-        '<div class="slide-dots">'+dots+'</div>'+
       '</div>'+
-    '</div>'+
-    '<div class="card">'+
-      '<div class="t-case" style="font-size:12px;margin-bottom:8px">⏱ Pomodoro Focus</div>'+
-      '<div id="ptim" style="font-family:Shrikhand,cursive;font-size:48px;color:var(--cerise);text-align:center;line-height:1">'+fmtP(pomSec)+'</div>'+
-      '<div style="display:flex;gap:8px;justify-content:center;margin-top:10px">'+
-        '<button class="btn" id="pbtn" onclick="togPom()">'+(pomOn?'⏸ PAUSE':'▶ START')+'</button>'+
-        '<button class="btn" style="background:#f5f5f5;color:#999;box-shadow:none" onclick="rstPom()">↺ Reset</button>'+
+      '<div style="display:flex;gap:8px;justify-content:center;margin-top:14px">'+
+        '<button class="btn" id="pbtn" onclick="togPom()" style="padding:8px 22px">'+(pomOn?'⏸ Pause':'▶ Start')+'</button>'+
+        '<button onclick="rstPom()" style="background:#f5f5f5;border:none;border-radius:99px;padding:8px 14px;color:#aaa;cursor:pointer;font-size:13px">↺</button>'+
       '</div>'+
-      '<div style="margin-top:8px;text-align:center;font-size:10px;color:#ccc">25 min de focus · Pause méritée 🍒</div>'+
-    '</div>'+
-    '';
+      '<div style="margin-top:8px;font-size:10px;color:#ddd">25 min · pause méritée 🍒</div>'+
+    '</div>';
 
-  /* — COL 2 : events + budget + tâches — */
+  /* — COL 2 : Agenda timeline + Tâches — */
   var todayEvts=S.events.filter(function(e){return e.date===today;}).sort(function(a,b){return a.time.localeCompare(b.time);});
-  var evHtml=todayEvts.length
-    ? todayEvts.map(function(e){
-        return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #fff0f3">'+
-          '<div style="width:8px;height:8px;border-radius:50%;background:'+(e.type==='pro'?'#60a5fa':'var(--cerise)')+';flex-shrink:0"></div>'+
-          '<div style="flex:1"><div style="font-family:Caveat,cursive;font-size:17px">'+esc(e.title)+'</div>'+
-          '<div style="font-size:10px;color:#aaa">'+esc(e.time)+' · '+(e.type==='pro'?'💼 Pro':'💕 Perso')+'</div></div>'+
-          '<button class="btn-xs" style="color:#ef4444" onclick="delEvent(\''+e.id+'\')">✕</button>'+
-        '</div>';
-      }).join('')
-    : '<div class="empty">Journée libre 🌸</div>';
+  var evHtml='';
+  if(todayEvts.length){
+    evHtml=
+      '<div style="position:relative;padding-left:20px">'+
+        '<div style="position:absolute;left:3px;top:6px;bottom:6px;width:2px;'+
+          'background:linear-gradient(to bottom,var(--cerise),#ffd6e7);border-radius:99px"></div>'+
+        todayEvts.map(function(e){
+          var isPro=e.type==='pro';
+          return '<div style="position:relative;margin-bottom:14px">'+
+            '<div style="position:absolute;left:-21px;top:5px;width:8px;height:8px;border-radius:50%;'+
+              'border:2px solid white;background:'+(isPro?'#60a5fa':'var(--cerise)')+';'+
+              'box-shadow:0 0 0 2px '+(isPro?'#bfdbfe':'#ffd6e7')+'"></div>'+
+            '<div style="font-size:9px;color:#bbb;font-weight:800;letter-spacing:.06em;margin-bottom:2px">'+
+              esc(e.time)+'&nbsp;·&nbsp;'+(isPro?'💼':'💕')+
+            '</div>'+
+            '<div style="font-family:Caveat,cursive;font-size:19px;color:var(--texte);line-height:1.1">'+esc(e.title)+'</div>'+
+            '<button class="btn-xs" style="color:#ef4444;margin-top:3px;font-size:8px;padding:2px 7px" '+
+              'onclick="delEvent(\''+e.id+'\')">✕ retirer</button>'+
+          '</div>';
+        }).join('')+
+      '</div>';
+  } else {
+    evHtml='<div class="empty">Journée libre 🌸</div>';
+  }
 
-  var taskHtml=S.tasks.length
-    ? S.tasks.map(function(t){
-        return '<div class="trow'+(t.done?' done':'')+'">'+
-          '<button class="hcheck'+(t.done?' on':'')+'" style="width:24px;height:24px;font-size:10px;flex-shrink:0" onclick="togTask(\''+t.id+'\')">'+(t.done?'✓':'')+'</button>'+
-          '<span class="ttxt">'+esc(t.text)+'</span>'+
-          '<button class="tdel" onclick="delTask(\''+t.id+'\')">✕</button>'+
-        '</div>';
-      }).join('')
-    : '<div class="empty">Ajouter une tâche ↓</div>';
+  var taskHtml='';
+  if(S.tasks.length){
+    taskHtml=S.tasks.map(function(t){
+      return '<div class="todo-bbl'+(t.done?' done':'')+'">'+
+        '<input type="checkbox" id="tsk-'+t.id+'"'+(t.done?' checked':'')+' onchange="togTask(\''+t.id+'\')">'+
+        '<label for="tsk-'+t.id+'">'+esc(t.text)+'</label>'+
+        '<button class="tdel" onclick="delTask(\''+t.id+'\')">✕</button>'+
+      '</div>';
+    }).join('');
+  } else {
+    taskHtml='<div class="empty">Ajouter une tâche ↓</div>';
+  }
 
   document.getElementById('jc2').innerHTML=
     '<div class="card">'+
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'+
         '<div class="t-case" style="font-size:12px">📅 Aujourd\'hui</div>'+
-        '<button class="btn-xs" onclick="openAddEvent(\''+today+'\')">+ Ajouter</button>'+
+        '<button class="btn-xs" onclick="openAddEvent(\''+today+'\')">+ Événement</button>'+
       '</div>'+evHtml+
     '</div>'+
     '<div class="card">'+
-      '<div class="t-case" style="font-size:12px;margin-bottom:8px">✅ Mes Tâches</div>'+
+      '<div class="t-case" style="font-size:12px;margin-bottom:12px">✅ Mes Tâches</div>'+
       '<div id="tasklist">'+taskHtml+'</div>'+
       '<div class="sep"></div>'+
-      '<div style="display:flex;gap:6px;margin-top:8px;align-items:flex-end">'+
+      '<div style="display:flex;gap:6px;margin-top:10px;align-items:flex-end">'+
         '<input class="iline" id="newTask" placeholder="Nouvelle tâche…" style="flex:1" onkeydown="if(event.key===\'Enter\')addTask()">'+
         '<button class="btn btn-xs" onclick="addTask()">+</button>'+
       '</div>'+
     '</div>';
 
-  /* — COL 3 : habitudes + humeur + brain dump — */
+  /* — COL 3 : Habitudes (grid) + Humeur + Brain Dump — */
   var logs=S.habitLogs[today]||{};
   var done=S.habits.filter(function(h){return logs[h.id];}).length;
   var pct=S.habits.length?Math.round(done/S.habits.length*100):0;
   var pctColor=pct>=80?'var(--vert)':pct>=50?'#f97316':'var(--cerise)';
+  var hasHa=(S.daysData[today]||{}).headache;
+  var haCount=Object.keys(S.daysData).filter(function(d){return d.slice(0,7)===today.slice(0,7)&&(S.daysData[d]||{}).headache;}).length;
 
-  var habHtml=S.habits.length
-    ? S.habits.map(function(h){
-        return '<div class="hrow">'+
-          '<div style="display:flex;align-items:center;gap:9px">'+
-            '<button class="hcheck'+(logs[h.id]?' on':'')+'" onclick="togHabit(\''+h.id+'\')">'+h.icon+'</button>'+
-            '<span style="font-family:Caveat,cursive;font-size:18px">'+esc(h.name)+'</span>'+
-          '</div>'+
-          (editHabits?'<button class="btn-xs" style="color:#ef4444" onclick="delHabit(\''+h.id+'\')">✕</button>':'')+
-        '</div>';
-      }).join('')
+  var habGrid=S.habits.length
+    ? '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">'+
+      S.habits.map(function(h){
+        var ok=!!logs[h.id];
+        return '<button onclick="togHabit(\''+h.id+'\')" '+
+          (editHabits?'style="position:relative;" ':'')+
+          'style="display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:12px;'+
+          'border:2px solid '+(ok?'transparent':'#ffd6e7')+';cursor:pointer;text-align:left;'+
+          'background:'+(ok?'linear-gradient(135deg,var(--cerise),#ff6b8a)':'white')+';'+
+          'transition:all .2s;box-shadow:'+(ok?'0 2px 8px rgba(210,20,58,.22)':'none')+'">'+
+          '<span style="font-size:17px">'+(ok?'✅':h.icon)+'</span>'+
+          '<span style="font-family:Caveat,cursive;font-size:13px;font-weight:700;line-height:1.2;'+
+            'color:'+(ok?'white':'var(--texte)')+'">'+esc(h.name)+'</span>'+
+          (editHabits?
+            '<span onclick="event.stopPropagation();delHabit(\''+h.id+'\')" '+
+              'style="position:absolute;top:-5px;right:-5px;width:16px;height:16px;border-radius:50%;'+
+              'background:#ef4444;color:white;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:900;cursor:pointer">✕</span>':'')+
+        '</button>';
+      }).join('')+
+      '</div>'
     : '<div class="empty">Ajouter des habitudes ↓</div>';
 
   var todayMood=(S.daysData[today]||{}).mood;
@@ -789,11 +843,14 @@ function renderJ(){
 
   document.getElementById('jc3').innerHTML=
     '<div class="card">'+
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'+
         '<div class="t-case" style="font-size:12px">💪 Habitudes</div>'+
-        '<button class="btn-xs" onclick="togEditHabits()">'+(editHabits?'✓ OK':'✏️ Éditer')+'</button>'+
+        '<div style="display:flex;gap:6px;align-items:center">'+
+          '<span style="font-size:10px;font-weight:800;color:'+pctColor+'">'+pct+'%</span>'+
+          '<button class="btn-xs" onclick="togEditHabits()">'+(editHabits?'✓ OK':'✏️')+'</button>'+
+        '</div>'+
       '</div>'+
-      '<div id="hablist">'+habHtml+'</div>'+
+      '<div id="hablist">'+habGrid+'</div>'+
       (editHabits?
         '<div class="sep"></div>'+
         '<div style="display:flex;gap:5px;align-items:flex-end;margin-top:6px">'+
@@ -801,27 +858,39 @@ function renderJ(){
           '<input id="newHabName" class="iline" placeholder="Nouvelle habitude…" style="flex:1" onkeydown="if(event.key===\'Enter\')addHabit()">'+
           '<button class="btn btn-xs" onclick="addHabit()">+</button>'+
         '</div>':'')+
-      '<div class="sep"></div>'+
-      '<div style="display:flex;justify-content:space-between;font-size:11px;color:#aaa">'+
-        '<span>'+done+'/'+S.habits.length+' aujourd\'hui</span>'+
-        '<span style="color:'+pctColor+'">'+pct+'%</span>'+
+      '<div class="pbar" style="margin-top:6px"><div class="pfill" style="width:'+pct+'%;background:'+pctColor+'"></div></div>'+
+      /* Headache intégré en bas de la card habitudes */
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid #fff0f3">'+
+        '<div>'+
+          '<div style="font-size:11px;font-weight:700;color:#aaa">🤕 Mal de tête</div>'+
+          '<div style="font-size:10px;color:#ccc">'+haCount+' fois ce mois</div>'+
+        '</div>'+
+        '<button onclick="togHeadache()" style="border-radius:99px;border:2px solid '+(hasHa?'var(--cerise)':'#fca5a5')+';'+
+          'background:'+(hasHa?'var(--cerise)':'white')+';color:'+(hasHa?'white':'#fca5a5')+';'+
+          'padding:5px 14px;font-size:11px;font-weight:800;cursor:pointer;transition:all .2s">'+
+          (hasHa?'🤕 Oui':'Non')+'</button>'+
       '</div>'+
-      '<div class="pbar" style="margin-top:4px"><div class="pfill" style="width:'+pct+'%;background:'+pctColor+'"></div></div>'+
     '</div>'+
     '<div class="card">'+
       '<div class="t-case" style="font-size:12px;margin-bottom:10px">🌈 Humeur du jour</div>'+
       '<div class="mgrid">'+moodHtml+'</div>'+
       (todayMood!==undefined?
-        '<div style="text-align:center;margin-top:10px;font-size:22px">'+MOODS[todayMood].e+
-        ' <span style="font-family:Caveat,cursive;font-size:16px;color:#aaa;vertical-align:middle">'+esc(MOODS[todayMood].l)+'</span></div>':'')+
+        '<div style="text-align:center;margin-top:10px;font-size:20px">'+MOODS[todayMood].e+
+        ' <span style="font-family:Caveat,cursive;font-size:15px;color:#aaa;vertical-align:middle">'+esc(MOODS[todayMood].l)+'</span></div>':'')+
     '</div>'+
-    headacheCard(today)+
-    '<div class="post-it card" style="background:#FFF9C4;box-shadow:3px 5px 12px rgba(0,0,0,.06)">'+
-      '<div class="t-case" style="font-size:12px;margin-bottom:8px;color:#b45309">🧠 Brain Dump</div>'+
-      '<textarea class="hand" id="braindump" rows="8" placeholder="Vide ton esprit ici, sans filtre…" '+
-        'style="width:100%;border:none;background:transparent;outline:none;resize:none;font-size:17px;color:var(--texte);line-height:1.6" '+
+    /* Brain Dump — hero de la colonne */
+    '<div style="background:linear-gradient(145deg,#fffde7 0%,#fff9c4 60%,#fef3b4 100%);border-radius:22px;padding:18px 18px 16px;'+
+      'box-shadow:4px 8px 28px rgba(180,150,0,.13),0 2px 8px rgba(0,0,0,.05);position:relative;overflow:hidden">'+
+      '<div style="position:absolute;top:-14px;right:-14px;font-size:80px;opacity:.055;transform:rotate(14deg);pointer-events:none;user-select:none">🧠</div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'+
+        '<div style="font-family:Shrikhand,cursive;font-size:14px;color:#b45309;text-transform:uppercase;letter-spacing:.08em">🧠 Brain Dump</div>'+
+        '<div style="font-size:9px;color:#b45309;opacity:.45;font-weight:700">auto-save ✓</div>'+
+      '</div>'+
+      '<textarea class="hand" id="braindump" rows="9" '+
+        'placeholder="Vide ton esprit ici, sans filtre… aucun jugement 🍒" '+
+        'style="width:100%;border:none;background:transparent;outline:none;resize:none;'+
+        'font-size:18px;color:#5a3e28;line-height:1.65;font-family:Caveat,cursive" '+
         'oninput="S.brainDump=this.value;save()">'+esc(S.brainDump)+'</textarea>'+
-      '<div style="font-size:10px;color:#b45309;opacity:.5;text-align:right;margin-top:4px">Sauvegarde auto ✓</div>'+
     '</div>';
 }
 
