@@ -286,11 +286,34 @@ body {
   grid-template-columns:repeat(2,1fr);
   gap:16px;
   padding:16px;
-  max-width:960px;
+  max-width:1200px;
   margin:0 auto;
 }
-@media(min-width:640px){ .home-grid { grid-template-columns:repeat(2,1fr); gap:20px; padding:20px; } }
-@media(min-width:900px){ .home-grid { grid-template-columns:repeat(4,1fr); } }
+@media(min-width:640px){ .home-grid { gap:20px; padding:20px; } }
+@media(min-width:900px){ .home-grid { grid-template-columns:repeat(3,1fr); } }
+@media(min-width:1200px){ .home-grid { grid-template-columns:repeat(5,1fr); } }
+
+/* ── CUISINE ── */
+.csec {
+  background: rgba(255,255,255,.82);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1.5px solid rgba(255,255,255,.92);
+  border-radius: 24px;
+  padding: 16px 18px;
+}
+.citem {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 0; border-bottom: 1px solid rgba(0,0,0,.04);
+}
+.citem-name {
+  font-family: 'Caveat', cursive; font-size: 17px; flex: 1;
+  color: var(--texte); min-width: 0;
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+.citem-qty { font-size: 10px; font-weight: 800; color: #bbb; white-space: nowrap; }
+.cuis-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+@media(min-width:768px){ .cuis-grid { grid-template-columns: 5fr 4fr; } }
 
 .app-card {
   background: rgba(255,255,255,.75);
@@ -407,6 +430,8 @@ button:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
   <button class="nbtn" id="btn-j" onclick="goPage('journal')" aria-label="Journal du jour">📓 <span class="nlbl">Journal</span></button>
   <button class="nbtn" id="btn-w" onclick="goPage('week')" aria-label="Semaine">📆 <span class="nlbl">Semaine</span></button>
   <button class="nbtn" id="btn-c" onclick="goPage('calendar')" aria-label="Calendrier mensuel">🗓️ <span class="nlbl">Mensuel</span></button>
+  <div style="width:1px;background:#f0dde4;height:22px;margin:0 2px"></div>
+  <button class="nbtn" id="btn-k" onclick="goPage('cuisine')" aria-label="Ma cuisine">🍽️ <span class="nlbl">Cuisine</span></button>
 </nav>
 
 <!-- ═══ ACCUEIL ═══ -->
@@ -440,6 +465,15 @@ button:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
 <div class="page" id="page-week" role="main">
   <div id="wh" style="margin-bottom:16px"></div>
   <div id="wg" style="overflow-x:auto;padding-bottom:10px"></div>
+</div>
+
+<!-- ═══ CUISINE ═══ -->
+<div class="page" id="page-cuisine" role="main">
+  <div id="kh"></div>
+  <div class="cuis-grid">
+    <div id="kl"></div>
+    <div id="kr"></div>
+  </div>
 </div>
 
 <script>
@@ -534,6 +568,48 @@ const SPECIAL_CELLS = {
   '12-31':{bg:'linear-gradient(135deg,#312e81 0%,#4c1d95 40%,#ca8a04 100%)',bd:'#fbbf24',tx:'white',ic:'🥂✨',lb:'Réveillon !'},
 };
 
+/* Catégorisation auto des produits */
+const CAT_MAP={
+  surgele:['surgelé','congelé','pizza','frites','glace','sorbet','poisson pané','épinard surgelé','petits pois surgelés','haricots surgelés'],
+  frais:['lait','yaourt','beurre','fromage','crème','viande','poulet','bœuf','porc','jambon','saumon','oeuf','œuf','carotte','tomate fraîche','salade','courgette','poireau','brocoli','champignon','pomme','banane','orange','fraise','avocat','poisson frais','radis','concombre','aubergine'],
+  sucre:['confiture','miel','sucre','chocolat','cacao','biscuit','farine','vanille','cannelle','compote','sirop','nutella','caramel','pralin','speculoos','céréale','gâteau','cookie','pâtisserie','sachet de sucre','cassonade'],
+  sale:['sel','poivre','pâtes','riz','lentille','haricot','sauce tomate','huile','vinaigre','moutarde','bouillon','sardine','thon','maïs','couscous','quinoa','pois chiche','cornichon','farine de blé','pain','biscottes','chips','crackers','soupe','purée','tapioca'],
+};
+
+/* Recettes intégrées */
+const RECIPES=[
+  {n:'Pâtes à la tomate',t:15,ic:'🍝',cat:'sale',
+    ing:['pâtes','sauce tomate','huile'],
+    steps:["Porter l'eau à ébullition avec une pincée de sel.","Faire chauffer l'huile, ajouter l'ail (optionnel).","Incorporer la sauce tomate, sel, poivre, basilic.","Cuire les pâtes al dente, égoutter et mélanger."]},
+  {n:'Riz au curry',t:20,ic:'🍛',cat:'sale',
+    ing:['riz','huile','sel'],
+    steps:["Faire revenir le curry dans l'huile 1 min.","Ajouter le riz et bien enrober.","Couvrir avec 2× le volume d'eau bouillante.","Cuire 18 min à feu doux, couvercle fermé."]},
+  {n:'Crêpes dorées',t:25,ic:'🥞',cat:'sucre',
+    ing:['farine','lait','beurre'],
+    steps:["Mélanger farine, une pincée de sel et les œufs.","Ajouter le lait progressivement, fouetter.","Laisser reposer 20 min.","Cuire dans une poêle beurrée, 1 min de chaque côté."]},
+  {n:'Salade riz-thon',t:15,ic:'🥗',cat:'sale',
+    ing:['riz','thon','maïs','moutarde'],
+    steps:["Cuire le riz, rincer à l'eau froide.","Égoutter thon et maïs.","Mélanger, assaisonner de moutarde, sel, poivre.","Servir frais avec un filet d'huile."]},
+  {n:'Soupe de lentilles',t:30,ic:'🍲',cat:'sale',
+    ing:['lentille','bouillon','carotte'],
+    steps:["Faire revenir la carotte en dés dans l'huile.","Ajouter lentilles rincées et bouillon chaud.","Cuire 25 min à feu moyen.","Mixer la moitié pour une texture crémeuse."]},
+  {n:'Omelette jambon-fromage',t:10,ic:'🍳',cat:'frais',
+    ing:['beurre','jambon','fromage'],
+    steps:["Battre les œufs avec sel et poivre.","Faire fondre le beurre dans une poêle chaude.","Verser les œufs, déposer jambon et fromage.","Plier en deux, servir immédiatement."]},
+  {n:'Toast chocolat fondant',t:5,ic:'🍫',cat:'sucre',
+    ing:['beurre','chocolat'],
+    steps:["Toaster le pain jusqu'à la couleur désirée.","Étaler une noix de beurre fondu.","Râper généreusement du chocolat par-dessus.","Servir chaud pour que le chocolat fonde."]},
+  {n:'Bol yaourt-confiture',t:3,ic:'🍨',cat:'frais',
+    ing:['yaourt','confiture'],
+    steps:["Verser le yaourt dans un bol.","Ajouter une cuillère de confiture.","Optionnel : granola ou miel par-dessus.","Mélanger et déguster."]},
+  {n:'Couscous express',t:15,ic:'🫙',cat:'sale',
+    ing:['couscous','huile','sel'],
+    steps:["Verser le couscous dans un saladier.","Ajouter huile, sel et eau bouillante à niveau égal.","Couvrir 5 min puis égrainer à la fourchette.","Ajouter raisins secs, épices ou légumes cuits."]},
+  {n:'Tartines confiture',t:3,ic:'🍞',cat:'sucre',
+    ing:['confiture','beurre'],
+    steps:["Toaster ou tartiner le pain selon préférence.","Étaler le beurre en couche fine.","Recouvrir de confiture généreusement.","Servir avec un thé ou café."]},
+];
+
 const DEF = {
   tasks:[],
   habits:[{id:'h1',name:'Skin Care',icon:'✨'},{id:'h2',name:'Marche',icon:'🚶‍♀️'},{id:'h3',name:'Eau',icon:'💧'},{id:'h4',name:'Lecture',icon:'📖'}],
@@ -541,6 +617,7 @@ const DEF = {
   budget:{monthlyLimit:1500, chargesFixe:[], depenses:{}},
   brainDump:'', monthlyNotes:'', monthlyTodos:{},
   quote:'"Fais de ta vie un rêve, et d\'un rêve une réalité." ✨',
+  cuisine:{inventory:[], cycleStart:null, cycleLength:28, cycleDays:{}},
 };
 
 let S = JSON.parse(JSON.stringify(DEF));
@@ -576,6 +653,12 @@ function load(){
       if(p.budget.depenses)     S.budget.depenses=p.budget.depenses;
     }
     if(p.monthlyTodos)  S.monthlyTodos=p.monthlyTodos;
+    if(p.cuisine){
+      if(p.cuisine.inventory)   S.cuisine.inventory=p.cuisine.inventory;
+      if(p.cuisine.cycleStart)  S.cuisine.cycleStart=p.cuisine.cycleStart;
+      if(p.cuisine.cycleLength) S.cuisine.cycleLength=p.cuisine.cycleLength;
+      if(p.cuisine.cycleDays)   S.cuisine.cycleDays=p.cuisine.cycleDays;
+    }
   }catch(e){ localStorage.removeItem(KEY); }
 }
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
@@ -586,11 +669,11 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 /* ── Page switch ── */
 function goPage(p){
   curPage=p;
-  ['home','journal','week','calendar'].forEach(function(id){
+  ['home','journal','week','calendar','cuisine'].forEach(function(id){
     var el=document.getElementById('page-'+id);
     if(el) el.className=p===id?'page on':'page';
   });
-  [['h','home'],['j','journal'],['w','week'],['c','calendar']].forEach(function(pair){
+  [['h','home'],['j','journal'],['w','week'],['c','calendar'],['k','cuisine']].forEach(function(pair){
     var el=document.getElementById('btn-'+pair[0]);
     if(el) el.className=p===pair[1]?'nbtn on':'nbtn';
   });
@@ -598,6 +681,7 @@ function goPage(p){
   if(p==='journal')  renderJ();
   if(p==='week')     { if(!weekStart) weekStart=getWeekStart(new Date()); renderWeek(); }
   if(p==='calendar') renderCal();
+  if(p==='cuisine')  renderCuisine();
 }
 function getWeekStart(d){
   var day=new Date(d); day.setHours(0,0,0,0);
@@ -1216,7 +1300,18 @@ function renderHome(){
       '<div class="ac-title" style="color:#b45309">Météo</div>'+
       '<div class="ac-stat" id="w-temp">—</div>'+
       '<div class="ac-sub" id="w-desc">Localisation…</div>'+
-    '</button>';
+    '</button>'+
+    (function(){
+      var invC=(S.cuisine&&S.cuisine.inventory)||[];
+      var topRec=getMatchedRecipes();
+      var hint=topRec.length?topRec[0].r.ic+' '+topRec[0].r.n:(invC.length?'Idées en attente…':'Scanner un produit');
+      return '<button class="app-card" style="background:linear-gradient(150deg,#fff8f2,#ffe8d5 55%,#ffd6b8)" onclick="goPage(\'cuisine\')">'+
+        '<div style="font-size:50px;filter:drop-shadow(0 8px 16px rgba(249,115,22,.25))">🍽️</div>'+
+        '<div class="ac-title" style="color:#ea580c">Cuisine</div>'+
+        '<div class="ac-stat">'+invC.length+' produit'+(invC.length!==1?'s':'')+'</div>'+
+        '<div class="ac-sub" style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+esc(hint)+'</div>'+
+      '</button>';
+    })();
 
   /* ── CITATION ── */
   document.getElementById('htoday').innerHTML=
@@ -1337,6 +1432,298 @@ function renderWeek(){
 }
 function navWeek(dir){
   weekStart=new Date(weekStart); weekStart.setDate(weekStart.getDate()+dir*7); renderWeek();
+}
+
+/* ══════════════════════════════════════════════
+   CUISINE — Garde-Manger · Recettes · Cycle
+══════════════════════════════════════════════ */
+
+function guessCategory(name){
+  var n=name.toLowerCase();
+  var order=['surgele','frais','sucre','sale'];
+  for(var i=0;i<order.length;i++){
+    var kws=CAT_MAP[order[i]];
+    for(var j=0;j<kws.length;j++){
+      if(n.includes(kws[j])) return order[i];
+    }
+  }
+  return 'sale';
+}
+
+function addCuisineItem(cat){
+  var ni=document.getElementById('ci-'+cat);
+  var nq=document.getElementById('cq-'+cat);
+  var name=(ni||{value:''}).value.trim();
+  var qty=(nq||{value:''}).value.trim();
+  if(!name) return;
+  if(!S.cuisine.inventory) S.cuisine.inventory=[];
+  S.cuisine.inventory.push({id:uid(),name:name,qty:qty||'',cat:cat,addedAt:td()});
+  if(ni) ni.value='';
+  if(nq) nq.value='';
+  save(); renderCuisine();
+}
+
+function delCuisineItem(id){
+  S.cuisine.inventory=(S.cuisine.inventory||[]).filter(function(i){return i.id!==id;});
+  save(); renderCuisine();
+}
+
+function scanTicket(){
+  openModal(
+    '<div class="t-case" style="font-size:14px;margin-bottom:6px">🧾 Scanner des produits</div>'+
+    '<div style="font-size:11px;color:#aaa;margin-bottom:12px">Un produit par ligne — la catégorie se devine automatiquement ✨</div>'+
+    '<textarea id="scan-in" class="hand" rows="9" '+
+      'placeholder="pâtes&#10;lait demi-écrémé&#10;confiture de fraises&#10;oeufs&#10;riz basmati&#10;chocolat noir&#10;courgettes&#10;pizza surgelée" '+
+      'style="width:100%;border:none;border-bottom:2px solid #fca5a5;outline:none;resize:none;'+
+      'font-size:17px;line-height:1.65;font-family:Caveat,cursive;color:var(--texte)"></textarea>'+
+    '<div style="display:flex;gap:8px;margin-top:14px">'+
+      '<button class="btn btn-green" style="flex:1" onclick="dispatchScan()">✨ Dispatcher automatiquement</button>'+
+      '<button class="btn" style="background:#f0f0f0;color:#999;flex:1" onclick="closeModal()">Annuler</button>'+
+    '</div>'
+  );
+  setTimeout(function(){var el=document.getElementById('scan-in');if(el)el.focus();},60);
+}
+
+function dispatchScan(){
+  var raw=(document.getElementById('scan-in')||{value:''}).value;
+  var lines=raw.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+  if(!lines.length){closeModal();return;}
+  if(!S.cuisine.inventory) S.cuisine.inventory=[];
+  lines.forEach(function(l){
+    S.cuisine.inventory.push({id:uid(),name:l,qty:'',cat:guessCategory(l),addedAt:td()});
+  });
+  save(); closeModal(); renderCuisine();
+}
+
+function getMatchedRecipes(){
+  var inv=((S.cuisine||{}).inventory||[]).map(function(i){return i.name.toLowerCase();});
+  return RECIPES.map(function(r){
+    var matches=r.ing.filter(function(ing){
+      return inv.some(function(n){
+        var nw=n.split(' ')[0];
+        return n.includes(ing)||ing.includes(nw);
+      });
+    });
+    return {r:r,score:matches.length/r.ing.length,matches:matches};
+  }).filter(function(x){return x.score>0;}).sort(function(a,b){return b.score-a.score;});
+}
+
+function showRecipe(ri){
+  var r=RECIPES[ri];
+  openModal(
+    '<div style="text-align:center;font-size:44px;margin-bottom:6px">'+r.ic+'</div>'+
+    '<div class="t-case" style="font-size:15px;text-align:center;margin-bottom:3px">'+esc(r.n)+'</div>'+
+    '<div style="text-align:center;font-size:11px;color:#aaa;margin-bottom:16px">⏱ '+r.t+' min · '+esc(r.cat==='frais'?'🥛 Frais':r.cat==='sucre'?'🍯 Sucré':'🧂 Salé')+'</div>'+
+    '<div style="font-size:9px;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px">Ingrédients</div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px">'+
+      r.ing.map(function(i){
+        return '<span style="background:#fff0f3;border-radius:99px;padding:4px 11px;font-size:11px;font-weight:700;color:var(--cerise)">'+esc(i)+'</span>';
+      }).join('')+
+    '</div>'+
+    '<div style="font-size:9px;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px">Préparation</div>'+
+    r.steps.map(function(s,si){
+      return '<div style="display:flex;gap:10px;margin-bottom:9px">'+
+        '<div style="width:22px;height:22px;border-radius:50%;background:var(--cerise);color:white;'+
+          'font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0">'+(si+1)+'</div>'+
+        '<div style="font-family:Caveat,cursive;font-size:17px;flex:1;line-height:1.4">'+esc(s)+'</div>'+
+      '</div>';
+    }).join('')+
+    '<button class="btn" style="width:100%;margin-top:14px" onclick="closeModal()">Fermer</button>'
+  );
+}
+
+function setCycleStart(){
+  S.cuisine.cycleStart=td(); S.cuisine.cycleDays={};
+  save(); renderCuisine();
+}
+
+function getCyclePhase(dayNum){
+  if(dayNum<=5)  return {n:'Règles',     c:'#ef4444', bg:'rgba(239,68,68,.14)'};
+  if(dayNum<=11) return {n:'Folliculaire',c:'#a855f7', bg:'rgba(168,85,247,.12)'};
+  if(dayNum<=16) return {n:'Ovulation',  c:'#f59e0b', bg:'rgba(245,158,11,.15)'};
+  return           {n:'Lutéale',        c:'#6366f1', bg:'rgba(99,102,241,.11)'};
+}
+
+function renderCuisine(){
+  var now=new Date(), today=td();
+  var inv=S.cuisine.inventory||[];
+  var th=MONTH_THEMES[now.getMonth()];
+  var glBtn='background:rgba(255,255,255,.22);backdrop-filter:blur(10px);'+
+    'border:1.5px solid rgba(255,255,255,.38);border-radius:99px;padding:8px 16px;'+
+    'color:white;font-family:Quicksand,sans-serif;font-weight:800;font-size:11px;cursor:pointer;transition:all .18s';
+
+  /* ── HEADER ── */
+  document.getElementById('kh').innerHTML=
+    '<div style="position:relative;border-radius:28px;overflow:hidden;margin-bottom:20px;min-height:clamp(130px,15vw,185px)">'+
+      '<img src="'+th.p+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" onerror="this.style.opacity=0">'+
+      '<div style="position:absolute;inset:0;background:'+th.g+'"></div>'+
+      '<div style="position:absolute;inset:0;background:linear-gradient(to right,rgba(0,0,0,.52),transparent 65%)"></div>'+
+      '<div style="position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;padding:clamp(16px,3vw,28px)">'+
+        '<div style="color:white">'+
+          '<div style="font-size:9px;font-weight:800;letter-spacing:.28em;text-transform:uppercase;opacity:.65;margin-bottom:6px">🍽️ Garde-Manger</div>'+
+          '<div style="font-family:Shrikhand,cursive;font-size:clamp(24px,4.5vw,42px);line-height:.95;text-shadow:0 2px 14px rgba(0,0,0,.3)">Ma Cuisine</div>'+
+          '<div style="font-size:12px;opacity:.75;margin-top:7px;font-weight:600">'+
+            inv.length+' produit'+(inv.length!==1?'s':'')+' en stock'+
+          '</div>'+
+        '</div>'+
+        '<button onclick="scanTicket()" style="'+glBtn+'">🧾 Scanner des produits</button>'+
+      '</div>'+
+    '</div>';
+
+  /* ── INVENTAIRE (4 sections) ── */
+  var SECS=[
+    {k:'sale',   ic:'🧂', n:'Salé',    col:'#f97316', bg:'rgba(255,247,237,.92)', bd:'#fed7aa'},
+    {k:'sucre',  ic:'🍯', n:'Sucré',   col:'#ec4899', bg:'rgba(253,242,248,.92)', bd:'#fbcfe8'},
+    {k:'frais',  ic:'🥛', n:'Frais',   col:'#16a34a', bg:'rgba(240,253,244,.92)', bd:'#bbf7d0'},
+    {k:'surgele',ic:'❄️', n:'Surgelé', col:'#3b82f6', bg:'rgba(239,246,255,.92)', bd:'#bfdbfe'},
+  ];
+
+  var leftHtml='';
+  SECS.forEach(function(sec){
+    var items=inv.filter(function(i){return i.cat===sec.k;});
+    leftHtml+=
+      '<div class="csec" style="background:'+sec.bg+';border-color:'+sec.bd+';margin-bottom:14px">'+
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'+
+          '<div style="font-size:22px">'+sec.ic+'</div>'+
+          '<div style="font-family:Shrikhand,cursive;font-size:14px;color:'+sec.col+';text-transform:uppercase;letter-spacing:.08em">'+sec.n+'</div>'+
+          '<div style="background:'+sec.bd+';color:'+sec.col+';border-radius:99px;padding:1px 9px;font-size:9px;font-weight:900;margin-left:2px">'+items.length+'</div>'+
+        '</div>'+
+        (items.length
+          ? '<div>'+items.map(function(item){
+              return '<div class="citem">'+
+                '<div class="citem-name" title="'+esc(item.name)+'">'+esc(item.name)+'</div>'+
+                (item.qty?'<div class="citem-qty">'+esc(item.qty)+'</div>':'')+
+                '<button onclick="delCuisineItem(\''+item.id+'\')" '+
+                  'style="background:none;border:none;color:#fca5a5;font-size:11px;cursor:pointer;'+
+                  'padding:2px 5px;border-radius:6px;font-weight:800;transition:color .15s" '+
+                  'onmouseover="this.style.color=\'#ef4444\'" onmouseout="this.style.color=\'#fca5a5\'">✕</button>'+
+              '</div>';
+            }).join('')+'</div>'
+          : '<div style="text-align:center;padding:10px 0;font-size:11px;color:#ccc;font-style:italic">Vide · ajoute ton premier produit ↓</div>')+
+        '<div style="display:flex;gap:5px;margin-top:10px;align-items:flex-end">'+
+          '<input id="ci-'+sec.k+'" class="iline" placeholder="Ajouter…" '+
+            'style="flex:1;font-size:14px" '+
+            'onkeydown="if(event.key===\'Enter\')addCuisineItem(\''+sec.k+'\')">'+
+          '<input id="cq-'+sec.k+'" class="iline" placeholder="qté" style="width:46px;font-size:13px">'+
+          '<button class="btn" onclick="addCuisineItem(\''+sec.k+'\')" '+
+            'style="padding:6px 12px;font-size:11px;background:'+sec.col+';box-shadow:0 2px 8px rgba(0,0,0,.14)">+</button>'+
+        '</div>'+
+      '</div>';
+  });
+  document.getElementById('kl').innerHTML=leftHtml;
+
+  /* ── RECETTES SUGGÉRÉES ── */
+  var matched=getMatchedRecipes();
+  var recHtml='';
+  if(!inv.length){
+    recHtml='<div class="empty" style="padding:20px 0">Remplis ton garde-manger<br>pour des suggestions de recettes 🍒</div>';
+  } else if(!matched.length){
+    recHtml='<div class="empty" style="padding:16px 0">Pas assez d\'ingrédients en commun pour l\'instant 🌿</div>';
+  } else {
+    recHtml=matched.slice(0,4).map(function(m){
+      var ri=RECIPES.indexOf(m.r);
+      var pct=Math.round(m.score*100);
+      var pCol=pct>=100?'#16a34a':pct>=60?'#d97706':'var(--cerise)';
+      return '<div onclick="showRecipe('+ri+')" '+
+        'style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:18px;'+
+        'background:rgba(255,255,255,.72);border:1.5px solid rgba(255,255,255,.9);cursor:pointer;'+
+        'margin-bottom:8px;transition:all .2s;box-shadow:0 2px 8px rgba(210,20,58,.06)" '+
+        'onmouseover="this.style.transform=\'translateY(-2px)\';this.style.boxShadow=\'0 6px 18px rgba(210,20,58,.12)\'" '+
+        'onmouseout="this.style.transform=\'none\';this.style.boxShadow=\'0 2px 8px rgba(210,20,58,.06)\'">'+
+        '<div style="font-size:32px;flex-shrink:0">'+m.r.ic+'</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="font-family:Caveat,cursive;font-size:18px;color:var(--texte);font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+esc(m.r.n)+'</div>'+
+          '<div style="font-size:10px;color:#aaa;margin-top:1px">⏱ '+m.r.t+' min</div>'+
+          '<div class="pbar" style="margin-top:5px;background:rgba(0,0,0,.06)">'+
+            '<div class="pfill" style="width:'+pct+'%;background:'+pCol+'"></div>'+
+          '</div>'+
+        '</div>'+
+        '<div style="font-size:10px;font-weight:800;color:'+pCol+';flex-shrink:0">'+pct+'%</div>'+
+      '</div>';
+    }).join('');
+  }
+
+  /* ── TRACKER HORMONAL ── */
+  var cycStart=S.cuisine.cycleStart;
+  var cycLen=S.cuisine.cycleLength||28;
+  var cycHtml='';
+  if(!cycStart){
+    cycHtml=
+      '<div style="text-align:center;padding:18px 0">'+
+        '<div style="font-size:36px;margin-bottom:8px">🌸</div>'+
+        '<div style="font-size:12px;color:#aaa;margin-bottom:16px">Commence ton suivi pour voir<br>les phases de ton cycle</div>'+
+        '<button class="btn" style="padding:10px 24px" onclick="setCycleStart()">▶ Aujourd\'hui = Jour 1</button>'+
+      '</div>';
+  } else {
+    var startD=new Date(cycStart+'T12:00:00');
+    var JLBL=['L','M','M','J','V','S','D'];
+    var daysSince=Math.floor((new Date(today+'T12:00:00')-startD)/(86400000));
+    var todayPhase=getCyclePhase(((daysSince%cycLen)+cycLen)%cycLen+1);
+
+    cycHtml=
+      /* Jour actuel */
+      '<div style="background:'+todayPhase.bg+';border-radius:14px;padding:10px 14px;margin-bottom:14px;'+
+        'display:flex;align-items:center;gap:10px">'+
+        '<div style="width:12px;height:12px;border-radius:50%;background:'+todayPhase.c+';flex-shrink:0"></div>'+
+        '<div>'+
+          '<div style="font-size:10px;font-weight:800;color:'+todayPhase.c+'">Aujourd\'hui · '+todayPhase.n+'</div>'+
+          '<div style="font-size:9px;color:#aaa;margin-top:1px">Jour '+(((daysSince%cycLen)+cycLen)%cycLen+1)+' sur '+cycLen+'</div>'+
+        '</div>'+
+      '</div>'+
+      /* Grille 28 jours */
+      '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:12px">'+
+        JLBL.map(function(l){
+          return '<div style="text-align:center;font-size:8px;font-weight:800;color:#ccc;padding:2px 0">'+l+'</div>';
+        }).join('')+
+        (function(){
+          var cells='';
+          for(var ci=0;ci<cycLen;ci++){
+            var dd=new Date(startD); dd.setDate(dd.getDate()+ci);
+            var dds=dd.getFullYear()+'-'+String(dd.getMonth()+1).padStart(2,'0')+'-'+String(dd.getDate()).padStart(2,'0');
+            var ph=getCyclePhase(ci+1);
+            var isT=dds===today;
+            var isPast=dds<today;
+            cells+=
+              '<div title="Jour '+(ci+1)+' · '+ph.n+'" '+
+                'style="aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;'+
+                'background:'+ph.bg+';border:'+
+                (isT?'2.5px solid '+ph.c:'1.5px solid transparent')+';'+
+                'opacity:'+(isPast||isT?'1':'.45')+';transition:all .15s;cursor:default">'+
+                '<div style="font-size:8px;font-weight:900;color:'+ph.c+'">'+dd.getDate()+'</div>'+
+              '</div>';
+          }
+          return cells;
+        })()+
+      '</div>'+
+      /* Légende */
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:12px">'+
+        [
+          {n:'Règles',c:'#ef4444',d:'J1–5'},
+          {n:'Folliculaire',c:'#a855f7',d:'J6–11'},
+          {n:'Ovulation',c:'#f59e0b',d:'J12–16'},
+          {n:'Lutéale',c:'#6366f1',d:'J17–28'},
+        ].map(function(p){
+          return '<div style="display:flex;align-items:center;gap:5px">'+
+            '<div style="width:9px;height:9px;border-radius:50%;background:'+p.c+';flex-shrink:0"></div>'+
+            '<span style="font-size:9px;color:#999;font-weight:700">'+p.n+' <span style="opacity:.55">('+p.d+')</span></span>'+
+          '</div>';
+        }).join('')+
+      '</div>'+
+      '<button class="btn-xs" onclick="setCycleStart()">🔄 Nouveau cycle · Aujourd\'hui = J1</button>';
+  }
+
+  document.getElementById('kr').innerHTML=
+    '<div class="csec" style="margin-bottom:14px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'+
+        '<div style="font-family:Shrikhand,cursive;font-size:14px;color:var(--cerise);text-transform:uppercase;letter-spacing:.08em">🍳 Cuisiner maintenant</div>'+
+        '<button class="btn-xs" onclick="renderCuisine()">↺ Actualiser</button>'+
+      '</div>'+
+      recHtml+
+    '</div>'+
+    '<div class="csec">'+
+      '<div style="font-family:Shrikhand,cursive;font-size:14px;color:#a855f7;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">🌸 Mon Cycle</div>'+
+      cycHtml+
+    '</div>';
 }
 
 /* ══ HELPERS ══ */
