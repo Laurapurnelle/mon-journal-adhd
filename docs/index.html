@@ -30,13 +30,7 @@
 
 body {
   font-family: 'Quicksand', sans-serif;
-  background:
-    radial-gradient(ellipse at 15% 10%, rgba(255,182,215,.55) 0%, transparent 45%),
-    radial-gradient(ellipse at 85% 15%, rgba(200,180,255,.45) 0%, transparent 40%),
-    radial-gradient(ellipse at 80% 85%, rgba(255,160,190,.4) 0%, transparent 45%),
-    radial-gradient(ellipse at 20% 80%, rgba(180,200,255,.35) 0%, transparent 40%),
-    linear-gradient(145deg, #ffe8f0 0%, #f8e4ff 40%, #e4eeff 70%, #ffe8f0 100%);
-  background-attachment: fixed;
+  background: #f4f2ef;
   color: var(--texte);
   min-height: 100vh;
   overflow-x: hidden;
@@ -61,16 +55,11 @@ body {
 
 /* ── CARDS ── */
 .card {
-  background: rgba(255,255,255,.58);
-  backdrop-filter: blur(24px) saturate(160%);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
-  border: 1px solid rgba(255,255,255,.22);
+  background: #ffffff;
+  border: 1px solid #ede9e4;
   border-radius: 20px;
   padding: 20px;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.7),
-    0 2px 12px rgba(0,0,0,.06),
-    0 8px 32px rgba(0,0,0,.05);
+  box-shadow: 0 2px 12px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.04);
 }
 
 .polaroid {
@@ -182,18 +171,13 @@ body {
   left: 50%;
   transform: translateX(-50%);
   z-index: 100;
-  background: rgba(255,255,255,.92);
-  backdrop-filter: blur(24px) saturate(200%);
-  -webkit-backdrop-filter: blur(24px) saturate(200%);
-  border: 2.5px solid rgba(255,255,255,.98);
+  background: #ffffff;
+  border: 1px solid #ede9e4;
   border-radius: 99px;
   padding: 7px 10px;
   display: flex;
   gap: 4px;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,1),
-    0 4px 16px rgba(210,20,58,.1),
-    0 16px 40px rgba(0,0,0,.1);
+  box-shadow: 0 4px 20px rgba(0,0,0,.10), 0 1px 4px rgba(0,0,0,.06);
 }
 .nbtn {
   padding: 10px 22px;
@@ -293,11 +277,9 @@ body {
 
 /* ── CUISINE ── */
 .csec {
-  background: rgba(255,255,255,.82);
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
-  border: 1.5px solid rgba(255,255,255,.92);
-  border-radius: 24px;
+  background: #ffffff;
+  border: 1.5px solid #ede9e4;
+  border-radius: 20px;
   padding: 16px 18px;
 }
 .citem {
@@ -314,17 +296,12 @@ body {
 @media(min-width:768px){ .cuis-grid { grid-template-columns: 5fr 4fr; } }
 
 .app-card {
-  background: rgba(255,255,255,.75);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1.5px solid rgba(255,255,255,.92);
-  border-radius: 28px;
+  background: #ffffff;
+  border: 1.5px solid #ede9e4;
+  border-radius: 24px;
   padding: 26px 20px 22px;
   cursor: pointer;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.95),
-    0 6px 20px rgba(210,20,58,.09),
-    0 24px 60px rgba(180,100,140,.08);
+  box-shadow: 0 2px 12px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.04);
   transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s;
   text-align: left;
   display: flex;
@@ -334,19 +311,9 @@ body {
   position: relative;
   overflow: hidden;
 }
-.app-card::before {
-  content:'';
-  position:absolute; top:-30px; right:-20px;
-  width:90px; height:90px; border-radius:50%;
-  background: radial-gradient(circle, rgba(210,20,58,.07) 0%, transparent 70%);
-  pointer-events:none;
-}
 .app-card:hover {
-  transform: translateY(-10px) scale(1.02);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.95),
-    0 12px 32px rgba(210,20,58,.14),
-    0 40px 80px rgba(180,100,140,.12);
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 8px 28px rgba(0,0,0,.10), 0 2px 8px rgba(0,0,0,.06);
 }
 .app-card:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
 .ac-icon { font-size:38px; line-height:1; filter:drop-shadow(0 4px 8px rgba(210,20,58,.2)); }
@@ -408,8 +375,8 @@ button:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
 .home-hero-wrap { max-width:1100px; margin:0 auto; padding:28px 16px 100px; }
 
 /* ── SEMAINE agrandie ── */
-.wday { background:rgba(255,255,255,.82); border:1px solid rgba(255,133,161,.18); border-radius:22px; padding:0; min-height:320px;
-  box-shadow:0 2px 12px rgba(210,20,58,.06); transition:border-color .15s; display:flex; flex-direction:column; overflow:hidden; }
+.wday { background:#ffffff; border:1px solid #ede9e4; border-radius:22px; padding:0; min-height:320px;
+  box-shadow:0 2px 8px rgba(0,0,0,.05); transition:border-color .15s; display:flex; flex-direction:column; overflow:hidden; }
 .wday.wtoday { border-color:var(--cerise); }
 .wday-cap { height:8px; width:100%; flex-shrink:0; }
 .wday-body { padding:10px 10px 12px; flex:1; display:flex; flex-direction:column; }
@@ -576,36 +543,76 @@ const CAT_MAP={
 
 /* Recettes intégrées */
 const RECIPES=[
-  {n:'Pâtes à la tomate',t:15,ic:'🍝',cat:'sale',
-    ing:['pâtes','sauce tomate','huile'],
-    steps:["Porter l'eau à ébullition avec une pincée de sel.","Faire chauffer l'huile, ajouter l'ail (optionnel).","Incorporer la sauce tomate, sel, poivre, basilic.","Cuire les pâtes al dente, égoutter et mélanger."]},
-  {n:'Riz au curry',t:20,ic:'🍛',cat:'sale',
-    ing:['riz','huile','sel'],
-    steps:["Faire revenir le curry dans l'huile 1 min.","Ajouter le riz et bien enrober.","Couvrir avec 2× le volume d'eau bouillante.","Cuire 18 min à feu doux, couvercle fermé."]},
-  {n:'Crêpes dorées',t:25,ic:'🥞',cat:'sucre',
-    ing:['farine','lait','beurre'],
-    steps:["Mélanger farine, une pincée de sel et les œufs.","Ajouter le lait progressivement, fouetter.","Laisser reposer 20 min.","Cuire dans une poêle beurrée, 1 min de chaque côté."]},
-  {n:'Salade riz-thon',t:15,ic:'🥗',cat:'sale',
-    ing:['riz','thon','maïs','moutarde'],
-    steps:["Cuire le riz, rincer à l'eau froide.","Égoutter thon et maïs.","Mélanger, assaisonner de moutarde, sel, poivre.","Servir frais avec un filet d'huile."]},
-  {n:'Soupe de lentilles',t:30,ic:'🍲',cat:'sale',
-    ing:['lentille','bouillon','carotte'],
-    steps:["Faire revenir la carotte en dés dans l'huile.","Ajouter lentilles rincées et bouillon chaud.","Cuire 25 min à feu moyen.","Mixer la moitié pour une texture crémeuse."]},
-  {n:'Omelette jambon-fromage',t:10,ic:'🍳',cat:'frais',
-    ing:['beurre','jambon','fromage'],
-    steps:["Battre les œufs avec sel et poivre.","Faire fondre le beurre dans une poêle chaude.","Verser les œufs, déposer jambon et fromage.","Plier en deux, servir immédiatement."]},
-  {n:'Toast chocolat fondant',t:5,ic:'🍫',cat:'sucre',
-    ing:['beurre','chocolat'],
-    steps:["Toaster le pain jusqu'à la couleur désirée.","Étaler une noix de beurre fondu.","Râper généreusement du chocolat par-dessus.","Servir chaud pour que le chocolat fonde."]},
-  {n:'Bol yaourt-confiture',t:3,ic:'🍨',cat:'frais',
-    ing:['yaourt','confiture'],
-    steps:["Verser le yaourt dans un bol.","Ajouter une cuillère de confiture.","Optionnel : granola ou miel par-dessus.","Mélanger et déguster."]},
-  {n:'Couscous express',t:15,ic:'🫙',cat:'sale',
-    ing:['couscous','huile','sel'],
-    steps:["Verser le couscous dans un saladier.","Ajouter huile, sel et eau bouillante à niveau égal.","Couvrir 5 min puis égrainer à la fourchette.","Ajouter raisins secs, épices ou légumes cuits."]},
-  {n:'Tartines confiture',t:3,ic:'🍞',cat:'sucre',
+  /* ── PETIT-DÉJEUNER ── */
+  {n:'Tartines confiture',t:3,ic:'🍞',cat:'sucre',type:'breakfast',
     ing:['confiture','beurre'],
     steps:["Toaster ou tartiner le pain selon préférence.","Étaler le beurre en couche fine.","Recouvrir de confiture généreusement.","Servir avec un thé ou café."]},
+  {n:'Bol yaourt-confiture',t:3,ic:'🍨',cat:'frais',type:'breakfast',
+    ing:['yaourt','confiture'],
+    steps:["Verser le yaourt dans un bol.","Ajouter une cuillère de confiture.","Optionnel : granola ou miel par-dessus.","Mélanger et déguster."]},
+  {n:'Crêpes dorées',t:25,ic:'🥞',cat:'sucre',type:'breakfast',
+    ing:['farine','lait','beurre'],
+    steps:["Mélanger farine, une pincée de sel et les œufs.","Ajouter le lait progressivement, fouetter.","Laisser reposer 20 min.","Cuire dans une poêle beurrée, 1 min de chaque côté."]},
+  {n:'Toast chocolat fondant',t:5,ic:'🍫',cat:'sucre',type:'breakfast',
+    ing:['beurre','chocolat'],
+    steps:["Toaster le pain jusqu'à la couleur désirée.","Étaler une noix de beurre fondu.","Râper généreusement du chocolat par-dessus.","Servir chaud pour que le chocolat fonde."]},
+  {n:'Pancakes moelleux',t:20,ic:'🥞',cat:'sucre',type:'breakfast',
+    ing:['farine','lait','beurre'],
+    steps:["Mélanger farine, sucre, 1 pincée de sel dans un saladier.","Ajouter 1 œuf et le lait, fouetter jusqu'à consistance lisse.","Cuire des petits disques dans une poêle beurrée chaude.","Empiler et servir avec sirop, miel ou confiture."]},
+  {n:'Avocado toast',t:5,ic:'🥑',cat:'frais',type:'breakfast',
+    ing:['avocat','sel','huile'],
+    steps:["Toaster deux tranches de pain.","Écraser l'avocat avec sel, poivre et un filet de citron.","Étaler généreusement sur le toast.","Parsemer de graines ou piment selon goût."]},
+  {n:'Porridge banane-miel',t:10,ic:'🍌',cat:'sucre',type:'breakfast',
+    ing:['céréale','lait','banane'],
+    steps:["Porter le lait à frémissement dans une casserole.","Ajouter les flocons d'avoine et le miel, remuer 3 min.","Retirer du feu, couvrir 2 min pour épaissir.","Servir avec la banane en rondelles et un filet de miel."]},
+  /* ── DÉJEUNER ── */
+  {n:'Salade riz-thon',t:15,ic:'🥗',cat:'sale',type:'lunch',
+    ing:['riz','thon','maïs','moutarde'],
+    steps:["Cuire le riz, rincer à l'eau froide.","Égoutter thon et maïs.","Mélanger, assaisonner de moutarde, sel, poivre.","Servir frais avec un filet d'huile."]},
+  {n:'Omelette jambon-fromage',t:10,ic:'🍳',cat:'frais',type:'lunch',
+    ing:['beurre','jambon','fromage'],
+    steps:["Battre les œufs avec sel et poivre.","Faire fondre le beurre dans une poêle chaude.","Verser les œufs, déposer jambon et fromage.","Plier en deux, servir immédiatement."]},
+  {n:'Wrap thon-maïs',t:10,ic:'🌯',cat:'sale',type:'lunch',
+    ing:['thon','maïs','moutarde'],
+    steps:["Égoutter le thon et le maïs dans un bol.","Assaisonner de moutarde, sel, poivre.","Déposer sur une galette ou une tortilla.","Rouler serré, couper en deux et servir."]},
+  {n:'Salade de pois chiches',t:10,ic:'🫘',cat:'sale',type:'lunch',
+    ing:['pois chiche','huile','sel'],
+    steps:["Rincer et égoutter les pois chiches.","Mélanger avec huile, sel, citron, cumin.","Ajouter tomates cerises ou concombre si dispo.","Servir frais ou tiède."]},
+  {n:'Quinoa bowl',t:20,ic:'🥣',cat:'sale',type:'lunch',
+    ing:['quinoa','huile','sel'],
+    steps:["Rincer le quinoa, cuire 15 min dans 2× son volume d'eau.","Laisser reposer 5 min, égrainer à la fourchette.","Assaisonner d'huile, sel, citron.","Compléter avec légumes, œuf, avocat selon dispo."]},
+  {n:'Couscous express',t:15,ic:'🫙',cat:'sale',type:'lunch',
+    ing:['couscous','huile','sel'],
+    steps:["Verser le couscous dans un saladier.","Ajouter huile, sel et eau bouillante à niveau égal.","Couvrir 5 min puis égrainer à la fourchette.","Ajouter raisins secs, épices ou légumes cuits."]},
+  {n:'Riz sauté aux légumes',t:15,ic:'🥘',cat:'sale',type:'lunch',
+    ing:['riz','huile','sel'],
+    steps:["Cuire le riz la veille ou rincer du riz déjà cuit.","Chauffer l'huile à feu vif dans une grande poêle.","Faire sauter le riz avec les légumes 5-7 min.","Assaisonner de sel, poivre, sauce soja optionnel."]},
+  /* ── DÎNER ── */
+  {n:'Pâtes à la tomate',t:15,ic:'🍝',cat:'sale',type:'dinner',
+    ing:['pâtes','sauce tomate','huile'],
+    steps:["Porter l'eau à ébullition avec une pincée de sel.","Faire chauffer l'huile, ajouter l'ail (optionnel).","Incorporer la sauce tomate, sel, poivre, basilic.","Cuire les pâtes al dente, égoutter et mélanger."]},
+  {n:'Riz au curry',t:20,ic:'🍛',cat:'sale',type:'dinner',
+    ing:['riz','huile','sel'],
+    steps:["Faire revenir le curry dans l'huile 1 min.","Ajouter le riz et bien enrober.","Couvrir avec 2× le volume d'eau bouillante.","Cuire 18 min à feu doux, couvercle fermé."]},
+  {n:'Soupe de lentilles',t:30,ic:'🍲',cat:'sale',type:'dinner',
+    ing:['lentille','bouillon','carotte'],
+    steps:["Faire revenir la carotte en dés dans l'huile.","Ajouter lentilles rincées et bouillon chaud.","Cuire 25 min à feu moyen.","Mixer la moitié pour une texture crémeuse."]},
+  {n:'Gratin de pâtes',t:35,ic:'🧀',cat:'frais',type:'dinner',
+    ing:['pâtes','fromage','beurre'],
+    steps:["Cuire les pâtes, égoutter.","Préparer une béchamel légère avec beurre et lait.","Mélanger pâtes, béchamel et fromage râpé dans un plat.","Gratiner 15 min au four à 200°C."]},
+  {n:'Velouté de carottes',t:25,ic:'🥕',cat:'frais',type:'dinner',
+    ing:['carotte','bouillon','beurre'],
+    steps:["Éplucher et couper les carottes en rondelles.","Faire revenir dans le beurre 5 min.","Couvrir de bouillon, cuire 20 min jusqu'à tendreté.","Mixer finement, rectifier sel et poivre."]},
+  {n:'Soupe minestrone',t:35,ic:'🥦',cat:'sale',type:'dinner',
+    ing:['lentille','bouillon','sel'],
+    steps:["Porter le bouillon à ébullition.","Ajouter légumes en dés, lentilles, sel, herbes.","Cuire 25 min à feu moyen.","Servir chaud avec un filet d'huile d'olive."]},
+  /* ── COLLATION ── */
+  {n:'Cookies simples',t:25,ic:'🍪',cat:'sucre',type:'snack',
+    ing:['farine','beurre','sucre'],
+    steps:["Préchauffer le four à 180°C.","Mélanger beurre mou, sucre, puis ajouter farine.","Former des boules, écraser sur plaque beurrée.","Cuire 12 min jusqu'à couleur dorée."]},
+  {n:'Compote maison',t:20,ic:'🍎',cat:'sucre',type:'snack',
+    ing:['compote','sucre'],
+    steps:["Éplucher et couper les pommes en morceaux.","Cuire avec 3 cs d'eau et 1 cs de sucre 15 min.","Écraser à la fourchette ou mixer selon texture voulue.","Servir tiède ou froid."]},
 ];
 
 const DEF = {
@@ -629,6 +636,7 @@ let editHabits = false;
 let evType = 'perso';
 let evDate = null, evId = null;
 let weekStart = null;
+let mealTypeFilter = '';
 
 function load(){
   try{
@@ -872,18 +880,36 @@ function renderJ(){
     taskHtml='<div class="empty">Ajouter une tâche ↓</div>';
   }
 
-  /* Widget suggestion repas */
-  var rndRec=RECIPES[Math.floor(Math.random()*RECIPES.length)];
+  /* Widget suggestion repas avec sélecteur de type */
+  var MEAL_TYPES=[
+    {k:'',    lb:'Tout',ic:'🍽️'},
+    {k:'breakfast',lb:'Petit-déj.',ic:'🌅'},
+    {k:'lunch',    lb:'Déjeuner',  ic:'☀️'},
+    {k:'dinner',   lb:'Dîner',     ic:'🌙'},
+    {k:'snack',    lb:'Collation', ic:'🍎'},
+  ];
+  var filtRecs=mealTypeFilter
+    ? RECIPES.filter(function(r){return r.type===mealTypeFilter;})
+    : RECIPES;
+  var sugRec=filtRecs.length?filtRecs[Math.floor(Math.random()*filtRecs.length)]:RECIPES[0];
+  var mealTabs=MEAL_TYPES.map(function(mt){
+    var active=mealTypeFilter===mt.k;
+    return '<button onclick="mealTypeFilter=\''+mt.k+'\';renderJ()" '+
+      'style="padding:5px 10px;border-radius:99px;border:none;cursor:pointer;font-size:9px;font-weight:800;'+
+      'background:'+(active?'var(--cerise)':'#f5f0eb')+';color:'+(active?'white':'#999')+';'+
+      'transition:all .15s;white-space:nowrap">'+mt.lb+'</button>';
+  }).join('');
   var mealWidget=
-    '<div class="card" style="background:linear-gradient(135deg,rgba(255,248,242,.85),rgba(255,237,220,.75));'+
-      'border-color:rgba(249,115,22,.12);padding:14px 16px">'+
-      '<div style="display:flex;justify-content:space-between;align-items:center">'+
-        '<div>'+
-          '<div style="font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#d97706;margin-bottom:3px">Suggestion repas</div>'+
-          '<div style="font-family:Shrikhand,cursive;font-size:16px;color:var(--texte)">'+rndRec.ic+' '+esc(rndRec.n)+'</div>'+
-          '<div style="font-size:10px;color:#aaa;margin-top:2px">'+rndRec.t+' min</div>'+
+    '<div class="card" style="padding:14px 16px">'+
+      '<div style="font-size:9px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#d97706;margin-bottom:8px">Suggestion repas</div>'+
+      '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px">'+mealTabs+'</div>'+
+      '<div style="display:flex;align-items:center;gap:12px">'+
+        '<div style="font-size:30px;flex-shrink:0">'+sugRec.ic+'</div>'+
+        '<div style="flex:1;min-width:0">'+
+          '<div style="font-family:Caveat,cursive;font-size:18px;color:var(--texte);overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+esc(sugRec.n)+'</div>'+
+          '<div style="font-size:10px;color:#aaa;margin-top:1px">'+sugRec.t+' min</div>'+
         '</div>'+
-        '<button class="btn-xs" onclick="showRecipe('+RECIPES.indexOf(rndRec)+')" style="white-space:nowrap">Voir →</button>'+
+        '<button class="btn-xs" onclick="showRecipe('+RECIPES.indexOf(sugRec)+')" style="white-space:nowrap;flex-shrink:0">Voir →</button>'+
       '</div>'+
     '</div>';
 
@@ -1005,9 +1031,9 @@ function renderCal(){
   var daysInMonth=new Date(y,m+1,0).getDate();
   var offset=(new Date(y,m,1).getDay()+6)%7;
 
-  /* calendrier pleine largeur */
+  /* s'assurer que la grille 2-colonnes est active */
   var cg=document.querySelector('.cgrid');
-  if(cg) cg.style.gridTemplateColumns='1fr';
+  if(cg) cg.style.gridTemplateColumns='';
 
   /* taux de succès */
   var doneCount=0,totalPast=0;
@@ -1087,9 +1113,14 @@ function renderCal(){
       cellSt='background:'+th.c+';border-color:'+th.bd+(isWkd?';opacity:.7':'');
       numSt='color:#bbb';
     }
+    var cycPh=getCycleDayFor(ds2);
+    var cycDot=cycPh&&!sc?'<div style="width:6px;height:6px;border-radius:50%;background:'+cycPh.c+';margin-top:3px;opacity:.8;flex-shrink:0"></div>':'';
     ch+='<div class="cday'+(isT&&!sc?' today':'')+'" style="'+cellSt+'" onclick="openAddEvent(\''+ds2+'\')">'+
       '<div style="display:flex;justify-content:space-between;align-items:flex-start">'+
-        '<div class="cdnum" style="'+numSt+'">'+d2+'</div>'+
+        '<div style="display:flex;flex-direction:column;align-items:flex-start">'+
+          '<div class="cdnum" style="'+numSt+'">'+d2+'</div>'+
+          cycDot+
+        '</div>'+
         '<div style="font-size:10px;line-height:1.2;text-align:right">'+
           (mood2!==undefined?'<div>'+MOODS[mood2].e+'</div>':'')+
           (ha2?'<div style="font-size:8px">🤕</div>':'')+
@@ -1103,7 +1134,78 @@ function renderCal(){
   }
   ch+='</div></div>';
   document.getElementById('cl').innerHTML=ch;
-  document.getElementById('cr').innerHTML='';
+
+  /* ── COLONNE DROITE : Tracker cycle ── */
+  var cycStart=S.cuisine.cycleStart;
+  var cycLen=S.cuisine.cycleLength||28;
+  var crCycHtml='';
+  if(!cycStart){
+    crCycHtml=
+      '<div style="text-align:center;padding:24px 16px">'+
+        '<div style="font-size:40px;margin-bottom:10px">🌸</div>'+
+        '<div style="font-size:12px;color:#aaa;margin-bottom:18px;line-height:1.5">Commence ton suivi pour voir<br>les phases sur le calendrier</div>'+
+        '<button class="btn" style="padding:10px 24px" onclick="setCycleStart()">Aujourd\'hui = Jour 1</button>'+
+      '</div>';
+  } else {
+    var today2=td();
+    var startD2=new Date(cycStart+'T12:00:00');
+    var daysSince2=Math.floor((new Date(today2+'T12:00:00')-startD2)/86400000);
+    var todayDayNum=((daysSince2%cycLen)+cycLen)%cycLen+1;
+    var todayPhase2=getCyclePhase(todayDayNum);
+    /* Grille cycle avec alignement correct sur le jour de la semaine */
+    var startDow=(startD2.getDay()+6)%7; /* 0=Lun … 6=Dim */
+    var JLBL2=['L','M','M','J','V','S','D'];
+    var cycCells='';
+    /* cellules vides d'offset */
+    for(var oi=0;oi<startDow;oi++) cycCells+='<div></div>';
+    for(var ci=0;ci<cycLen;ci++){
+      var dd2=new Date(startD2); dd2.setDate(dd2.getDate()+ci);
+      var dds2=dd2.getFullYear()+'-'+String(dd2.getMonth()+1).padStart(2,'0')+'-'+String(dd2.getDate()).padStart(2,'0');
+      var ph2=getCyclePhase(ci+1);
+      var isT2=dds2===today2;
+      var isPast2=dds2<today2;
+      cycCells+=
+        '<div title="Jour '+(ci+1)+' · '+ph2.n+'" '+
+          'style="aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;'+
+          'background:'+ph2.bg+';border:'+(isT2?'2.5px solid '+ph2.c:'1.5px solid transparent')+';'+
+          'opacity:'+(isPast2||isT2?'1':'.38')+';cursor:default">'+
+          '<div style="font-size:8px;font-weight:900;color:'+ph2.c+'">'+dd2.getDate()+'</div>'+
+        '</div>';
+    }
+    crCycHtml=
+      /* Phase du jour */
+      '<div style="background:'+todayPhase2.bg+';border-radius:14px;padding:11px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px">'+
+        '<div style="width:12px;height:12px;border-radius:50%;background:'+todayPhase2.c+';flex-shrink:0"></div>'+
+        '<div>'+
+          '<div style="font-size:11px;font-weight:800;color:'+todayPhase2.c+'">Aujourd\'hui · '+todayPhase2.n+'</div>'+
+          '<div style="font-size:9px;color:#aaa;margin-top:1px">Jour '+todayDayNum+' sur '+cycLen+'</div>'+
+        '</div>'+
+      '</div>'+
+      /* Légende */
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:12px">'+
+        [{n:'Règles',c:'#ef4444',d:'J1–5'},{n:'Folliculaire',c:'#a855f7',d:'J6–11'},{n:'Ovulation',c:'#f59e0b',d:'J12–16'},{n:'Lutéale',c:'#6366f1',d:'J17+'}]
+        .map(function(p){
+          return '<div style="display:flex;align-items:center;gap:5px">'+
+            '<div style="width:8px;height:8px;border-radius:50%;background:'+p.c+';flex-shrink:0"></div>'+
+            '<span style="font-size:9px;color:#999;font-weight:700">'+p.n+'</span>'+
+          '</div>';
+        }).join('')+
+      '</div>'+
+      /* Grille cycle */
+      '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:12px">'+
+        JLBL2.map(function(l){return '<div style="text-align:center;font-size:8px;font-weight:800;color:#ccc;padding:2px 0">'+l+'</div>';}).join('')+
+        cycCells+
+      '</div>'+
+      '<button class="btn-xs" onclick="openCycleSettings()" style="font-size:9px;width:100%">Ajuster mon cycle</button>';
+  }
+  document.getElementById('cr').innerHTML=
+    '<div class="card" style="position:sticky;top:16px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'+
+        '<div style="font-family:Shrikhand,cursive;font-size:14px;color:#a855f7;text-transform:uppercase;letter-spacing:.08em">Mon Cycle</div>'+
+        (cycStart?'<button class="btn-xs" onclick="openCycleSettings()" style="font-size:9px">Paramètres</button>':'')+
+      '</div>'+
+      crCycHtml+
+    '</div>';
 
   /* BUDGET + PROJETS + POST-ITS dans #cp */
   var cf=S.budget.chargesFixe||[];
@@ -1308,6 +1410,44 @@ function renderHome(){
       '</div>'+
     '</div>';
   tickClock();
+
+  /* ── BANDE 7 JOURS ── */
+  var JCOURT=['D','L','M','M','J','V','S'];
+  var strip='<div style="display:flex;justify-content:center;gap:8px;padding:20px 16px 4px">';
+  for(var si=-3;si<=3;si++){
+    var sd=new Date(now); sd.setDate(now.getDate()+si);
+    var sdStr=sd.getFullYear()+'-'+String(sd.getMonth()+1).padStart(2,'0')+'-'+String(sd.getDate()).padStart(2,'0');
+    var isToday2=si===0;
+    strip+=
+      '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;cursor:'+(isToday2?'default':'pointer')+'"'+
+        (si!==0?' onclick="goPage(\'journal\')"':'')+'>'+
+        '<div style="font-size:9px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:'+(isToday2?'var(--cerise)':'#bbb')+'">'+
+          JCOURT[sd.getDay()]+
+        '</div>'+
+        '<div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;'+
+          'background:'+(isToday2?'var(--cerise)':'#ffffff')+';'+
+          'border:2px solid '+(isToday2?'var(--cerise)':'#ede9e4')+';'+
+          'box-shadow:'+(isToday2?'0 4px 12px rgba(210,20,58,.28)':'0 1px 4px rgba(0,0,0,.06)')+'">'+
+          '<span style="font-family:Shrikhand,cursive;font-size:14px;color:'+(isToday2?'white':'var(--texte)')+'">'+sd.getDate()+'</span>'+
+        '</div>'+
+      '</div>';
+  }
+  strip+='</div>';
+  document.getElementById('hgrid').previousElementSibling
+    ? null /* déjà présent */ : null;
+  /* injecter la strip avant le hgrid */
+  var hgridEl=document.getElementById('hgrid');
+  var existStrip=document.getElementById('hstrip');
+  if(!existStrip){
+    var stripDiv=document.createElement('div');
+    stripDiv.id='hstrip';
+    stripDiv.style.maxWidth='520px';
+    stripDiv.style.margin='0 auto';
+    stripDiv.innerHTML=strip;
+    hgridEl.parentNode.insertBefore(stripDiv,hgridEl);
+  } else {
+    existStrip.innerHTML=strip;
+  }
 
   /* ── APP CARDS ── */
   document.getElementById('hgrid').innerHTML=
@@ -1632,7 +1772,9 @@ function showRecipe(ri){
 
 function setCycleStart(){
   S.cuisine.cycleStart=td(); S.cuisine.cycleDays={};
-  save(); renderCuisine();
+  save();
+  if(curPage==='calendar') renderCal();
+  else renderCuisine();
 }
 function openCycleSettings(){
   var cur=S.cuisine.cycleStart||td();
@@ -1661,14 +1803,26 @@ function saveCycleSettings(){
   S.cuisine.cycleStart=d||td();
   S.cuisine.cycleLength=Math.max(21,Math.min(45,l));
   S.cuisine.cycleDays={};
-  save(); closeModal(); renderCuisine();
+  save(); closeModal();
+  if(curPage==='calendar') renderCal();
+  else renderCuisine();
 }
 
 function getCyclePhase(dayNum){
-  if(dayNum<=5)  return {n:'Règles',     c:'#ef4444', bg:'rgba(239,68,68,.14)'};
+  if(dayNum<=5)  return {n:'Règles',      c:'#ef4444', bg:'rgba(239,68,68,.14)'};
   if(dayNum<=11) return {n:'Folliculaire',c:'#a855f7', bg:'rgba(168,85,247,.12)'};
-  if(dayNum<=16) return {n:'Ovulation',  c:'#f59e0b', bg:'rgba(245,158,11,.15)'};
-  return           {n:'Lutéale',        c:'#6366f1', bg:'rgba(99,102,241,.11)'};
+  if(dayNum<=16) return {n:'Ovulation',   c:'#f59e0b', bg:'rgba(245,158,11,.15)'};
+  return           {n:'Lutéale',         c:'#6366f1', bg:'rgba(99,102,241,.11)'};
+}
+function getCycleDayFor(dateStr){
+  if(!S.cuisine.cycleStart) return null;
+  var startD=new Date(S.cuisine.cycleStart+'T12:00:00');
+  var targetD=new Date(dateStr+'T12:00:00');
+  var daysSince=Math.floor((targetD-startD)/86400000);
+  if(daysSince<0) return null;
+  var cycLen=S.cuisine.cycleLength||28;
+  var dayNum=((daysSince%cycLen)+cycLen)%cycLen+1;
+  return getCyclePhase(dayNum);
 }
 
 function renderCuisine(){
@@ -1739,120 +1893,62 @@ function renderCuisine(){
   });
   document.getElementById('kl').innerHTML=leftHtml;
 
-  /* ── RECETTES SUGGÉRÉES ── */
+  /* ── RECETTES : filtrées par type + garde-manger ── */
+  var KTYPES=[
+    {k:'',         lb:'Tout',       ic:'🍽️'},
+    {k:'breakfast',lb:'Petit-déj.', ic:'🌅'},
+    {k:'lunch',    lb:'Déjeuner',   ic:'☀️'},
+    {k:'dinner',   lb:'Dîner',      ic:'🌙'},
+    {k:'snack',    lb:'Collation',  ic:'🍎'},
+  ];
+  var kTabs=KTYPES.map(function(mt){
+    var active=mealTypeFilter===mt.k;
+    return '<button onclick="mealTypeFilter=\''+mt.k+'\';renderCuisine()" '+
+      'style="padding:5px 11px;border-radius:99px;border:none;cursor:pointer;font-size:9px;font-weight:800;'+
+      'background:'+(active?'var(--cerise)':'#f5f0eb')+';color:'+(active?'white':'#999')+';'+
+      'transition:all .15s;white-space:nowrap">'+mt.lb+'</button>';
+  }).join('');
+
+  var typeFiltered=mealTypeFilter?RECIPES.filter(function(r){return r.type===mealTypeFilter;}):RECIPES;
   var matched=getMatchedRecipes();
+  var matchedIds=matched.map(function(m){return m.r.n;});
+
   var recHtml='';
-  if(!inv.length){
-    recHtml='<div class="empty" style="padding:20px 0">Remplis ton garde-manger<br>pour des suggestions de recettes 🍒</div>';
-  } else if(!matched.length){
-    recHtml='<div class="empty" style="padding:16px 0">Pas assez d\'ingrédients en commun pour l\'instant 🌿</div>';
-  } else {
-    recHtml=matched.slice(0,4).map(function(m){
-      var ri=RECIPES.indexOf(m.r);
-      var pct=Math.round(m.score*100);
-      var pCol=pct>=100?'#16a34a':pct>=60?'#d97706':'var(--cerise)';
-      return '<div onclick="showRecipe('+ri+')" '+
-        'style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:18px;'+
-        'background:rgba(255,255,255,.72);border:1.5px solid rgba(255,255,255,.9);cursor:pointer;'+
-        'margin-bottom:8px;transition:all .2s;box-shadow:0 2px 8px rgba(210,20,58,.06)" '+
-        'onmouseover="this.style.transform=\'translateY(-2px)\';this.style.boxShadow=\'0 6px 18px rgba(210,20,58,.12)\'" '+
-        'onmouseout="this.style.transform=\'none\';this.style.boxShadow=\'0 2px 8px rgba(210,20,58,.06)\'">'+
-        '<div style="font-size:32px;flex-shrink:0">'+m.r.ic+'</div>'+
-        '<div style="flex:1;min-width:0">'+
-          '<div style="font-family:Caveat,cursive;font-size:18px;color:var(--texte);font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+esc(m.r.n)+'</div>'+
-          '<div style="font-size:10px;color:#aaa;margin-top:1px">⏱ '+m.r.t+' min</div>'+
-          '<div class="pbar" style="margin-top:5px;background:rgba(0,0,0,.06)">'+
-            '<div class="pfill" style="width:'+pct+'%;background:'+pCol+'"></div>'+
-          '</div>'+
-        '</div>'+
-        '<div style="font-size:10px;font-weight:800;color:'+pCol+';flex-shrink:0">'+pct+'%</div>'+
-      '</div>';
-    }).join('');
-  }
-
-  /* ── TRACKER HORMONAL ── */
-  var cycStart=S.cuisine.cycleStart;
-  var cycLen=S.cuisine.cycleLength||28;
-  var cycHtml='';
-  if(!cycStart){
-    cycHtml=
-      '<div style="text-align:center;padding:18px 0">'+
-        '<div style="font-size:36px;margin-bottom:8px">🌸</div>'+
-        '<div style="font-size:12px;color:#aaa;margin-bottom:16px">Commence ton suivi pour voir<br>les phases de ton cycle</div>'+
-        '<button class="btn" style="padding:10px 24px" onclick="setCycleStart()">▶ Aujourd\'hui = Jour 1</button>'+
-      '</div>';
-  } else {
-    var startD=new Date(cycStart+'T12:00:00');
-    var JLBL=['L','M','M','J','V','S','D'];
-    var daysSince=Math.floor((new Date(today+'T12:00:00')-startD)/(86400000));
-    var todayPhase=getCyclePhase(((daysSince%cycLen)+cycLen)%cycLen+1);
-
-    cycHtml=
-      /* Jour actuel */
-      '<div style="background:'+todayPhase.bg+';border-radius:14px;padding:10px 14px;margin-bottom:14px;'+
-        'display:flex;align-items:center;gap:10px">'+
-        '<div style="width:12px;height:12px;border-radius:50%;background:'+todayPhase.c+';flex-shrink:0"></div>'+
-        '<div>'+
-          '<div style="font-size:10px;font-weight:800;color:'+todayPhase.c+'">Aujourd\'hui · '+todayPhase.n+'</div>'+
-          '<div style="font-size:9px;color:#aaa;margin-top:1px">Jour '+(((daysSince%cycLen)+cycLen)%cycLen+1)+' sur '+cycLen+'</div>'+
-        '</div>'+
+  /* Toujours afficher les recettes (matching en premier, puis le reste) */
+  var scored=typeFiltered.map(function(r){
+    var mEntry=matched.find(function(m){return m.r===r;});
+    return {r:r, score:mEntry?mEntry.score:0, hasMatch:!!mEntry};
+  }).sort(function(a,b){
+    if(b.hasMatch!==a.hasMatch) return b.hasMatch?1:-1;
+    return b.score-a.score;
+  });
+  recHtml=scored.slice(0,6).map(function(item){
+    var ri=RECIPES.indexOf(item.r);
+    var pct=item.hasMatch?Math.round(item.score*100):0;
+    var pCol=pct>=100?'#16a34a':pct>=60?'#d97706':'var(--cerise)';
+    return '<div onclick="showRecipe('+ri+')" '+
+      'style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;'+
+      'background:#f9f7f5;border:1px solid #ede9e4;cursor:pointer;'+
+      'margin-bottom:7px;transition:all .18s" '+
+      'onmouseover="this.style.background=\'#fff5f8\';this.style.borderColor=\'#fca5a5\'" '+
+      'onmouseout="this.style.background=\'#f9f7f5\';this.style.borderColor=\'#ede9e4\'">'+
+      '<div style="font-size:28px;flex-shrink:0">'+item.r.ic+'</div>'+
+      '<div style="flex:1;min-width:0">'+
+        '<div style="font-family:Caveat,cursive;font-size:17px;color:var(--texte);overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+esc(item.r.n)+'</div>'+
+        '<div style="font-size:9px;color:#bbb;margin-top:1px">'+item.r.t+' min'+(item.hasMatch?' · '+pct+'% dispo':'')+'</div>'+
       '</div>'+
-      /* Grille 28 jours */
-      '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:12px">'+
-        JLBL.map(function(l){
-          return '<div style="text-align:center;font-size:8px;font-weight:800;color:#ccc;padding:2px 0">'+l+'</div>';
-        }).join('')+
-        (function(){
-          var cells='';
-          for(var ci=0;ci<cycLen;ci++){
-            var dd=new Date(startD); dd.setDate(dd.getDate()+ci);
-            var dds=dd.getFullYear()+'-'+String(dd.getMonth()+1).padStart(2,'0')+'-'+String(dd.getDate()).padStart(2,'0');
-            var ph=getCyclePhase(ci+1);
-            var isT=dds===today;
-            var isPast=dds<today;
-            cells+=
-              '<div title="Jour '+(ci+1)+' · '+ph.n+'" '+
-                'style="aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;'+
-                'background:'+ph.bg+';border:'+
-                (isT?'2.5px solid '+ph.c:'1.5px solid transparent')+';'+
-                'opacity:'+(isPast||isT?'1':'.45')+';transition:all .15s;cursor:default">'+
-                '<div style="font-size:8px;font-weight:900;color:'+ph.c+'">'+dd.getDate()+'</div>'+
-              '</div>';
-          }
-          return cells;
-        })()+
-      '</div>'+
-      /* Légende */
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:12px">'+
-        [
-          {n:'Règles',c:'#ef4444',d:'J1–5'},
-          {n:'Folliculaire',c:'#a855f7',d:'J6–11'},
-          {n:'Ovulation',c:'#f59e0b',d:'J12–16'},
-          {n:'Lutéale',c:'#6366f1',d:'J17–28'},
-        ].map(function(p){
-          return '<div style="display:flex;align-items:center;gap:5px">'+
-            '<div style="width:9px;height:9px;border-radius:50%;background:'+p.c+';flex-shrink:0"></div>'+
-            '<span style="font-size:9px;color:#999;font-weight:700">'+p.n+' <span style="opacity:.55">('+p.d+')</span></span>'+
-          '</div>';
-        }).join('')+
-      '</div>'+
-      '<button class="btn-xs" onclick="openCycleSettings()" style="font-size:9px">Ajuster mon cycle</button>';
-  }
+      '<div style="font-size:12px;color:#bbb;flex-shrink:0">→</div>'+
+    '</div>';
+  }).join('');
 
   document.getElementById('kr').innerHTML=
-    '<div class="csec" style="margin-bottom:14px">'+
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">'+
-        '<div style="font-family:Shrikhand,cursive;font-size:14px;color:var(--cerise);text-transform:uppercase;letter-spacing:.08em">Cuisiner maintenant</div>'+
-        '<button class="btn-xs" onclick="renderCuisine()">↺ Actualiser</button>'+
-      '</div>'+
-      recHtml+
-    '</div>'+
     '<div class="csec">'+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'+
-        '<div style="font-family:Shrikhand,cursive;font-size:14px;color:#a855f7;text-transform:uppercase;letter-spacing:.08em">Mon Cycle</div>'+
-        '<button class="btn-xs" onclick="openCycleSettings()" style="font-size:9px">Paramètres</button>'+
+        '<div style="font-family:Shrikhand,cursive;font-size:14px;color:var(--cerise);text-transform:uppercase;letter-spacing:.08em">Recettes</div>'+
+        '<button class="btn-xs" onclick="renderCuisine()">↺</button>'+
       '</div>'+
-      cycHtml+
+      '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px">'+kTabs+'</div>'+
+      recHtml+
     '</div>';
 }
 
