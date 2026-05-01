@@ -30,12 +30,33 @@
 
 body {
   font-family: 'Quicksand', sans-serif;
-  background: #f4f2ef;
+  background: #1a0818;
   color: var(--texte);
   min-height: 100vh;
   overflow-x: hidden;
   padding-bottom: 90px;
   -webkit-font-smoothing: antialiased;
+}
+
+/* ── FOND DYNAMIQUE MENSUEL ── */
+#bg-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;
+}
+#bg-wrap img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 1.2s ease;
+}
+#bg-wrap .bg-ov {
+  position: absolute;
+  inset: 0;
 }
 
 /* ── TYPO ── */
@@ -53,13 +74,15 @@ body {
 .hand    { font-family:'Caveat',cursive; }
 .retro   { font-family:'Shrikhand',cursive; }
 
-/* ── CARDS ── */
+/* ── CARDS — VERRE DÉPOLI ── */
 .card {
-  background: #ffffff;
-  border: 1px solid #ede9e4;
+  background: rgba(255,255,255,0.78);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.45);
   border-radius: 20px;
   padding: 20px;
-  box-shadow: 0 2px 12px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.04);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,.06);
 }
 
 .polaroid {
@@ -171,13 +194,15 @@ body {
   left: 50%;
   transform: translateX(-50%);
   z-index: 100;
-  background: #ffffff;
-  border: 1px solid #ede9e4;
+  background: rgba(20,8,24,0.55);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border: 1px solid rgba(255,255,255,0.22);
   border-radius: 99px;
   padding: 7px 10px;
   display: flex;
   gap: 4px;
-  box-shadow: 0 4px 20px rgba(0,0,0,.10), 0 1px 4px rgba(0,0,0,.06);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.12);
 }
 .nbtn {
   padding: 10px 22px;
@@ -191,7 +216,7 @@ body {
   cursor: pointer;
   transition: all .22s cubic-bezier(.34,1.56,.64,1);
   background: transparent;
-  color: #c0a8b0;
+  color: rgba(255,255,255,0.55);
 }
 .nbtn.on {
   background: linear-gradient(135deg, #D2143A 0%, #e8174a 50%, #ff6080 100%);
@@ -253,9 +278,13 @@ body {
 }
 #modal.off { display:none; }
 #minr {
-  background:white; border-radius:24px; border:none;
+  background:rgba(255,255,255,0.94);
+  backdrop-filter:blur(24px) saturate(160%);
+  -webkit-backdrop-filter:blur(24px) saturate(160%);
+  border-radius:24px;
+  border:1px solid rgba(255,255,255,0.55);
   padding:28px; width:100%; max-width:400px;
-  box-shadow:0 24px 60px rgba(0,0,0,.16), 0 4px 16px rgba(0,0,0,.08);
+  box-shadow:0 24px 60px rgba(0,0,0,.25), 0 4px 16px rgba(0,0,0,.1);
 }
 
 /* ── GLASSMORPHISM — banners seulement ── */
@@ -298,10 +327,13 @@ body {
 
 /* ── CUISINE ── */
 .csec {
-  background: #ffffff;
-  border: 1.5px solid #ede9e4;
+  background: rgba(255,255,255,0.78);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1.5px solid rgba(255,255,255,0.45);
   border-radius: 20px;
   padding: 16px 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
 }
 .citem {
   display: flex; align-items: center; gap: 8px;
@@ -317,13 +349,15 @@ body {
 @media(min-width:768px){ .cuis-grid { grid-template-columns: 5fr 4fr; } }
 
 .app-card {
-  background: #ffffff;
-  border: 1.5px solid #ede9e4;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1.5px solid rgba(255,255,255,0.35);
   border-radius: 24px;
   padding: 26px 20px 22px;
   cursor: pointer;
-  box-shadow: 0 2px 12px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.04);
-  transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.45);
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s, background .25s;
   text-align: left;
   display: flex;
   flex-direction: column;
@@ -334,13 +368,14 @@ body {
 }
 .app-card:hover {
   transform: translateY(-6px) scale(1.02);
-  box-shadow: 0 8px 28px rgba(0,0,0,.10), 0 2px 8px rgba(0,0,0,.06);
+  background: rgba(255,255,255,0.28);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.6);
 }
 .app-card:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
-.ac-icon { font-size:38px; line-height:1; filter:drop-shadow(0 4px 8px rgba(210,20,58,.2)); }
-.ac-title { font-family:'Shrikhand',cursive; color:var(--cerise); font-size:16px; text-transform:uppercase; letter-spacing:.08em; }
-.ac-stat { font-family:'Caveat',cursive; font-size:21px; color:var(--texte); }
-.ac-sub { font-size:12px; color:#888; }
+.ac-icon { width:44px; height:44px; filter:drop-shadow(0 4px 8px rgba(0,0,0,0.28)); }
+.ac-title { font-family:'Shrikhand',cursive; font-size:16px; text-transform:uppercase; letter-spacing:.08em; }
+.ac-stat { font-family:'Caveat',cursive; font-size:21px; color:white; text-shadow:0 1px 4px rgba(0,0,0,.3); }
+.ac-sub { font-size:12px; color:rgba(255,255,255,0.72); }
 
 /* ── NAV LABEL (caché sur très petit écran) ── */
 .nlbl { display:none; }
@@ -396,9 +431,10 @@ button:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
 .home-hero-wrap { max-width:1100px; margin:0 auto; padding:28px 16px 100px; }
 
 /* ── SEMAINE agrandie ── */
-.wday { background:#ffffff; border:1px solid #ede9e4; border-radius:22px; padding:0; min-height:320px;
-  box-shadow:0 2px 8px rgba(0,0,0,.05); transition:border-color .15s; display:flex; flex-direction:column; overflow:hidden; }
-.wday.wtoday { border-color:var(--cerise); }
+.wday { background:rgba(255,255,255,0.78); backdrop-filter:blur(20px) saturate(160%); -webkit-backdrop-filter:blur(20px) saturate(160%);
+  border:1px solid rgba(255,255,255,0.42); border-radius:22px; padding:0; min-height:320px;
+  box-shadow:0 8px 32px rgba(0,0,0,.12); transition:border-color .15s; display:flex; flex-direction:column; overflow:hidden; }
+.wday.wtoday { border-color:var(--cerise); border-width:2px; }
 .wday-cap { height:8px; width:100%; flex-shrink:0; }
 .wday-body { padding:10px 10px 12px; flex:1; display:flex; flex-direction:column; }
 .wday-hd { font-size:9px; font-weight:800; color:#bbb; text-transform:uppercase; letter-spacing:.1em; margin-bottom:2px; }
@@ -408,11 +444,20 @@ button:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
 /* ── BUDGET ENVELOPES ── */
 .env-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
 @media(max-width:600px){ .env-grid2 { grid-template-columns:1fr; } }
-.env-card { background:#f9f7f5; border:1px solid #ede9e4; border-radius:14px; padding:13px 15px; position:relative; }
-.env-card.fixed-env { border-left:3px solid var(--cerise); }
-.env-card.var-env   { border-left:3px solid #3b82f6; }
-.env-bar  { height:5px; border-radius:99px; background:#ede9e4; margin-top:10px; overflow:hidden; }
-.env-fill { height:100%; border-radius:99px; transition:width .45s ease; }
+.env-card {
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.42);
+  border-radius: 14px;
+  padding: 13px 15px;
+  position: relative;
+  box-shadow: 0 4px 16px rgba(0,0,0,.08);
+}
+.env-card.fixed-env { border-left:4px solid var(--cerise); }
+.env-card.var-env   { border-left:4px solid #3b82f6; }
+.env-bar  { height:11px; border-radius:99px; background:rgba(0,0,0,.09); margin-top:10px; overflow:hidden; }
+.env-fill { height:100%; border-radius:99px; transition:width .5s cubic-bezier(.4,0,.2,1); }
 
 /* ── HOME DASHBOARD PC ── */
 .hdash { display:none; }
@@ -427,11 +472,13 @@ button:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
   }
 }
 .hdash-card {
-  background:#ffffff;
-  border:1px solid #ede9e4;
-  border-radius:20px;
-  padding:18px 20px;
-  box-shadow:0 2px 8px rgba(0,0,0,.05);
+  background: rgba(255,255,255,0.78);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.42);
+  border-radius: 20px;
+  padding: 18px 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
 }
 .hdash-label {
   font-size:9px; font-weight:800; letter-spacing:.14em;
@@ -446,14 +493,17 @@ button:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
 </head>
 <body>
 
+<!-- ═══ FOND DYNAMIQUE MENSUEL ═══ -->
+<div id="bg-wrap"></div>
+
 <!-- ═══ NAVIGATION ═══ -->
 <nav id="nav" role="navigation" aria-label="Navigation principale">
   <button class="nbtn on" id="btn-h" onclick="goPage('home')" aria-label="Accueil">Accueil</button>
-  <div style="width:1px;background:rgba(210,20,58,.12);height:18px;margin:0 2px"></div>
+  <div style="width:1px;background:rgba(255,255,255,.18);height:18px;margin:0 2px"></div>
   <button class="nbtn" id="btn-j" onclick="goPage('journal')" aria-label="Journal du jour">Journal</button>
   <button class="nbtn" id="btn-w" onclick="goPage('week')" aria-label="Semaine">Semaine</button>
   <button class="nbtn" id="btn-c" onclick="goPage('calendar')" aria-label="Calendrier mensuel">Mensuel</button>
-  <div style="width:1px;background:rgba(210,20,58,.12);height:18px;margin:0 2px"></div>
+  <div style="width:1px;background:rgba(255,255,255,.18);height:18px;margin:0 2px"></div>
   <button class="nbtn" id="btn-k" onclick="goPage('cuisine')" aria-label="Ma cuisine">Cuisine</button>
 </nav>
 
@@ -747,10 +797,10 @@ function goPage(p){
     if(el) el.className=p===pair[1]?'nbtn on':'nbtn';
   });
   if(p==='home')     renderHome();
-  if(p==='journal')  renderJ();
-  if(p==='week')     { if(!weekStart) weekStart=getWeekStart(new Date()); renderWeek(); }
-  if(p==='calendar') renderCal();
-  if(p==='cuisine')  renderCuisine();
+  if(p==='journal')  { applyMonthTheme(new Date().getMonth()); renderJ(); }
+  if(p==='week')     { if(!weekStart) weekStart=getWeekStart(new Date()); applyMonthTheme(weekStart.getMonth()); renderWeek(); }
+  if(p==='calendar') { applyMonthTheme(calM); renderCal(); }
+  if(p==='cuisine')  { applyMonthTheme(new Date().getMonth()); renderCuisine(); }
 }
 function getWeekStart(d){
   var day=new Date(d); day.setHours(0,0,0,0);
@@ -1134,7 +1184,7 @@ function renderCal(){
   /* GRILLE SAISONNIÈRE */
   var lbls=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
   var evBgPro=isT?'rgba(219,234,254,.9)':'#dbeafe';
-  var ch='<div class="card" style="padding:14px 10px;background:rgba(255,255,255,.82)">'+
+  var ch='<div class="card" style="padding:14px 10px">'+
     '<div class="chead">'+
       lbls.map(function(l,li){
         var wkd=li>=5;
@@ -1193,7 +1243,22 @@ function renderCal(){
     '</div>';
   }
   ch+='</div></div>';
-  document.getElementById('cl').innerHTML=ch;
+  /* ── SCRAPBOOKING : photos saisonnières en décoration aux coins de la grille ── */
+  var prevM=(m+11)%12, nextM=(m+1)%12;
+  document.getElementById('cl').innerHTML=
+    '<div style="position:relative">'+
+      '<img src="'+MONTH_THEMES[nextM].p+'" alt="" '+
+        'style="position:absolute;top:-14px;right:-10px;width:82px;height:82px;object-fit:cover;'+
+        'border-radius:14px;transform:rotate(5deg);'+
+        'box-shadow:0 8px 24px rgba(0,0,0,.28);z-index:6;pointer-events:none;opacity:.88;'+
+        'border:3px solid rgba(255,255,255,.85)" onerror="this.style.display=\'none\'">'+
+      '<img src="'+MONTH_THEMES[prevM].p+'" alt="" '+
+        'style="position:absolute;bottom:-12px;left:-8px;width:66px;height:66px;object-fit:cover;'+
+        'border-radius:11px;transform:rotate(-5deg);'+
+        'box-shadow:0 6px 18px rgba(0,0,0,.24);z-index:6;pointer-events:none;opacity:.80;'+
+        'border:3px solid rgba(255,255,255,.8)" onerror="this.style.display=\'none\'">'+
+      ch+
+    '</div>';
 
   /* ── COLONNE DROITE : Tracker cycle ── */
   var cycStart=S.cuisine.cycleStart;
@@ -1295,7 +1360,7 @@ function renderCal(){
               '<button onclick="delChargeFixe(\''+c.id+'\')" style="background:none;border:none;color:#ddd;font-size:11px;cursor:pointer;padding:2px 5px" onmouseover="this.style.color=\'#ef4444\'" onmouseout="this.style.color=\'#ddd\'">✕</button>'+
             '</div>'+
           '</div>'+
-          '<div class="env-bar"><div class="env-fill" style="width:100%;background:var(--cerise)"></div></div>'+
+          '<div class="env-bar"><div class="env-fill" style="width:100%;background:linear-gradient(90deg,var(--cerise) 0%,#ff6b8a 100%)"></div></div>'+
         '</div>';
       }).join('')
     : '<div class="empty" style="font-size:12px;padding:16px 0">Aucune charge fixe · ajouter ci-dessous</div>';
@@ -1326,6 +1391,7 @@ function renderCal(){
       var spent=depByCat[ve.name]||0;
       var vPct=ve.budget>0?Math.min(100,Math.round(spent/ve.budget*100)):0;
       var vCol=vPct>=100?'#ef4444':vPct>=80?'#f97316':'#3b82f6';
+      var vGrad=vPct>=100?'linear-gradient(90deg,#ef4444,#f87171)':vPct>=80?'linear-gradient(90deg,#f97316,#fb923c)':'linear-gradient(90deg,#3b82f6,#60a5fa)';
       shownCats[ve.name]=true;
       varEnvHtml+=
         '<div class="env-card var-env">'+
@@ -1342,7 +1408,7 @@ function renderCal(){
               '<button onclick="delVarEnv(\''+ve.id+'\')" style="background:none;border:none;color:#ddd;font-size:11px;cursor:pointer;padding:2px 5px" onmouseover="this.style.color=\'#ef4444\'" onmouseout="this.style.color=\'#ddd\'">✕</button>'+
             '</div>'+
           '</div>'+
-          (ve.budget>0?'<div class="env-bar"><div class="env-fill" style="width:'+vPct+'%;background:'+vCol+'"></div></div>':'')+
+          (ve.budget>0?'<div class="env-bar"><div class="env-fill" style="width:'+vPct+'%;background:'+vGrad+'"></div></div>':'')+
         '</div>';
     });
     /* Afficher les dépenses "Autre" non catégorisées */
@@ -1541,6 +1607,7 @@ function renderCal(){
 ══════════════════════════════════════════════ */
 function renderHome(){
   var today=td(), now=new Date();
+  applyMonthTheme(now.getMonth());
   var jours=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
   var logs=S.habitLogs[today]||{};
   var habDone=S.habits.filter(function(h){return logs[h.id];}).length;
@@ -1628,40 +1695,40 @@ function renderHome(){
 
   /* ── APP CARDS ── */
   document.getElementById('hgrid').innerHTML=
-    '<button class="app-card" style="background:linear-gradient(150deg,#fff4f7,#ffe8f0 55%,#ffd6e7)" onclick="goPage(\'journal\')">'+
-      '<div style="font-size:50px;filter:drop-shadow(0 8px 16px rgba(210,20,58,.3))">📓</div>'+
-      '<div class="ac-title">Journal</div>'+
+    '<button class="app-card" style="border-left:3px solid var(--cerise)" onclick="goPage(\'journal\')">'+
+      '<div class="ac-icon" style="color:var(--cerise)">'+ICONS.journal+'</div>'+
+      '<div class="ac-title" style="color:white;text-shadow:0 1px 6px rgba(0,0,0,.4)">Journal</div>'+
       '<div class="ac-stat">'+(mood!==undefined?MOODS[mood].e+' '+esc(MOODS[mood].l):'Humeur à définir')+'</div>'+
       '<div class="ac-sub">'+habDone+'/'+S.habits.length+' habitudes · '+pct+'%</div>'+
-      '<div class="pbar" style="margin-top:6px;background:rgba(210,20,58,.1)"><div class="pfill" style="width:'+pct+'%;background:'+pctCol+'"></div></div>'+
+      '<div class="pbar" style="margin-top:6px;background:rgba(255,255,255,.2)"><div class="pfill" style="width:'+pct+'%;background:linear-gradient(90deg,var(--cerise),#ff85a1)"></div></div>'+
     '</button>'+
-    '<button class="app-card" style="background:linear-gradient(150deg,#f6f0ff,#ede4ff 55%,#ddd6ff)" onclick="goPage(\'week\')">'+
-      '<div style="font-size:50px;filter:drop-shadow(0 8px 16px rgba(124,58,237,.26))">📆</div>'+
-      '<div class="ac-title" style="color:#7c3aed">Semaine</div>'+
+    '<button class="app-card" style="border-left:3px solid #a855f7" onclick="goPage(\'week\')">'+
+      '<div class="ac-icon" style="color:#a855f7">'+ICONS.week+'</div>'+
+      '<div class="ac-title" style="color:white;text-shadow:0 1px 6px rgba(0,0,0,.4)">Semaine</div>'+
       '<div class="ac-stat">'+esc(MOIS[now.getMonth()])+'</div>'+
       '<div class="ac-sub">'+(todayEvts.length?todayEvts.length+' événement'+(todayEvts.length>1?'s':'')+' auj.':'Journée libre')+
         (nextEvt&&nextEvt.date>today?' · Prochain '+esc(nextEvt.date.slice(5).replace('-','/')):'')+
       '</div>'+
     '</button>'+
-    '<button class="app-card" style="background:linear-gradient(150deg,#f0fdf5,#dcfce7 55%,#bbf7d0)" onclick="goPage(\'calendar\')">'+
-      '<div style="font-size:50px;filter:drop-shadow(0 8px 16px rgba(21,128,61,.24))">💰</div>'+
-      '<div class="ac-title" style="color:#15803d">Budget</div>'+
-      '<div class="ac-stat" style="color:'+bCol+'">'+budTotal.toFixed(0)+' / '+mLim+' €</div>'+
-      '<div class="pbar" style="margin-top:6px;background:rgba(21,128,61,.1)"><div class="pfill" style="width:'+bPct+'%;background:'+bCol+'"></div></div>'+
+    '<button class="app-card" style="border-left:3px solid #22c55e" onclick="goPage(\'calendar\')">'+
+      '<div class="ac-icon" style="color:#22c55e">'+ICONS.budget+'</div>'+
+      '<div class="ac-title" style="color:white;text-shadow:0 1px 6px rgba(0,0,0,.4)">Budget</div>'+
+      '<div class="ac-stat" style="color:'+(bCol==='#dc2626'?'#fca5a5':bCol==='#d97706'?'#fcd34d':'#86efac')+'">'+budTotal.toFixed(0)+' / '+mLim+' €</div>'+
+      '<div class="pbar" style="margin-top:6px;background:rgba(255,255,255,.2)"><div class="pfill" style="width:'+bPct+'%;background:linear-gradient(90deg,#22c55e,#86efac)"></div></div>'+
     '</button>'+
-    '<button class="app-card" style="background:linear-gradient(150deg,#fffdf0,#fef3c7 55%,#fde68a);cursor:default">'+
-      '<div style="font-size:50px;filter:drop-shadow(0 8px 16px rgba(180,83,9,.24))" id="w-icon">🌤️</div>'+
-      '<div class="ac-title" style="color:#b45309">Météo</div>'+
+    '<button class="app-card" style="border-left:3px solid #f59e0b;cursor:default">'+
+      '<div class="ac-icon" style="color:#f59e0b" id="w-icon">'+ICONS.sun+'</div>'+
+      '<div class="ac-title" style="color:white;text-shadow:0 1px 6px rgba(0,0,0,.4)">Météo</div>'+
       '<div class="ac-stat" id="w-temp">—</div>'+
       '<div class="ac-sub" id="w-desc">Localisation…</div>'+
     '</button>'+
     (function(){
       var invC=(S.cuisine&&S.cuisine.inventory)||[];
       var topRec=getMatchedRecipes();
-      var hint=topRec.length?topRec[0].r.ic+' '+topRec[0].r.n:(invC.length?'Idées en attente…':'Scanner un produit');
-      return '<button class="app-card" style="background:linear-gradient(150deg,#fff8f2,#ffe8d5 55%,#ffd6b8)" onclick="goPage(\'cuisine\')">'+
-        '<div style="font-size:50px;filter:drop-shadow(0 8px 16px rgba(249,115,22,.25))">🍽️</div>'+
-        '<div class="ac-title" style="color:#ea580c">Cuisine</div>'+
+      var hint=topRec.length?topRec[0].r.n:(invC.length?'Idées en attente…':'Scanner un produit');
+      return '<button class="app-card" style="border-left:3px solid #f97316" onclick="goPage(\'cuisine\')">'+
+        '<div class="ac-icon" style="color:#f97316">'+ICONS.cuisine+'</div>'+
+        '<div class="ac-title" style="color:white;text-shadow:0 1px 6px rgba(0,0,0,.4)">Cuisine</div>'+
         '<div class="ac-stat">'+invC.length+' produit'+(invC.length!==1?'s':'')+'</div>'+
         '<div class="ac-sub" style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+esc(hint)+'</div>'+
       '</button>';
@@ -2323,6 +2390,7 @@ function navMonth(dir){
   calM+=dir;
   if(calM>11){calM=0;calY++;}
   if(calM<0){calM=11;calY--;}
+  applyMonthTheme(calM);
   renderCal();
 }
 function saveMrNote(val){
@@ -2563,6 +2631,54 @@ function delProjTask(projId,taskId){
   if(!p)return;
   p.tasks=(p.tasks||[]).filter(function(t){return t.id!==taskId;});
   save();renderCal();
+}
+
+/* ── ICÔNES SVG INLINE (Lucide style) ── */
+const ICONS = {
+  journal:
+    '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+
+    '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>'+
+    '<polyline points="14 2 14 8 20 8"/>'+
+    '<line x1="16" y1="13" x2="8" y2="13"/>'+
+    '<line x1="16" y1="17" x2="8" y2="17"/>'+
+    '<line x1="10" y1="9" x2="8" y2="9"/></svg>',
+  week:
+    '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+
+    '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>'+
+    '<line x1="16" y1="2" x2="16" y2="6"/>'+
+    '<line x1="8" y1="2" x2="8" y2="6"/>'+
+    '<line x1="3" y1="10" x2="21" y2="10"/></svg>',
+  budget:
+    '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+
+    '<rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>'+
+    '<line x1="1" y1="10" x2="23" y2="10"/></svg>',
+  sun:
+    '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+
+    '<circle cx="12" cy="12" r="5"/>'+
+    '<line x1="12" y1="1" x2="12" y2="3"/>'+
+    '<line x1="12" y1="21" x2="12" y2="23"/>'+
+    '<line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>'+
+    '<line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>'+
+    '<line x1="1" y1="12" x2="3" y2="12"/>'+
+    '<line x1="21" y1="12" x2="23" y2="12"/>'+
+    '<line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>'+
+    '<line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
+  cuisine:
+    '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+
+    '<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/>'+
+    '<line x1="7" y1="2" x2="7" y2="11"/>'+
+    '<path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>',
+};
+
+/* ── FOND MENSUEL DYNAMIQUE ── */
+function applyMonthTheme(m){
+  var th=MONTH_THEMES[m];
+  var wrap=document.getElementById('bg-wrap');
+  if(!wrap) return;
+  wrap.innerHTML=
+    '<img src="'+th.p+'" alt="" onerror="this.style.opacity=0">'+
+    '<div class="bg-ov" style="background:'+th.g+';opacity:.55"></div>'+
+    '<div class="bg-ov" style="background:rgba(0,0,0,.2)"></div>';
 }
 
 try{ load(); }catch(e){ localStorage.removeItem(KEY); }
