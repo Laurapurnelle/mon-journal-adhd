@@ -253,9 +253,30 @@ body {
 }
 #modal.off { display:none; }
 #minr {
-  background:white; border-radius:28px; border:8px solid white;
-  padding:28px; width:100%; max-width:380px;
-  box-shadow:0 20px 60px rgba(0,0,0,.14);
+  background:white; border-radius:24px; border:none;
+  padding:28px; width:100%; max-width:400px;
+  box-shadow:0 24px 60px rgba(0,0,0,.16), 0 4px 16px rgba(0,0,0,.08);
+}
+
+/* ── GLASSMORPHISM — banners seulement ── */
+.glass-banner {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* ── HIÉRARCHIE TYPOGRAPHIQUE ── */
+.data-hero {
+  font-family: Shrikhand, cursive;
+  font-size: clamp(32px, 5vw, 52px);
+  line-height: 1;
+  letter-spacing: -.01em;
+}
+.data-label {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  color: #bbb;
 }
 
 /* ── MISC ── */
@@ -384,6 +405,43 @@ button:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
 .wday-num { font-family:'Shrikhand',cursive; font-size:26px; color:var(--texte); line-height:1; margin-bottom:8px; }
 .wday.wtoday .wday-num { color:var(--cerise); }
 
+/* ── BUDGET ENVELOPES ── */
+.env-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+@media(max-width:600px){ .env-grid2 { grid-template-columns:1fr; } }
+.env-card { background:#f9f7f5; border:1px solid #ede9e4; border-radius:14px; padding:13px 15px; position:relative; }
+.env-card.fixed-env { border-left:3px solid var(--cerise); }
+.env-card.var-env   { border-left:3px solid #3b82f6; }
+.env-bar  { height:5px; border-radius:99px; background:#ede9e4; margin-top:10px; overflow:hidden; }
+.env-fill { height:100%; border-radius:99px; transition:width .45s ease; }
+
+/* ── HOME DASHBOARD PC ── */
+.hdash { display:none; }
+@media(min-width:900px){
+  .hdash {
+    display:grid;
+    grid-template-columns:1fr 2fr 1fr;
+    gap:16px;
+    max-width:1200px;
+    margin:24px auto 0;
+    padding:0 16px;
+  }
+}
+.hdash-card {
+  background:#ffffff;
+  border:1px solid #ede9e4;
+  border-radius:20px;
+  padding:18px 20px;
+  box-shadow:0 2px 8px rgba(0,0,0,.05);
+}
+.hdash-label {
+  font-size:9px; font-weight:800; letter-spacing:.14em;
+  text-transform:uppercase; color:#bbb; margin-bottom:12px;
+}
+.hdash-big {
+  font-family:Shrikhand,cursive; font-size:42px; line-height:1;
+  color:var(--texte);
+}
+
   </style>
 </head>
 <body>
@@ -403,6 +461,7 @@ button:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
 <div class="page on" id="page-home" role="main">
   <header id="hh"><div style="min-height:88vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#ffe8f0,#f8e4ff)"><div style="font-family:Shrikhand,cursive;font-size:52px;color:var(--cerise);opacity:.35;animation:float 2s ease-in-out infinite">🍒</div></div></header>
   <div id="hgrid" class="home-grid"></div>
+  <div id="hdash" class="hdash"></div>
   <div id="htoday" style="max-width:900px;margin:0 auto;padding:0 14px 80px"></div>
 </div>
 
@@ -619,7 +678,7 @@ const DEF = {
   tasks:[],
   habits:[{id:'h1',name:'Skin Care',icon:'✨'},{id:'h2',name:'Marche',icon:'🚶‍♀️'},{id:'h3',name:'Eau',icon:'💧'},{id:'h4',name:'Lecture',icon:'📖'}],
   habitLogs:{}, daysData:{}, events:[], projects:[],
-  budget:{monthlyLimit:1500, chargesFixe:[], depenses:{}},
+  budget:{monthlyLimit:1500, chargesFixe:[], depenses:{}, varEnv:[]},
   brainDump:'', monthlyNotes:'', monthlyTodo:'', monthlyTodos:{},
   weekTasks:[], monthlyTasks:[],
   quote:'"Fais de ta vie un rêve, et d\'un rêve une réalité." ✨',
@@ -658,6 +717,7 @@ function load(){
       if(p.budget.monthlyLimit) S.budget.monthlyLimit=p.budget.monthlyLimit;
       if(p.budget.chargesFixe)  S.budget.chargesFixe=p.budget.chargesFixe;
       if(p.budget.depenses)     S.budget.depenses=p.budget.depenses;
+      if(p.budget.varEnv)       S.budget.varEnv=p.budget.varEnv;
     }
     if(p.monthlyTodos)  S.monthlyTodos=p.monthlyTodos;
     if(p.weekTasks)     S.weekTasks=p.weekTasks;
@@ -1217,28 +1277,111 @@ function renderCal(){
   var mPct=Math.min(100,Math.round(grand/mLim*100));
   var mCol=mPct>=100?'#ef4444':mPct>=80?'#f97316':'var(--vert)';
 
-  var cfHtml=cf.map(function(c){
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #fff0f3">'+
-      '<span style="font-family:Caveat,cursive;font-size:17px">'+esc(c.label)+'</span>'+
-      '<div style="display:flex;gap:8px;align-items:center">'+
-        '<span style="font-weight:700;color:var(--cerise)">'+Number(c.amount).toFixed(2)+' €</span>'+
-        '<button class="btn-xs" style="color:#ef4444" onclick="delChargeFixe(\''+c.id+'\')">✕</button>'+
-      '</div></div>';
-  }).join('')||'<div class="empty" style="font-size:12px">Aucune charge fixe</div>';
+  /* ── Enveloppes fixes ── */
+  var cfEnvHtml=cf.length
+    ? cf.map(function(c){
+        var ico=c.icon||'💳';
+        return '<div class="env-card fixed-env">'+
+          '<div style="display:flex;align-items:center;gap:8px;justify-content:space-between">'+
+            '<div style="display:flex;align-items:center;gap:8px;min-width:0">'+
+              '<span style="font-size:20px;flex-shrink:0">'+ico+'</span>'+
+              '<div style="min-width:0">'+
+                '<div style="font-family:Caveat,cursive;font-size:16px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+esc(c.label)+'</div>'+
+                '<div style="font-size:9px;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Fixe mensuel</div>'+
+              '</div>'+
+            '</div>'+
+            '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0">'+
+              '<div style="font-family:Shrikhand,cursive;font-size:18px;color:var(--cerise)">'+Number(c.amount).toFixed(0)+'€</div>'+
+              '<button onclick="delChargeFixe(\''+c.id+'\')" style="background:none;border:none;color:#ddd;font-size:11px;cursor:pointer;padding:2px 5px" onmouseover="this.style.color=\'#ef4444\'" onmouseout="this.style.color=\'#ddd\'">✕</button>'+
+            '</div>'+
+          '</div>'+
+          '<div class="env-bar"><div class="env-fill" style="width:100%;background:var(--cerise)"></div></div>'+
+        '</div>';
+      }).join('')
+    : '<div class="empty" style="font-size:12px;padding:16px 0">Aucune charge fixe · ajouter ci-dessous</div>';
 
+  /* ── Enveloppes variables ── */
+  var varEnvs=S.budget.varEnv||[];
+  var presets=[
+    {name:'Courses',icon:'🛒'},{name:'Restos',icon:'🍽️'},{name:'Loisirs',icon:'🎉'},
+    {name:'Santé',icon:'💊'},{name:'Transport',icon:'🚗'},{name:'Beauté',icon:'💅'},
+    {name:'Vêtements',icon:'👗'},{name:'Autre',icon:'📦'}
+  ];
+  /* Grouper les dépenses par catégorie */
+  var depByCat={};
+  deps.forEach(function(d){
+    var cat=d.cat||'Autre';
+    if(!depByCat[cat]) depByCat[cat]=0;
+    depByCat[cat]+=d.amount||0;
+  });
+  /* Construire la grille variable */
+  var varEnvHtml='';
+  if(!varEnvs.length&&!deps.length){
+    varEnvHtml='<div class="empty" style="font-size:12px;padding:16px 0">Aucune dépense variable ce mois</div>';
+  } else {
+    /* Afficher les varEnv avec budget + dépenses */
+    var shownCats={};
+    varEnvHtml='<div class="env-grid2">';
+    varEnvs.forEach(function(ve){
+      var spent=depByCat[ve.name]||0;
+      var vPct=ve.budget>0?Math.min(100,Math.round(spent/ve.budget*100)):0;
+      var vCol=vPct>=100?'#ef4444':vPct>=80?'#f97316':'#3b82f6';
+      shownCats[ve.name]=true;
+      varEnvHtml+=
+        '<div class="env-card var-env">'+
+          '<div style="display:flex;align-items:center;gap:8px;justify-content:space-between">'+
+            '<div style="display:flex;align-items:center;gap:7px;min-width:0">'+
+              '<span style="font-size:20px;flex-shrink:0">'+esc(ve.icon||'📦')+'</span>'+
+              '<div style="min-width:0">'+
+                '<div style="font-family:Caveat,cursive;font-size:16px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+esc(ve.name)+'</div>'+
+                '<div style="font-size:9px;color:#aaa;font-weight:700">'+(ve.budget>0?esc(spent.toFixed(0))+' / '+ve.budget+'€':''+esc(spent.toFixed(0))+'€ dépensés')+'</div>'+
+              '</div>'+
+            '</div>'+
+            '<div style="display:flex;align-items:center;gap:5px;flex-shrink:0">'+
+              '<div style="font-family:Shrikhand,cursive;font-size:18px;color:'+vCol+'">'+spent.toFixed(0)+'€</div>'+
+              '<button onclick="delVarEnv(\''+ve.id+'\')" style="background:none;border:none;color:#ddd;font-size:11px;cursor:pointer;padding:2px 5px" onmouseover="this.style.color=\'#ef4444\'" onmouseout="this.style.color=\'#ddd\'">✕</button>'+
+            '</div>'+
+          '</div>'+
+          (ve.budget>0?'<div class="env-bar"><div class="env-fill" style="width:'+vPct+'%;background:'+vCol+'"></div></div>':'')+
+        '</div>';
+    });
+    /* Afficher les dépenses "Autre" non catégorisées */
+    var miscCats=Object.keys(depByCat).filter(function(c){return !shownCats[c];});
+    miscCats.forEach(function(cat){
+      var spent=depByCat[cat]||0;
+      var ic=presets.find(function(p){return p.name===cat;});
+      varEnvHtml+=
+        '<div class="env-card var-env" style="border-left-color:#a855f7">'+
+          '<div style="display:flex;align-items:center;gap:8px;justify-content:space-between">'+
+            '<div style="display:flex;align-items:center;gap:7px">'+
+              '<span style="font-size:20px">'+(ic?ic.icon:'📦')+'</span>'+
+              '<div style="font-family:Caveat,cursive;font-size:16px">'+esc(cat)+'</div>'+
+            '</div>'+
+            '<div style="font-family:Shrikhand,cursive;font-size:18px;color:#a855f7">'+spent.toFixed(0)+'€</div>'+
+          '</div>'+
+        '</div>';
+    });
+    varEnvHtml+='</div>';
+  }
+
+  /* ── Détail des dépenses (toutes) ── */
   var depHtml=deps.map(function(d){
-    var bg=d.type==='achat'?'#fce7f3':'#dbeafe';
-    var tc=d.type==='achat'?'#be123c':'#1d4ed8';
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #fff0f3">'+
-      '<div style="display:flex;align-items:center;gap:6px">'+
-        '<span style="font-size:9px;background:'+bg+';color:'+tc+';border-radius:99px;padding:2px 7px;font-weight:800;white-space:nowrap">'+(d.type==='achat'?'Achat':'Variable')+'</span>'+
-        '<span style="font-family:Caveat,cursive;font-size:17px">'+esc(d.label)+'</span>'+
-      '</div>'+
-      '<div style="display:flex;gap:8px;align-items:center">'+
-        '<span style="font-weight:700">'+Number(d.amount).toFixed(2)+' €</span>'+
-        '<button class="btn-xs" style="color:#ef4444" onclick="delDepense(\''+mKey+'\',\''+d.id+'\')">✕</button>'+
-      '</div></div>';
-  }).join('')||'<div class="empty" style="font-size:12px">Aucune dépense</div>';
+    var cat=d.cat||'Autre';
+    var ic2=presets.find(function(p){return p.name===cat;});
+    return '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #f5f2f0">'+
+      '<span style="font-size:14px">'+(ic2?ic2.icon:'📦')+'</span>'+
+      '<span style="font-family:Caveat,cursive;font-size:16px;flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+esc(d.label)+'</span>'+
+      '<span style="font-size:10px;color:#aaa;background:#f5f2f0;border-radius:99px;padding:2px 8px;white-space:nowrap">'+esc(cat)+'</span>'+
+      '<span style="font-weight:700;font-size:13px;white-space:nowrap">'+Number(d.amount).toFixed(2)+' €</span>'+
+      '<button onclick="delDepense(\''+mKey+'\',\''+d.id+'\')" style="background:none;border:none;color:#ddd;font-size:11px;cursor:pointer;padding:2px 5px" onmouseover="this.style.color=\'#ef4444\'" onmouseout="this.style.color=\'#ddd\'">✕</button>'+
+    '</div>';
+  }).join('')||'<div class="empty" style="font-size:12px">Aucune dépense enregistrée</div>';
+
+  /* Build catégorie select options */
+  var catOpts='<option value="">-- Catégorie --</option>'+
+    presets.map(function(p){return '<option value="'+esc(p.name)+'">'+p.icon+' '+esc(p.name)+'</option>';}).join('')+
+    (varEnvs.length?varEnvs.filter(function(ve){return !presets.find(function(p){return p.name===ve.name;});}).map(function(ve){return '<option value="'+esc(ve.name)+'">'+esc(ve.icon||'📦')+' '+esc(ve.name)+'</option>';}).join(''):'')+
+    '<option value="Autre">📦 Autre</option>';
 
   var projHtml=S.projects.length
     ? S.projects.map(function(p){
@@ -1269,51 +1412,85 @@ function renderCal(){
       }).join('')
     : '<div class="empty">Pas encore de projets 🚀</div>';
 
+  var restAVivre=mLim-grand;
+  var rPct=Math.min(100,Math.round(restAVivre/mLim*100));
+  var rCol=rPct>40?'#16a34a':rPct>15?'#d97706':'#ef4444';
+
   document.getElementById('cp').innerHTML=
-    /* budget */
-    '<div class="card" style="grid-column:1/-1;margin-bottom:0">'+
-      '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:14px">'+
-        '<div class="t-case" style="font-size:14px">💰 Budget '+esc(MOIS[m])+' '+y+'</div>'+
+    /* ── HERO BUDGET ── */
+    '<div class="card" style="grid-column:1/-1">'+
+      /* Header */
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:20px">'+
+        '<div>'+
+          '<div style="font-size:9px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#bbb;margin-bottom:4px">Budget mensuel</div>'+
+          '<div style="font-family:Shrikhand,cursive;font-size:26px;color:var(--texte)">'+esc(MOIS[m])+' '+y+'</div>'+
+        '</div>'+
         '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#aaa">'+
-          'Limite : <input type="number" value="'+mLim+'" style="width:70px;border:none;border-bottom:2px solid #fca5a5;font-size:14px;font-weight:700;color:var(--cerise);background:transparent;outline:none;text-align:right" onchange="S.budget.monthlyLimit=Math.max(1,parseFloat(this.value)||1500);save();renderCal()"> €'+
+          'Limite : <input type="number" value="'+mLim+'" '+
+          'style="width:72px;border:none;border-bottom:2px solid #fca5a5;font-size:15px;font-weight:800;color:var(--cerise);background:transparent;outline:none;text-align:right" '+
+          'onchange="S.budget.monthlyLimit=Math.max(1,parseFloat(this.value)||1500);save();renderCal()"> €'+
         '</div>'+
       '</div>'+
-      '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">'+
-        '<div style="flex:1;min-width:130px;background:#fff5f8;border-radius:12px;padding:10px;text-align:center">'+
-          '<div style="font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:.08em">Charges fixes</div>'+
-          '<div style="font-family:Caveat,cursive;font-size:26px;color:var(--cerise)">'+cfTotal.toFixed(0)+' €</div>'+
+      /* Reste à vivre hero */
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:18px">'+
+        '<div style="background:linear-gradient(135deg,'+rCol+'18,'+rCol+'08);border:1.5px solid '+rCol+'28;border-radius:16px;padding:14px 16px">'+
+          '<div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:'+rCol+';opacity:.75;margin-bottom:4px">Reste à vivre</div>'+
+          '<div style="font-family:Shrikhand,cursive;font-size:clamp(22px,3vw,34px);color:'+rCol+';line-height:1">'+restAVivre.toFixed(0)+' €</div>'+
+          '<div style="font-size:9px;color:'+rCol+';opacity:.6;margin-top:3px">sur '+mLim+' € budget</div>'+
         '</div>'+
-        '<div style="flex:1;min-width:130px;background:#f0fdf4;border-radius:12px;padding:10px;text-align:center">'+
-          '<div style="font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:.08em">Dépenses</div>'+
-          '<div style="font-family:Caveat,cursive;font-size:26px;color:var(--vert)">'+depTotal.toFixed(0)+' €</div>'+
+        '<div style="background:#fff5f8;border:1.5px solid #ffd6e7;border-radius:16px;padding:14px 16px">'+
+          '<div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--cerise);opacity:.75;margin-bottom:4px">Charges fixes</div>'+
+          '<div style="font-family:Shrikhand,cursive;font-size:clamp(22px,3vw,34px);color:var(--cerise);line-height:1">'+cfTotal.toFixed(0)+' €</div>'+
+          '<div style="font-size:9px;color:var(--cerise);opacity:.6;margin-top:3px">'+cf.length+' poste'+(cf.length>1?'s':'')+' fixes</div>'+
         '</div>'+
-        '<div style="flex:1;min-width:130px;background:#fff;border:2px solid '+mCol+';border-radius:12px;padding:10px;text-align:center">'+
-          '<div style="font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:.08em">Total / Limite</div>'+
-          '<div style="font-family:Caveat,cursive;font-size:22px;color:'+mCol+'">'+grand.toFixed(0)+' / '+mLim+' €</div>'+
+        '<div style="background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:16px;padding:14px 16px">'+
+          '<div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#3b82f6;opacity:.75;margin-bottom:4px">Dépenses variables</div>'+
+          '<div style="font-family:Shrikhand,cursive;font-size:clamp(22px,3vw,34px);color:#3b82f6;line-height:1">'+depTotal.toFixed(0)+' €</div>'+
+          '<div style="font-size:9px;color:#3b82f6;opacity:.6;margin-top:3px">'+deps.length+' transaction'+(deps.length>1?'s':'')+' ce mois</div>'+
         '</div>'+
       '</div>'+
-      '<div class="pbar" style="margin-bottom:18px"><div class="pfill" style="width:'+mPct+'%;background:'+mCol+'"></div></div>'+
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">'+
-        '<div>'+
-          '<div style="font-size:11px;font-weight:800;color:#9d174d;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">🔒 Charges fixes mensuelles</div>'+
-          cfHtml+
-          '<div style="display:flex;gap:6px;margin-top:10px;align-items:flex-end">'+
-            '<input class="iline" id="cfLabel" placeholder="Loyer, abonnement…" style="flex:1;font-size:14px">'+
-            '<input class="iline" id="cfAmt" type="number" min="0" step="0.01" placeholder="€" style="width:60px;font-size:14px">'+
-            '<button class="btn btn-xs" onclick="addChargeFixe()">+</button>'+
+      /* Progress global */
+      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">'+
+        '<div style="flex:1;background:#f5f2f0;border-radius:99px;height:8px;overflow:hidden">'+
+          '<div style="height:100%;border-radius:99px;background:'+mCol+';width:'+mPct+'%;transition:width .5s ease"></div>'+
+        '</div>'+
+        '<div style="font-size:11px;font-weight:800;color:'+mCol+';white-space:nowrap">'+grand.toFixed(0)+' / '+mLim+' €</div>'+
+      '</div>'+
+      /* ── CHARGES FIXES ── */
+      '<div style="margin-bottom:20px">'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'+
+          '<div style="font-size:10px;font-weight:800;color:var(--cerise);text-transform:uppercase;letter-spacing:.1em">Charges fixes</div>'+
+          '<div style="font-size:10px;color:#aaa;font-weight:700">'+cfTotal.toFixed(0)+' €</div>'+
+        '</div>'+
+        '<div class="env-grid2">'+cfEnvHtml+'</div>'+
+        '<div style="display:flex;gap:6px;align-items:flex-end;margin-top:8px;flex-wrap:wrap">'+
+          '<input id="cfIcon" class="iline" placeholder="💳" style="width:44px;font-size:18px;text-align:center">'+
+          '<input class="iline" id="cfLabel" placeholder="Loyer, abonnement…" style="flex:1;min-width:120px;font-size:14px">'+
+          '<input class="iline" id="cfAmt" type="number" min="0" step="0.01" placeholder="€" style="width:64px;font-size:14px">'+
+          '<button class="btn btn-xs" onclick="addChargeFixe()">+ Ajouter</button>'+
+        '</div>'+
+      '</div>'+
+      /* ── ENVELOPPES VARIABLES ── */
+      '<div style="margin-bottom:20px">'+
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'+
+          '<div style="font-size:10px;font-weight:800;color:#3b82f6;text-transform:uppercase;letter-spacing:.1em">Dépenses variables</div>'+
+          '<div style="display:flex;gap:6px;align-items:center">'+
+            '<div style="font-size:10px;color:#aaa;font-weight:700">'+depTotal.toFixed(0)+' €</div>'+
+            '<button class="btn-xs" onclick="openAddVarEnv()" style="font-size:9px">+ Enveloppe</button>'+
           '</div>'+
         '</div>'+
-        '<div>'+
-          '<div style="font-size:11px;font-weight:800;color:#1d4ed8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">📝 Dépenses & achats du mois</div>'+
-          depHtml+
-          '<div style="display:flex;gap:4px;margin-top:10px;flex-wrap:wrap;align-items:flex-end">'+
-            '<input class="iline" id="depLabel" placeholder="Libellé…" style="flex:1;min-width:100px;font-size:14px">'+
-            '<input class="iline" id="depAmt" type="number" min="0" step="0.01" placeholder="€" style="width:55px;font-size:14px">'+
-            '<select id="depType" style="border:none;border-bottom:2px solid #fca5a5;outline:none;background:transparent;font-size:13px;padding:4px 0">'+
-              '<option value="variable">Variable</option><option value="achat">Achat</option>'+
-            '</select>'+
-            '<button class="btn btn-xs" onclick="addDepense(\''+mKey+'\')">+</button>'+
-          '</div>'+
+        varEnvHtml+
+        /* Détail dépenses */
+        (deps.length?
+          '<details style="margin-top:8px"><summary style="font-size:10px;font-weight:800;color:#aaa;cursor:pointer;letter-spacing:.06em;text-transform:uppercase">Détail des transactions ('+deps.length+')</summary>'+
+          '<div style="margin-top:8px">'+depHtml+'</div>'+
+          '</details>':'')+
+        /* Formulaire ajout dépense */
+        '<div style="display:flex;gap:4px;margin-top:12px;flex-wrap:wrap;align-items:flex-end">'+
+          '<input class="iline" id="depLabel" placeholder="Libellé…" style="flex:1;min-width:110px;font-size:14px">'+
+          '<input class="iline" id="depAmt" type="number" min="0" step="0.01" placeholder="€" style="width:58px;font-size:14px">'+
+          '<select id="depCat" style="border:none;border-bottom:2px solid #fca5a5;outline:none;background:transparent;font-size:12px;padding:4px 2px;max-width:110px">'+catOpts+'</select>'+
+          '<button class="btn btn-xs" onclick="addDepense(\''+mKey+'\')">+</button>'+
         '</div>'+
       '</div>'+
     '</div>'+
@@ -1490,9 +1667,120 @@ function renderHome(){
       '</button>';
     })();
 
+  /* ── DASHBOARD 3 COLONNES PC ── */
+  var todayTasksDash=S.tasks.filter(function(t){return !t.done;}).slice(0,4);
+  var upcomingEvts=S.events.filter(function(e){return e.date>=today;})
+    .sort(function(a,b){return a.date.localeCompare(b.date)||a.time.localeCompare(b.time);}).slice(0,4);
+  var cycPhaseDash=getCycleDayFor(today);
+  var dashRestAVivre=(S.budget.monthlyLimit||1500)-(
+    (S.budget.chargesFixe||[]).reduce(function(a,c){return a+(c.amount||0);},0)+
+    ((S.budget.depenses||{})[mKey]||[]).reduce(function(a,d){return a+(d.amount||0);},0)
+  );
+  var dashBPct=Math.min(100,Math.round((1-(dashRestAVivre/(S.budget.monthlyLimit||1500)))*100));
+  var dashBCol=dashBPct>=90?'#ef4444':dashBPct>=70?'#f97316':'#16a34a';
+  var sugDash=RECIPES.filter(function(r){return r.type===mealTypeFilter||!mealTypeFilter;});
+  sugDash=sugDash[Math.floor(Math.random()*sugDash.length)]||RECIPES[0];
+
+  /* Colonne gauche */
+  var habsHtml=S.habits.slice(0,6).map(function(h){
+    var ok=!!logs[h.id];
+    return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f5f2f0">'+
+      '<div style="width:22px;height:22px;border-radius:50%;background:'+(ok?'var(--cerise)':'#f5f2f0')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;transition:all .2s">'+
+        (ok?'<span style="color:white;font-size:10px;font-weight:900">✓</span>':'<span style="opacity:.4">'+h.icon+'</span>')+
+      '</div>'+
+      '<span style="font-family:Caveat,cursive;font-size:15px;color:'+(ok?'var(--texte)':'#aaa')+';'+(ok?'':'text-decoration:none')+'">'+(ok?'<s>':'')+esc(h.name)+(ok?'</s>':'')+'</span>'+
+    '</div>';
+  }).join('');
+
+  /* Colonne centre */
+  var tasksDashHtml=todayTasksDash.length
+    ? todayTasksDash.map(function(t){
+        return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f5f2f0">'+
+          '<div style="width:16px;height:16px;border-radius:50%;border:2px solid #fca5a5;flex-shrink:0"></div>'+
+          '<span style="font-family:Caveat,cursive;font-size:16px;flex:1">'+esc(t.text)+'</span>'+
+        '</div>';
+      }).join('')
+    : '<div style="font-size:12px;color:#ccc;padding:8px 0;font-style:italic">Aucune tâche active</div>';
+
+  var evtsDashHtml=upcomingEvts.length
+    ? upcomingEvts.map(function(e){
+        var isToday3=e.date===today;
+        var dLabel=isToday3?'Aujourd\'hui':e.date.slice(5).replace('-','/');
+        return '<div style="display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:1px solid #f5f2f0">'+
+          '<div style="width:3px;border-radius:2px;background:'+(e.type==='pro'?'#60a5fa':'var(--cerise)')+';margin-top:3px;flex-shrink:0;align-self:stretch;min-height:20px"></div>'+
+          '<div style="flex:1;min-width:0">'+
+            '<div style="font-size:9px;color:#aaa;font-weight:800;text-transform:uppercase">'+esc(dLabel)+' · '+esc(e.time)+'</div>'+
+            '<div style="font-family:Caveat,cursive;font-size:16px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+esc(e.title)+'</div>'+
+          '</div>'+
+        '</div>';
+      }).join('')
+    : '<div style="font-size:12px;color:#ccc;padding:8px 0;font-style:italic">Aucun événement prévu</div>';
+
+  document.getElementById('hdash').innerHTML=
+    /* ── COL GAUCHE ── */
+    '<div class="hdash-card">'+
+      '<div class="hdash-label">Habitudes · '+today+'</div>'+
+      '<div style="display:flex;align-items:baseline;gap:6px;margin-bottom:14px">'+
+        '<div class="hdash-big" style="color:'+(pct>=80?'#16a34a':pct>=50?'#d97706':'var(--cerise)')+'">'+pct+'%</div>'+
+        '<div style="font-size:12px;color:#aaa">'+habDone+'/'+S.habits.length+'</div>'+
+      '</div>'+
+      '<div style="background:#f5f2f0;border-radius:99px;height:6px;margin-bottom:14px;overflow:hidden">'+
+        '<div style="height:100%;border-radius:99px;background:'+(pct>=80?'#16a34a':pct>=50?'#d97706':'var(--cerise)')+';width:'+pct+'%;transition:width .5s"></div>'+
+      '</div>'+
+      habsHtml+
+      (cycPhaseDash?
+        '<div style="margin-top:14px;background:'+cycPhaseDash.bg+';border-radius:12px;padding:10px 12px">'+
+          '<div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:'+cycPhaseDash.c+'">Cycle · '+cycPhaseDash.n+'</div>'+
+          '<div style="font-size:10px;color:'+cycPhaseDash.c+';opacity:.7;margin-top:2px">Aujourd\'hui</div>'+
+        '</div>':'')+
+    '</div>'+
+    /* ── COL CENTRE ── */
+    '<div style="display:flex;flex-direction:column;gap:14px">'+
+      '<div class="hdash-card">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
+          '<div class="hdash-label" style="margin-bottom:0">Tâches actives</div>'+
+          '<button class="btn-xs" onclick="goPage(\'journal\')">Tout voir →</button>'+
+        '</div>'+
+        tasksDashHtml+
+        (S.tasks.filter(function(t){return !t.done;}).length>4?
+          '<div style="font-size:10px;color:#aaa;margin-top:6px;font-style:italic">+ '+(S.tasks.filter(function(t){return !t.done;}).length-4)+' autres</div>':'')+
+      '</div>'+
+      '<div class="hdash-card">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
+          '<div class="hdash-label" style="margin-bottom:0">Événements à venir</div>'+
+          '<button class="btn-xs" onclick="goPage(\'calendar\')">Calendrier →</button>'+
+        '</div>'+
+        evtsDashHtml+
+      '</div>'+
+    '</div>'+
+    /* ── COL DROITE ── */
+    '<div style="display:flex;flex-direction:column;gap:14px">'+
+      /* Budget rapide */
+      '<div class="hdash-card">'+
+        '<div class="hdash-label">Budget mensuel</div>'+
+        '<div style="display:flex;align-items:baseline;gap:6px;margin-bottom:8px">'+
+          '<div class="hdash-big" style="color:'+dashBCol+'">'+dashRestAVivre.toFixed(0)+'€</div>'+
+          '<div style="font-size:11px;color:#aaa">reste</div>'+
+        '</div>'+
+        '<div style="font-size:10px;color:#aaa;margin-bottom:8px">'+(S.budget.monthlyLimit||1500)+'€ de budget · '+dashBPct+'% dépensés</div>'+
+        '<div style="background:#f5f2f0;border-radius:99px;height:6px;overflow:hidden">'+
+          '<div style="height:100%;border-radius:99px;background:'+dashBCol+';width:'+dashBPct+'%;transition:width .5s"></div>'+
+        '</div>'+
+        '<button class="btn-xs" onclick="goPage(\'calendar\')" style="margin-top:12px;width:100%">Gérer le budget →</button>'+
+      '</div>'+
+      /* Suggestion recette */
+      '<div class="hdash-card">'+
+        '<div class="hdash-label">Suggestion du jour</div>'+
+        '<div style="font-size:28px;margin-bottom:6px">'+sugDash.ic+'</div>'+
+        '<div style="font-family:Caveat,cursive;font-size:18px;line-height:1.2;margin-bottom:4px">'+esc(sugDash.n)+'</div>'+
+        '<div style="font-size:10px;color:#aaa;margin-bottom:12px">'+sugDash.t+' min · '+esc(sugDash.type==='breakfast'?'Petit-déj.':sugDash.type==='lunch'?'Déjeuner':sugDash.type==='dinner'?'Dîner':'Collation')+'</div>'+
+        '<button class="btn-xs" onclick="showRecipe('+RECIPES.indexOf(sugDash)+')" style="width:100%">Voir la recette →</button>'+
+      '</div>'+
+    '</div>';
+
   /* ── CITATION ── */
   document.getElementById('htoday').innerHTML=
-    '<div class="post-it" style="max-width:580px;margin:0 auto;font-size:17px;transform:rotate(-.3deg)">'+
+    '<div class="post-it" style="max-width:580px;margin:24px auto 0;font-size:17px;transform:rotate(-.3deg)">'+
       '<span style="font-size:9px;font-weight:800;color:#92400e;text-transform:uppercase;letter-spacing:.14em;display:block;margin-bottom:4px">Citation du moment</span>'+
       '<span class="hand" style="font-size:18px;color:#5a3e28">'+esc(S.quote)+'</span>'+
     '</div>';
@@ -1956,10 +2244,61 @@ function renderCuisine(){
 function addChargeFixe(){
   var label=(document.getElementById('cfLabel')||{value:''}).value.trim();
   var amt=parseFloat((document.getElementById('cfAmt')||{value:''}).value);
+  var icon=(document.getElementById('cfIcon')||{value:''}).value.trim()||'💳';
   if(!label||isNaN(amt)||amt<=0) return;
   if(!S.budget.chargesFixe) S.budget.chargesFixe=[];
-  S.budget.chargesFixe.push({id:uid(),label:label,amount:amt});
+  S.budget.chargesFixe.push({id:uid(),label:label,amount:amt,icon:icon});
   save();renderCal();
+}
+function openAddVarEnv(){
+  var presets=[
+    {name:'Courses',icon:'🛒'},{name:'Restos',icon:'🍽️'},{name:'Loisirs',icon:'🎉'},
+    {name:'Santé',icon:'💊'},{name:'Transport',icon:'🚗'},{name:'Beauté',icon:'💅'},
+    {name:'Vêtements',icon:'👗'},{name:'Épargne',icon:'🏦'},
+  ];
+  var presetHtml=presets.map(function(p){
+    var exists=(S.budget.varEnv||[]).find(function(v){return v.name===p.name;});
+    return '<button onclick="'+(exists?'':'addVarEnvPreset(\''+esc(p.name)+'\',\''+p.icon+'\')')+'" '+
+      'style="padding:7px 12px;border-radius:12px;border:1.5px solid '+(exists?'#ede9e4':'#fca5a5')+';'+
+      'background:'+(exists?'#f9f7f5':'white')+';cursor:'+(exists?'default':'pointer')+';font-size:11px;font-weight:800;'+
+      'color:'+(exists?'#ccc':'var(--cerise)')+';transition:all .15s">'+
+      p.icon+' '+esc(p.name)+(exists?' ✓':'')+
+    '</button>';
+  }).join('');
+  openModal(
+    '<div style="font-family:Shrikhand,cursive;font-size:15px;color:var(--cerise);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Enveloppe variable</div>'+
+    '<div style="font-size:11px;color:#aaa;margin-bottom:16px">Choisir un preset ou créer une enveloppe</div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px">'+presetHtml+'</div>'+
+    '<div style="font-size:10px;font-weight:800;color:#aaa;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Personnalisée</div>'+
+    '<div style="display:flex;gap:6px;align-items:flex-end;margin-bottom:14px">'+
+      '<input id="ve-icon" class="iline" placeholder="📦" style="width:44px;font-size:18px;text-align:center">'+
+      '<input id="ve-name" class="iline" placeholder="Nom de l\'enveloppe" style="flex:1">'+
+      '<input id="ve-budget" class="iline" type="number" placeholder="Budget €" style="width:80px">'+
+    '</div>'+
+    '<div style="display:flex;gap:8px">'+
+      '<button class="btn btn-green" style="flex:1" onclick="addVarEnvCustom()">Créer</button>'+
+      '<button class="btn" style="background:#f5f5f5;color:#999;flex:1" onclick="closeModal()">Fermer</button>'+
+    '</div>'
+  );
+}
+function addVarEnvPreset(name,icon){
+  if(!S.budget.varEnv) S.budget.varEnv=[];
+  if(S.budget.varEnv.find(function(v){return v.name===name;})) return;
+  S.budget.varEnv.push({id:uid(),name:name,icon:icon,budget:0});
+  save(); closeModal(); renderCal();
+}
+function addVarEnvCustom(){
+  var name=(document.getElementById('ve-name')||{value:''}).value.trim();
+  var icon=(document.getElementById('ve-icon')||{value:'📦'}).value.trim()||'📦';
+  var budget=parseFloat((document.getElementById('ve-budget')||{value:'0'}).value)||0;
+  if(!name) return;
+  if(!S.budget.varEnv) S.budget.varEnv=[];
+  S.budget.varEnv.push({id:uid(),name:name,icon:icon,budget:budget});
+  save(); closeModal(); renderCal();
+}
+function delVarEnv(id){
+  S.budget.varEnv=(S.budget.varEnv||[]).filter(function(v){return v.id!==id;});
+  save(); renderCal();
 }
 function delChargeFixe(id){
   S.budget.chargesFixe=(S.budget.chargesFixe||[]).filter(function(c){return c.id!==id;});
@@ -1968,11 +2307,11 @@ function delChargeFixe(id){
 function addDepense(mKey){
   var label=(document.getElementById('depLabel')||{value:''}).value.trim();
   var amt=parseFloat((document.getElementById('depAmt')||{value:''}).value);
-  var type=(document.getElementById('depType')||{value:'variable'}).value;
+  var cat=(document.getElementById('depCat')||{value:'Autre'}).value||'Autre';
   if(!label||isNaN(amt)||amt<=0) return;
   if(!S.budget.depenses) S.budget.depenses={};
   if(!S.budget.depenses[mKey]) S.budget.depenses[mKey]=[];
-  S.budget.depenses[mKey].push({id:uid(),label:label,amount:amt,type:type});
+  S.budget.depenses[mKey].push({id:uid(),label:label,amount:amt,type:'variable',cat:cat});
   save();renderCal();
 }
 function delDepense(mKey,id){
