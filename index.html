@@ -30,7 +30,7 @@
 
 body {
   font-family: 'Quicksand', sans-serif;
-  background: #1a0818;
+  background: #f2f7f2;
   color: var(--texte);
   min-height: 100vh;
   overflow-x: hidden;
@@ -45,14 +45,6 @@ body {
   z-index: -2;
   overflow: hidden;
   pointer-events: none;
-}
-#bg-wrap img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: opacity 1.2s ease;
 }
 #bg-wrap .bg-ov {
   position: absolute;
@@ -74,15 +66,13 @@ body {
 .hand    { font-family:'Caveat',cursive; }
 .retro   { font-family:'Shrikhand',cursive; }
 
-/* ── CARDS — VERRE DÉPOLI ── */
+/* ── CARDS ── */
 .card {
-  background: rgba(255,255,255,0.78);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(255,255,255,0.45);
+  background: #ffffff;
+  border: 1px solid #e8ede8;
   border-radius: 20px;
   padding: 20px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,.06);
+  box-shadow: 0 2px 16px rgba(0,0,0,.06);
 }
 
 .polaroid {
@@ -194,15 +184,15 @@ body {
   left: 50%;
   transform: translateX(-50%);
   z-index: 100;
-  background: rgba(20,8,24,0.55);
-  backdrop-filter: blur(28px) saturate(200%);
-  -webkit-backdrop-filter: blur(28px) saturate(200%);
-  border: 1px solid rgba(255,255,255,0.22);
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(0,0,0,0.08);
   border-radius: 99px;
   padding: 7px 10px;
   display: flex;
   gap: 4px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.12);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
 }
 .nbtn {
   padding: 10px 22px;
@@ -216,7 +206,7 @@ body {
   cursor: pointer;
   transition: all .22s cubic-bezier(.34,1.56,.64,1);
   background: transparent;
-  color: rgba(255,255,255,0.55);
+  color: #999;
 }
 .nbtn.on {
   background: linear-gradient(135deg, #D2143A 0%, #e8174a 50%, #ff6080 100%);
@@ -230,16 +220,15 @@ body {
 .clbl  { text-align:center; font-size:9px; font-weight:800; color:var(--rose); letter-spacing:.08em; }
 .cgrd  { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
 .cday  {
-  min-height:80px; border:2px solid rgba(255,255,255,0.6); border-radius:12px;
+  min-height:80px; border:1px solid #e8ede8; border-radius:12px;
   padding:4px; cursor:pointer;
-  background:rgba(255,255,255,0.72);
-  backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  background:#ffffff;
   transition:all .18s; overflow:hidden; position:relative; vertical-align:top;
-  box-shadow:0 2px 8px rgba(0,0,0,.06);
+  box-shadow:0 1px 4px rgba(0,0,0,.04);
 }
-.cday:hover { border-color:rgba(255,255,255,0.95); transform:scale(1.06); z-index:2; box-shadow:0 6px 18px rgba(0,0,0,.14); }
-.cday.today { border-color:var(--cerise); border-width:2.5px; background:rgba(255,255,255,0.92); }
-.cday.empty { background:transparent; border:none; cursor:default; backdrop-filter:none; }
+.cday:hover { border-color:#c8ddc8; transform:scale(1.06); z-index:2; box-shadow:0 4px 12px rgba(0,0,0,.08); }
+.cday.today { border-color:var(--cerise); border-width:2px; background:#fff5f8; }
+.cday.empty { background:transparent; border:none; cursor:default; }
 .cdnum { font-size:10px; font-weight:800; color:#ccc; line-height:1; }
 .cday.today .cdnum { color:var(--cerise); }
 .cdmood { position:absolute; top:1px; right:2px; font-size:9px; }
@@ -330,13 +319,11 @@ body {
 
 /* ── CUISINE ── */
 .csec {
-  background: rgba(255,255,255,0.78);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1.5px solid rgba(255,255,255,0.45);
+  background: #ffffff;
+  border: 1.5px solid #e8ede8;
   border-radius: 20px;
   padding: 16px 18px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  box-shadow: 0 2px 16px rgba(0,0,0,.06);
 }
 .citem {
   display: flex; align-items: center; gap: 8px;
@@ -352,15 +339,13 @@ body {
 @media(min-width:768px){ .cuis-grid { grid-template-columns: 5fr 4fr; } }
 
 .app-card {
-  background: rgba(255,255,255,0.15);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1.5px solid rgba(255,255,255,0.35);
+  background: #ffffff;
+  border: 1.5px solid #e8ede8;
   border-radius: 24px;
   padding: 26px 20px 22px;
   cursor: pointer;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.45);
-  transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s, background .25s;
+  box-shadow: 0 2px 16px rgba(0,0,0,.06);
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s;
   text-align: left;
   display: flex;
   flex-direction: column;
@@ -370,15 +355,14 @@ body {
   overflow: hidden;
 }
 .app-card:hover {
-  transform: translateY(-6px) scale(1.02);
-  background: rgba(255,255,255,0.28);
-  box-shadow: 0 16px 48px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.6);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 32px rgba(0,0,0,.10);
 }
 .app-card:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
-.ac-icon { width:44px; height:44px; filter:drop-shadow(0 4px 8px rgba(0,0,0,0.28)); }
-.ac-title { font-family:'Shrikhand',cursive; font-size:16px; text-transform:uppercase; letter-spacing:.08em; }
-.ac-stat { font-family:'Caveat',cursive; font-size:21px; color:white; text-shadow:0 1px 4px rgba(0,0,0,.3); }
-.ac-sub { font-size:12px; color:rgba(255,255,255,0.72); }
+.ac-icon { width:44px; height:44px; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.12)); }
+.ac-title { font-family:'Shrikhand',cursive; font-size:16px; text-transform:uppercase; letter-spacing:.08em; color:var(--texte); }
+.ac-stat { font-family:'Caveat',cursive; font-size:21px; color:var(--texte); }
+.ac-sub { font-size:12px; color:#888; }
 
 /* ── NAV LABEL (caché sur très petit écran) ── */
 .nlbl { display:none; }
@@ -434,11 +418,10 @@ button:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
 .home-hero-wrap { max-width:1100px; margin:0 auto; padding:28px 16px 100px; }
 
 /* ── SEMAINE agrandie ── */
-.wday { background:rgba(255,255,255,0.78); backdrop-filter:blur(20px) saturate(160%); -webkit-backdrop-filter:blur(20px) saturate(160%);
-  border:1px solid rgba(255,255,255,0.42); border-radius:22px; padding:0; min-height:320px;
-  box-shadow:0 8px 32px rgba(0,0,0,.12); transition:border-color .15s; display:flex; flex-direction:column; overflow:hidden; }
-.wday.wtoday { border-color:var(--cerise); border-width:2px; }
-.wday-cap { height:48px; width:100%; flex-shrink:0; overflow:hidden; }
+.wday { background:#ffffff; border:1px solid #e8ede8; border-radius:22px; padding:0; min-height:320px;
+  box-shadow:0 2px 12px rgba(0,0,0,.06); transition:border-color .15s; display:flex; flex-direction:column; overflow:hidden; }
+.wday.wtoday { border-color:var(--cerise); border-width:2px; background:#fff5f8; }
+.wday-cap { height:8px; width:100%; flex-shrink:0; }
 .wday-body { padding:10px 10px 12px; flex:1; display:flex; flex-direction:column; }
 .wday-hd { font-size:9px; font-weight:800; color:#bbb; text-transform:uppercase; letter-spacing:.1em; margin-bottom:2px; }
 .wday-num { font-family:'Shrikhand',cursive; font-size:26px; color:var(--texte); line-height:1; margin-bottom:8px; }
@@ -448,14 +431,12 @@ button:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
 .env-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
 @media(max-width:600px){ .env-grid2 { grid-template-columns:1fr; } }
 .env-card {
-  background: rgba(255,255,255,0.72);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.42);
+  background: #ffffff;
+  border: 1px solid #e8ede8;
   border-radius: 14px;
   padding: 13px 15px;
   position: relative;
-  box-shadow: 0 4px 16px rgba(0,0,0,.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,.05);
 }
 .env-card.fixed-env { border-left:4px solid var(--cerise); }
 .env-card.var-env   { border-left:4px solid #3b82f6; }
@@ -475,13 +456,11 @@ button:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
   }
 }
 .hdash-card {
-  background: rgba(255,255,255,0.78);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(255,255,255,0.42);
+  background: #ffffff;
+  border: 1px solid #e8ede8;
   border-radius: 20px;
   padding: 18px 20px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  box-shadow: 0 2px 16px rgba(0,0,0,.06);
 }
 .hdash-label {
   font-size:9px; font-weight:800; letter-spacing:.14em;
@@ -502,17 +481,17 @@ button:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
 <!-- ═══ NAVIGATION ═══ -->
 <nav id="nav" role="navigation" aria-label="Navigation principale">
   <button class="nbtn on" id="btn-h" onclick="goPage('home')" aria-label="Accueil">Accueil</button>
-  <div style="width:1px;background:rgba(255,255,255,.18);height:18px;margin:0 2px"></div>
+  <div style="width:1px;background:rgba(0,0,0,.1);height:18px;margin:0 2px"></div>
   <button class="nbtn" id="btn-j" onclick="goPage('journal')" aria-label="Journal du jour">Journal</button>
   <button class="nbtn" id="btn-w" onclick="goPage('week')" aria-label="Semaine">Semaine</button>
   <button class="nbtn" id="btn-c" onclick="goPage('calendar')" aria-label="Calendrier mensuel">Mensuel</button>
-  <div style="width:1px;background:rgba(255,255,255,.18);height:18px;margin:0 2px"></div>
+  <div style="width:1px;background:rgba(0,0,0,.1);height:18px;margin:0 2px"></div>
   <button class="nbtn" id="btn-k" onclick="goPage('cuisine')" aria-label="Ma cuisine">Cuisine</button>
 </nav>
 
 <!-- ═══ ACCUEIL ═══ -->
 <div class="page on" id="page-home" role="main">
-  <header id="hh"><div style="min-height:88vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#ffe8f0,#f8e4ff)"><div style="font-family:Shrikhand,cursive;font-size:52px;color:var(--cerise);opacity:.35;animation:float 2s ease-in-out infinite">🍒</div></div></header>
+  <header id="hh"></header>
   <div id="hgrid" class="home-grid"></div>
   <div id="hdash" class="hdash"></div>
   <div id="htoday" style="max-width:900px;margin:0 auto;padding:0 14px 80px"></div>
@@ -1184,33 +1163,14 @@ function renderCal(){
       '</div>'+
     '</div>';
 
-  /* GRILLE SAISONNIÈRE avec strips de personnages saisonniers */
+  /* GRILLE CALENDRIER */
   var lbls=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
-  var ms=MONTH_STICKERS[m];
-  /* TWemoji helper */
-  var T='https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/svg/';
-  var stkRow=function(list,flipped){
-    return '<div style="display:flex;justify-content:space-around;align-items:'+(flipped?'flex-start':'flex-end')+';'+
-      'padding:'+(flipped?'10px 20px 8px':'8px 20px 12px')+'">'+
-      list.map(function(item){
-        var cp=item[0], rot=item[1], sz=item[2]||48;
-        return '<img src="'+T+cp+'.svg" alt="" '+
-          'style="width:'+sz+'px;height:'+sz+'px;transform:rotate('+rot+'deg)'+
-          (flipped?'scaleY(-1)':'')+';'+
-          'filter:drop-shadow(0 2px 8px rgba(0,0,0,.18));flex-shrink:0;transition:transform .2s" '+
-          'onerror="this.style.display=\'none\'">';
-      }).join('')+
-    '</div>';
-  };
-
-  var topStrip=stkRow(ms.top,false);
-  var botStrip=stkRow(ms.bot,true);
 
   var gridHtml=
     '<div class="chead">'+
       lbls.map(function(l,li){
         var wkd=li>=5;
-        return '<div class="clbl" style="'+(wkd?'opacity:.4':'')+';color:'+ms.accentCol+'">'+l+'</div>';
+        return '<div class="clbl" style="'+(wkd?'opacity:.4':'')+';color:'+th.t+'">'+l+'</div>';
       }).join('')+
     '</div>'+
     '<div class="cgrd">';
@@ -1266,18 +1226,9 @@ function renderCal(){
   }
   gridHtml+='</div>'; /* close cgrd */
 
-  /* ── CALENDRIER SCRAPBOOKING : strips top + bottom + fond saisonnier ── */
   document.getElementById('cl').innerHTML=
-    '<div style="border-radius:24px;overflow:hidden;border:2px solid '+ms.bd+';'+
-      'box-shadow:0 8px 32px rgba(0,0,0,.15)">'+
-      /* fond saisonnier */
-      '<div style="background:'+ms.bg+'">'+
-        topStrip+
-        '<div style="padding:0 10px">'+
-          gridHtml+
-        '</div>'+
-        botStrip+
-      '</div>'+
+    '<div class="card" style="padding:10px">'+
+      gridHtml+
     '</div>';
 
   /* ── COLONNE DROITE : Tracker cycle ── */
@@ -1717,14 +1668,14 @@ function renderHome(){
   document.getElementById('hgrid').innerHTML=
     '<button class="app-card" style="border-left:3px solid var(--cerise)" onclick="goPage(\'journal\')">'+
       '<div class="ac-icon" style="color:var(--cerise)">'+ICONS.journal+'</div>'+
-      '<div class="ac-title" style="color:white;text-shadow:0 1px 6px rgba(0,0,0,.4)">Journal</div>'+
+      '<div class="ac-title">Journal</div>'+
       '<div class="ac-stat">'+(mood!==undefined?MOODS[mood].e+' '+esc(MOODS[mood].l):'Humeur à définir')+'</div>'+
       '<div class="ac-sub">'+habDone+'/'+S.habits.length+' habitudes · '+pct+'%</div>'+
-      '<div class="pbar" style="margin-top:6px;background:rgba(255,255,255,.2)"><div class="pfill" style="width:'+pct+'%;background:linear-gradient(90deg,var(--cerise),#ff85a1)"></div></div>'+
+      '<div class="pbar" style="margin-top:6px"><div class="pfill" style="width:'+pct+'%;background:linear-gradient(90deg,var(--cerise),#ff85a1)"></div></div>'+
     '</button>'+
     '<button class="app-card" style="border-left:3px solid #a855f7" onclick="goPage(\'week\')">'+
       '<div class="ac-icon" style="color:#a855f7">'+ICONS.week+'</div>'+
-      '<div class="ac-title" style="color:white;text-shadow:0 1px 6px rgba(0,0,0,.4)">Semaine</div>'+
+      '<div class="ac-title">Semaine</div>'+
       '<div class="ac-stat">'+esc(MOIS[now.getMonth()])+'</div>'+
       '<div class="ac-sub">'+(todayEvts.length?todayEvts.length+' événement'+(todayEvts.length>1?'s':'')+' auj.':'Journée libre')+
         (nextEvt&&nextEvt.date>today?' · Prochain '+esc(nextEvt.date.slice(5).replace('-','/')):'')+
@@ -1732,13 +1683,13 @@ function renderHome(){
     '</button>'+
     '<button class="app-card" style="border-left:3px solid #22c55e" onclick="goPage(\'calendar\')">'+
       '<div class="ac-icon" style="color:#22c55e">'+ICONS.budget+'</div>'+
-      '<div class="ac-title" style="color:white;text-shadow:0 1px 6px rgba(0,0,0,.4)">Budget</div>'+
-      '<div class="ac-stat" style="color:'+(bCol==='#dc2626'?'#fca5a5':bCol==='#d97706'?'#fcd34d':'#86efac')+'">'+budTotal.toFixed(0)+' / '+mLim+' €</div>'+
-      '<div class="pbar" style="margin-top:6px;background:rgba(255,255,255,.2)"><div class="pfill" style="width:'+bPct+'%;background:linear-gradient(90deg,#22c55e,#86efac)"></div></div>'+
+      '<div class="ac-title">Budget</div>'+
+      '<div class="ac-stat" style="color:'+(bCol==='#dc2626'?'#dc2626':bCol==='#d97706'?'#d97706':'#16a34a')+'">'+budTotal.toFixed(0)+' / '+mLim+' €</div>'+
+      '<div class="pbar" style="margin-top:6px"><div class="pfill" style="width:'+bPct+'%;background:linear-gradient(90deg,#22c55e,#86efac)"></div></div>'+
     '</button>'+
     '<button class="app-card" style="border-left:3px solid #f59e0b;cursor:default">'+
       '<div class="ac-icon" style="color:#f59e0b" id="w-icon">'+ICONS.sun+'</div>'+
-      '<div class="ac-title" style="color:white;text-shadow:0 1px 6px rgba(0,0,0,.4)">Météo</div>'+
+      '<div class="ac-title">Météo</div>'+
       '<div class="ac-stat" id="w-temp">—</div>'+
       '<div class="ac-sub" id="w-desc">Localisation…</div>'+
     '</button>'+
@@ -1748,7 +1699,7 @@ function renderHome(){
       var hint=topRec.length?topRec[0].r.n:(invC.length?'Idées en attente…':'Scanner un produit');
       return '<button class="app-card" style="border-left:3px solid #f97316" onclick="goPage(\'cuisine\')">'+
         '<div class="ac-icon" style="color:#f97316">'+ICONS.cuisine+'</div>'+
-        '<div class="ac-title" style="color:white;text-shadow:0 1px 6px rgba(0,0,0,.4)">Cuisine</div>'+
+        '<div class="ac-title">Cuisine</div>'+
         '<div class="ac-stat">'+invC.length+' produit'+(invC.length!==1?'s':'')+'</div>'+
         '<div class="ac-sub" style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis">'+esc(hint)+'</div>'+
       '</button>';
@@ -1962,17 +1913,9 @@ function renderWeek(){
       return '<span title="'+esc(h.name)+'" style="font-size:14px;opacity:'+(logs[h.id]?'1':'.22')+';transition:opacity .15s">'+h.icon+'</span>';
     }).join('');
 
-    var wms=MONTH_STICKERS[d.getMonth()];
-    var wStk=wms.top[i]||wms.top[0];
-    var Tw='https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/svg/';
     cols+=
-      '<div class="wday'+(isToday?' wtoday':'')+'" onclick="openAddEvent(\''+ds+'\')" style="cursor:pointer;border-color:'+(isToday?dth.t:'rgba(255,255,255,0.42)')+'">'+
-        /* Bande colorée saisonnière + sticker en haut */
-        '<div class="wday-cap" style="background:'+(isToday?dth.t:dth.bd)+';opacity:'+(isToday?'1':'.6')+';display:flex;align-items:center;justify-content:center;height:48px;padding:4px">'+
-          '<img src="'+Tw+wStk[0]+'.svg" alt="" style="height:38px;width:38px;object-fit:contain;'+
-            'transform:rotate('+wStk[1]+'deg);filter:drop-shadow(0 2px 4px rgba(0,0,0,.2))" '+
-            'onerror="this.style.display=\'none\'">'+
-        '</div>'+
+      '<div class="wday'+(isToday?' wtoday':'')+'" onclick="openAddEvent(\''+ds+'\')" style="cursor:pointer;border-color:'+(isToday?dth.t:'rgba(0,0,0,.08)')+'">'+
+        '<div class="wday-cap" style="background:'+(isToday?dth.t:dth.bd)+'"></div>'+
         '<div class="wday-body">'+
           '<div class="wday-hd">'+JOURS[i]+'</div>'+
           '<div class="wday-num" style="color:'+(isToday?dth.t:'var(--texte)')+'">'+d.getDate()+'</div>'+
@@ -2762,27 +2705,49 @@ const ICONS = {
     '<path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>',
 };
 
+/* ── BOTANIQUES PAR MOIS (panneaux latéraux) ── */
+const BOTANICALS = [
+  /* Jan */ {bg:'#f0f5f8',left:[['1f33e',-10,36],['1f338',8,32],['1f331',-6,28],['1f33f',5,34],['1f343',-8,30]],right:[['1f343',10,34],['1f331',-5,30],['1f338',8,36],['1f33f',-10,32],['1f33e',6,28]]},
+  /* Fév */ {bg:'#fef2f6',left:[['1f339',-8,38],['1f337',6,34],['1f338',-10,36],['1f33c',8,32],['1f339',-6,40]],right:[['1f33c',10,36],['1f339',-8,40],['1f337',6,32],['1f338',-12,34],['1f33c',8,38]]},
+  /* Mar */ {bg:'#eefaf2',left:[['1f338',-8,36],['1f33c',5,38],['1f331',-6,30],['1f33f',8,34],['1f343',-10,32]],right:[['1f343',8,32],['1f331',-5,30],['1f33c',10,38],['1f338',-8,36],['1f33f',6,34]]},
+  /* Avr */ {bg:'#f8f4ff',left:[['1f337',-10,38],['1f338',6,34],['1f33c',-8,36],['1f33f',5,30],['1f337',-6,40]],right:[['1f33c',8,36],['1f337',-8,38],['1f338',10,34],['1f33f',-6,32],['1f33c',5,40]]},
+  /* Mai */ {bg:'#eefbf4',left:[['1f33b',-8,38],['1f340',6,34],['1f33c',-10,36],['1f33f',8,32],['1f343',-6,30]],right:[['1f343',10,30],['1f33f',-6,32],['1f33c',8,36],['1f340',-8,34],['1f33b',6,38]]},
+  /* Jun */ {bg:'#fefbf0',left:[['1f33b',-6,42],['1f33a',8,36],['1f33c',-10,34],['1f33f',5,32],['1f33b',-8,40]],right:[['1f33c',10,34],['1f33b',-8,42],['1f33a',6,36],['1f33f',-10,32],['1f33c',5,38]]},
+  /* Jul */ {bg:'#fff8f2',left:[['1f334',-8,40],['1f33a',6,36],['1f33b',-10,38],['1f343',8,32],['1f334',-6,42]],right:[['1f343',10,32],['1f334',-8,40],['1f33b',6,38],['1f33a',-10,36],['1f343',5,34]]},
+  /* Aoû */ {bg:'#fffcf0',left:[['1f33b',-6,44],['1f33e',8,36],['1f33c',-10,38],['1f33f',5,32],['1f33b',-8,42]],right:[['1f33f',10,32],['1f33b',-8,44],['1f33c',6,38],['1f33e',-10,36],['1f33f',5,34]]},
+  /* Sep */ {bg:'#fff8f2',left:[['1f342',-8,38],['1f341',6,36],['1f33e',-10,34],['1f343',8,32],['1f342',-6,40]],right:[['1f343',10,32],['1f342',-8,38],['1f341',6,36],['1f33e',-10,34],['1f343',5,30]]},
+  /* Oct */ {bg:'#faf6f2',left:[['1f342',-8,38],['1f344',6,34],['1f341',-10,36],['1f33f',8,32],['1f342',-6,40]],right:[['1f33f',10,32],['1f342',-8,38],['1f344',6,34],['1f341',-10,36],['1f342',5,30]]},
+  /* Nov */ {bg:'#f8f8f8',left:[['1f343',-8,36],['1f342',6,38],['1f344',-10,34],['1f33f',8,32],['1f343',-6,30]],right:[['1f33f',10,32],['1f343',-8,36],['1f342',6,38],['1f344',-10,34],['1f343',5,30]]},
+  /* Déc */ {bg:'#f0faf4',left:[['1f332',-8,40],['26c4',6,34],['1f332',-10,38],['1f33f',8,32],['1f332',-6,42]],right:[['1f33f',10,32],['1f332',-8,40],['26c4',6,34],['1f332',-10,38],['1f33f',5,42]]},
+];
+
 /* ── FOND MENSUEL DYNAMIQUE ── */
 function applyMonthTheme(m){
-  var th=MONTH_THEMES[m];
+  var bt=BOTANICALS[m];
+  var T='https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/svg/';
+  document.body.style.background=bt.bg;
   var wrap=document.getElementById('bg-wrap');
   if(!wrap) return;
-  wrap.innerHTML=
-    '<img src="'+th.p+'" alt="" onerror="this.style.opacity=0">'+
-    '<div class="bg-ov" style="background:'+th.g+';opacity:.55"></div>'+
-    '<div class="bg-ov" style="background:rgba(0,0,0,.2)"></div>';
+  var mkPanel=function(list,side){
+    return '<div style="position:absolute;'+side+':0;top:0;height:100%;width:72px;display:flex;'+
+      'flex-direction:column;justify-content:space-around;align-items:center;pointer-events:none;opacity:.45">'+
+      list.map(function(item){
+        var cp=item[0],rot=item[1]||0,sz=item[2]||38;
+        return '<img src="'+T+cp+'.svg" alt="" style="width:'+sz+'px;height:'+sz+'px;transform:rotate('+rot+'deg);flex-shrink:0" onerror="this.style.display=\'none\'">';
+      }).join('')+
+    '</div>';
+  };
+  wrap.innerHTML=mkPanel(bt.left,'left')+mkPanel(bt.right,'right');
 }
 
 try{ load(); }catch(e){ localStorage.removeItem(KEY); }
-requestAnimationFrame(function(){
-  try{ goPage('home'); }catch(err){
-    document.getElementById('hh').innerHTML=
-      '<div style="background:#fee2e2;border:2px solid #ef4444;border-radius:20px;padding:20px;margin:16px;font-family:monospace;color:#b91c1c">'+
-      '<b>Erreur :</b> '+String(err.message)+'<br><br>'+
-      '<button onclick="localStorage.clear();location.reload()" style="background:#ef4444;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;margin-top:8px">Effacer cache et recharger</button>'+
-      '</div>';
-  }
-});
+try{ goPage('home'); }catch(err){
+  document.getElementById('hh').innerHTML=
+    '<div style="background:#fee2e2;border:2px solid #ef4444;border-radius:20px;padding:20px;margin:16px;font-family:monospace;color:#b91c1c">'+
+    '<b>Erreur :</b> '+String(err.message)+'<br><br>'+
+    '<button onclick="localStorage.clear();location.reload()" style="background:#ef4444;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;margin-top:8px">Effacer cache et recharger</button>'+
+    '</div>';
+}
 </script>
 </body>
 </html>
