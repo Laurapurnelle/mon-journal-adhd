@@ -230,13 +230,16 @@ body {
 .clbl  { text-align:center; font-size:9px; font-weight:800; color:var(--rose); letter-spacing:.08em; }
 .cgrd  { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
 .cday  {
-  min-height:80px; border:2px solid #fff0f3; border-radius:12px;
-  padding:4px; cursor:pointer; background:white; transition:all .15s;
-  overflow:hidden; position:relative; vertical-align:top;
+  min-height:80px; border:2px solid rgba(255,255,255,0.6); border-radius:12px;
+  padding:4px; cursor:pointer;
+  background:rgba(255,255,255,0.72);
+  backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  transition:all .18s; overflow:hidden; position:relative; vertical-align:top;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
 }
-.cday:hover { border-color:var(--rose); transform:scale(1.06); z-index:2; }
-.cday.today { border-color:var(--cerise); background:#fff5f8; }
-.cday.empty { background:transparent; border:none; cursor:default; }
+.cday:hover { border-color:rgba(255,255,255,0.95); transform:scale(1.06); z-index:2; box-shadow:0 6px 18px rgba(0,0,0,.14); }
+.cday.today { border-color:var(--cerise); border-width:2.5px; background:rgba(255,255,255,0.92); }
+.cday.empty { background:transparent; border:none; cursor:default; backdrop-filter:none; }
 .cdnum { font-size:10px; font-weight:800; color:#ccc; line-height:1; }
 .cday.today .cdnum { color:var(--cerise); }
 .cdmood { position:absolute; top:1px; right:2px; font-size:9px; }
@@ -435,7 +438,7 @@ button:focus-visible { outline:3px solid var(--cerise); outline-offset:2px; }
   border:1px solid rgba(255,255,255,0.42); border-radius:22px; padding:0; min-height:320px;
   box-shadow:0 8px 32px rgba(0,0,0,.12); transition:border-color .15s; display:flex; flex-direction:column; overflow:hidden; }
 .wday.wtoday { border-color:var(--cerise); border-width:2px; }
-.wday-cap { height:8px; width:100%; flex-shrink:0; }
+.wday-cap { height:48px; width:100%; flex-shrink:0; overflow:hidden; }
 .wday-body { padding:10px 10px 12px; flex:1; display:flex; flex-direction:column; }
 .wday-hd { font-size:9px; font-weight:800; color:#bbb; text-transform:uppercase; letter-spacing:.1em; margin-bottom:2px; }
 .wday-num { font-family:'Shrikhand',cursive; font-size:26px; color:var(--texte); line-height:1; margin-bottom:8px; }
@@ -1181,18 +1184,37 @@ function renderCal(){
       '</div>'+
     '</div>';
 
-  /* GRILLE SAISONNIÈRE */
+  /* GRILLE SAISONNIÈRE avec strips de personnages saisonniers */
   var lbls=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
-  var evBgPro=isT?'rgba(219,234,254,.9)':'#dbeafe';
-  var ch='<div class="card" style="padding:14px 10px">'+
+  var ms=MONTH_STICKERS[m];
+  /* TWemoji helper */
+  var T='https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/svg/';
+  var stkRow=function(list,flipped){
+    return '<div style="display:flex;justify-content:space-around;align-items:'+(flipped?'flex-start':'flex-end')+';'+
+      'padding:'+(flipped?'10px 20px 8px':'8px 20px 12px')+'">'+
+      list.map(function(item){
+        var cp=item[0], rot=item[1], sz=item[2]||48;
+        return '<img src="'+T+cp+'.svg" alt="" '+
+          'style="width:'+sz+'px;height:'+sz+'px;transform:rotate('+rot+'deg)'+
+          (flipped?'scaleY(-1)':'')+';'+
+          'filter:drop-shadow(0 2px 8px rgba(0,0,0,.18));flex-shrink:0;transition:transform .2s" '+
+          'onerror="this.style.display=\'none\'">';
+      }).join('')+
+    '</div>';
+  };
+
+  var topStrip=stkRow(ms.top,false);
+  var botStrip=stkRow(ms.bot,true);
+
+  var gridHtml=
     '<div class="chead">'+
       lbls.map(function(l,li){
         var wkd=li>=5;
-        return '<div class="clbl" style="'+(wkd?'opacity:.5':'')+'">'+l+'</div>';
+        return '<div class="clbl" style="'+(wkd?'opacity:.4':'')+';color:'+ms.accentCol+'">'+l+'</div>';
       }).join('')+
     '</div>'+
     '<div class="cgrd">';
-  for(var i=0;i<offset;i++) ch+='<div class="cday empty"></div>';
+  for(var i=0;i<offset;i++) gridHtml+='<div class="cday empty"></div>';
   for(var d2=1;d2<=daysInMonth;d2++){
     var ds2=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d2).padStart(2,'0');
     var isT=ds2===today;
@@ -1225,7 +1247,7 @@ function renderCal(){
     }
     var cycPh=getCycleDayFor(ds2);
     var cycDot=cycPh&&!sc?'<div style="width:6px;height:6px;border-radius:50%;background:'+cycPh.c+';margin-top:3px;opacity:.8;flex-shrink:0"></div>':'';
-    ch+='<div class="cday'+(isT&&!sc?' today':'')+'" style="'+cellSt+'" onclick="openAddEvent(\''+ds2+'\')">'+
+    gridHtml+='<div class="cday'+(isT&&!sc?' today':'')+'" style="'+cellSt+'" onclick="openAddEvent(\''+ds2+'\')">'+
       '<div style="display:flex;justify-content:space-between;align-items:flex-start">'+
         '<div style="display:flex;flex-direction:column;align-items:flex-start">'+
           '<div class="cdnum" style="'+numSt+'">'+d2+'</div>'+
@@ -1242,22 +1264,20 @@ function renderCal(){
         : chips)+
     '</div>';
   }
-  ch+='</div></div>';
-  /* ── SCRAPBOOKING : photos saisonnières en décoration aux coins de la grille ── */
-  var prevM=(m+11)%12, nextM=(m+1)%12;
+  gridHtml+='</div>'; /* close cgrd */
+
+  /* ── CALENDRIER SCRAPBOOKING : strips top + bottom + fond saisonnier ── */
   document.getElementById('cl').innerHTML=
-    '<div style="position:relative">'+
-      '<img src="'+MONTH_THEMES[nextM].p+'" alt="" '+
-        'style="position:absolute;top:-14px;right:-10px;width:82px;height:82px;object-fit:cover;'+
-        'border-radius:14px;transform:rotate(5deg);'+
-        'box-shadow:0 8px 24px rgba(0,0,0,.28);z-index:6;pointer-events:none;opacity:.88;'+
-        'border:3px solid rgba(255,255,255,.85)" onerror="this.style.display=\'none\'">'+
-      '<img src="'+MONTH_THEMES[prevM].p+'" alt="" '+
-        'style="position:absolute;bottom:-12px;left:-8px;width:66px;height:66px;object-fit:cover;'+
-        'border-radius:11px;transform:rotate(-5deg);'+
-        'box-shadow:0 6px 18px rgba(0,0,0,.24);z-index:6;pointer-events:none;opacity:.80;'+
-        'border:3px solid rgba(255,255,255,.8)" onerror="this.style.display=\'none\'">'+
-      ch+
+    '<div style="border-radius:24px;overflow:hidden;border:2px solid '+ms.bd+';'+
+      'box-shadow:0 8px 32px rgba(0,0,0,.15)">'+
+      /* fond saisonnier */
+      '<div style="background:'+ms.bg+'">'+
+        topStrip+
+        '<div style="padding:0 10px">'+
+          gridHtml+
+        '</div>'+
+        botStrip+
+      '</div>'+
     '</div>';
 
   /* ── COLONNE DROITE : Tracker cycle ── */
@@ -1942,10 +1962,17 @@ function renderWeek(){
       return '<span title="'+esc(h.name)+'" style="font-size:14px;opacity:'+(logs[h.id]?'1':'.22')+';transition:opacity .15s">'+h.icon+'</span>';
     }).join('');
 
+    var wms=MONTH_STICKERS[d.getMonth()];
+    var wStk=wms.top[i]||wms.top[0];
+    var Tw='https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/svg/';
     cols+=
-      '<div class="wday'+(isToday?' wtoday':'')+'" onclick="openAddEvent(\''+ds+'\')" style="cursor:pointer">'+
-        /* Bande colorée saisonnière en haut */
-        '<div class="wday-cap" style="background:'+(isToday?dth.t:dth.bd)+';opacity:'+(isToday?'1':'.6')+'"></div>'+
+      '<div class="wday'+(isToday?' wtoday':'')+'" onclick="openAddEvent(\''+ds+'\')" style="cursor:pointer;border-color:'+(isToday?dth.t:'rgba(255,255,255,0.42)')+'">'+
+        /* Bande colorée saisonnière + sticker en haut */
+        '<div class="wday-cap" style="background:'+(isToday?dth.t:dth.bd)+';opacity:'+(isToday?'1':'.6')+';display:flex;align-items:center;justify-content:center;height:48px;padding:4px">'+
+          '<img src="'+Tw+wStk[0]+'.svg" alt="" style="height:38px;width:38px;object-fit:contain;'+
+            'transform:rotate('+wStk[1]+'deg);filter:drop-shadow(0 2px 4px rgba(0,0,0,.2))" '+
+            'onerror="this.style.display=\'none\'">'+
+        '</div>'+
         '<div class="wday-body">'+
           '<div class="wday-hd">'+JOURS[i]+'</div>'+
           '<div class="wday-num" style="color:'+(isToday?dth.t:'var(--texte)')+'">'+d.getDate()+'</div>'+
@@ -2632,6 +2659,71 @@ function delProjTask(projId,taskId){
   p.tasks=(p.tasks||[]).filter(function(t){return t.id!==taskId;});
   save();renderCal();
 }
+
+/* ── CALENDRIER SCRAPBOOKING : personnages & décos par mois (TWemoji SVG) ── */
+/* Chaque item = [codepoint_hex, rotation_deg, size_px] */
+const MONTH_STICKERS = [
+  /* Jan — Hiver */ {
+    bg:'linear-gradient(145deg,#e8f4fd 0%,#cce4f6 100%)', bd:'#93c5fd', accentCol:'#3b82f6',
+    top:[['26c4',-8,58],['2744',12,42],['26c4',5,52],['2744',-10,36],['26c4',8,58],['2744',-6,40],['26c4',14,54]],
+    bot:[['2744',-5,38],['26c4',10,50],['2744',-12,44],['26c4',6,56],['2744',8,36],['26c4',-8,52],['2744',5,40]]
+  },
+  /* Fév — Saint-Valentin */ {
+    bg:'linear-gradient(145deg,#fdf2f8 0%,#fce7f3 100%)', bd:'#f9a8d4', accentCol:'#ec4899',
+    top:[['1f339',-10,52],['1f495',6,40],['1f339',14,58],['1f495',-8,44],['1f339',5,54],['1f495',-12,42],['1f339',9,50]],
+    bot:[['1f495',-6,42],['1f339',10,54],['1f495',-10,38],['1f339',8,56],['1f495',5,44],['1f339',-8,50],['1f495',12,40]]
+  },
+  /* Mar — Printemps */ {
+    bg:'linear-gradient(145deg,#f0fdf4 0%,#dcfce7 100%)', bd:'#86efac', accentCol:'#16a34a',
+    top:[['1f338',-8,52],['1f423',5,46],['1f33c',12,54],['1f98b',-10,44],['1f337',7,56],['1f423',-6,42],['1f338',11,50]],
+    bot:[['1f33f',-5,44],['1f338',9,54],['1f423',-12,48],['1f33c',6,52],['1f98b',-8,42],['1f338',10,56],['1f33f',-6,46]]
+  },
+  /* Avr — Pâques */ {
+    bg:'linear-gradient(145deg,#faf5ff 0%,#f3e8ff 100%)', bd:'#d8b4fe', accentCol:'#9333ea',
+    top:[['1f337',-10,54],['1f98b',8,44],['1f95a',-6,52],['1f337',12,46],['1f98b',-8,58],['1f95a',5,40],['1f337',-12,52]],
+    bot:[['1f98b',-5,44],['1f95a',10,52],['1f337',-8,46],['1f98b',6,56],['1f95a',-10,42],['1f337',8,54],['1f98b',-6,44]]
+  },
+  /* Mai — Fleurs */ {
+    bg:'linear-gradient(145deg,#f0fdf4 0%,#d1fae5 100%)', bd:'#6ee7b7', accentCol:'#059669',
+    top:[['1f33b',-8,56],['1f41d',6,42],['1f33c',-12,52],['1f98b',10,46],['1f33f',-6,54],['1f340',8,44],['1f33b',-10,58]],
+    bot:[['1f340',-5,44],['1f33b',9,54],['1f41d',-8,42],['1f33c',7,52],['1f98b',-11,46],['1f33b',6,56],['1f340',-7,44]]
+  },
+  /* Jun — Été */ {
+    bg:'linear-gradient(145deg,#fffbeb 0%,#fef3c7 100%)', bd:'#fcd34d', accentCol:'#d97706',
+    top:[['1f31e',-5,58],['1f34b',10,48],['1f33b',-8,54],['1f353',6,44],['1f31e',-12,56],['1f34b',8,46],['1f33b',-6,52]],
+    bot:[['1f353',-8,46],['1f31e',12,56],['1f34b',-6,48],['1f33b',8,54],['1f353',-10,44],['1f31e',6,58],['1f34b',-8,48]]
+  },
+  /* Jul — Été tropical */ {
+    bg:'linear-gradient(145deg,#fff7ed 0%,#ffedd5 100%)', bd:'#fdba74', accentCol:'#ea580c',
+    top:[['1f9a9',-10,56],['1f349',8,50],['1f9a9',12,60],['1f30a',-6,46],['1f9a9',-8,54],['1f349',10,48],['1f9a9',5,58]],
+    bot:[['1f30a',-5,46],['1f9a9',9,56],['1f349',-8,50],['1f9a9',6,58],['1f30a',-12,44],['1f9a9',8,54],['1f349',-6,48]]
+  },
+  /* Aoû — Soleil */ {
+    bg:'linear-gradient(145deg,#fefce8 0%,#fef9c3 100%)', bd:'#fde047', accentCol:'#ca8a04',
+    top:[['1f33b',-8,56],['1f98b',6,44],['1f33b',12,60],['1f351',-10,50],['1f33b',-5,54],['1f98b',9,46],['1f33b',-12,58]],
+    bot:[['1f351',-6,50],['1f33b',10,56],['1f98b',-8,44],['1f33b',7,58],['1f351',-10,48],['1f33b',5,54],['1f98b',-7,46]]
+  },
+  /* Sep — Automne */ {
+    bg:'linear-gradient(145deg,#fff7ed 0%,#ffedd5 100%)', bd:'#fb923c', accentCol:'#c2410c',
+    top:[['1f342',-10,52],['1f98a',8,54],['1f344',-6,48],['1f330',12,44],['1f341',-8,56],['1f34e',6,50],['1f342',-12,52]],
+    bot:[['1f98a',-5,54],['1f342',10,50],['1f344',-8,46],['1f341',7,56],['1f330',-10,44],['1f342',8,52],['1f98a',-6,54]]
+  },
+  /* Oct — Halloween */ {
+    bg:'linear-gradient(145deg,#1c1917 0%,#292524 100%)', bd:'#f97316', accentCol:'#f97316',
+    top:[['1f383',-8,60],['1f987',10,46],['1f47b',-6,54],['1f383',12,58],['1f987',-10,48],['1f47b',7,52],['1f383',-8,62]],
+    bot:[['1f987',-5,48],['1f383',9,58],['1f47b',-8,52],['1f383',6,60],['1f987',-11,46],['1f383',8,56],['1f47b',-6,50]]
+  },
+  /* Nov — Automne tardif */ {
+    bg:'linear-gradient(145deg,#fafaf9 0%,#f5f5f4 100%)', bd:'#a8a29e', accentCol:'#78716c',
+    top:[['1f342',-8,52],['1f994',6,46],['1f344',-10,54],['1f330',8,44],['1f342',-6,56],['2615',10,48],['1f342',-12,52]],
+    bot:[['1f994',-5,46],['1f342',9,52],['1f344',-8,48],['2615',6,50],['1f330',-10,44],['1f342',8,54],['1f994',-6,46]]
+  },
+  /* Déc — Noël */ {
+    bg:'linear-gradient(145deg,#f0fdf4 0%,#dcfce7 100%)', bd:'#4ade80', accentCol:'#dc2626',
+    top:[['1f384',-8,60],['26c4',10,50],['1f381',-6,54],['1f98c',12,46],['1f384',-10,62],['2b50',6,44],['1f381',-8,56]],
+    bot:[['26c4',-5,50],['1f384',9,58],['1f381',-8,54],['26c4',7,52],['1f98c',-10,46],['1f384',8,60],['26c4',-6,50]]
+  },
+];
 
 /* ── ICÔNES SVG INLINE (Lucide style) ── */
 const ICONS = {
