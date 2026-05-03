@@ -220,9 +220,10 @@ input:focus, textarea:focus, select:focus {
            border-radius: 18px; font-size: 13px; justify-content: flex-start; }
   .ntab svg { flex-shrink: 0; }
   #app  { left: 200px; bottom: 0; right: 0; }
-  .page { max-width: none; display: grid; grid-template-columns: 1fr 1fr;
+  .page { display: none; }
+  .page.active { display: grid; grid-template-columns: 1fr 1fr; max-width: none;
            gap: 16px; align-items: start; padding: 24px 24px 52px; grid-auto-flow: dense; }
-  .page > div:not(.card) { grid-column: 1 / -1; }
+  .page.active > div:not(.card) { grid-column: 1 / -1; }
   .span2 { grid-column: 1 / -1; }
   #fab { bottom: 28px; right: 28px; }
   #modal { align-items: center; }
