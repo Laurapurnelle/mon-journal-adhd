@@ -15,26 +15,13 @@ html { height: 100%; -webkit-tap-highlight-color: transparent; }
 body { height: 100%; font-family: 'DM Sans', sans-serif; overflow: hidden;
        color: #1e2d1e; -webkit-font-smoothing: antialiased; }
 
-/* ── FOND MENSUEL ── */
-#bg {
-  position: fixed; inset: 0; z-index: -2;
-  transition: background 1.2s ease;
-}
+/* ── FOND ── */
+#bg     { position: fixed; inset: 0; z-index: -2; transition: background 1.2s; }
+#bg-decor { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
 
-/* ── DÉCORATIONS BOTANIQUES (côtés) ── */
-#bg-decor {
-  position: fixed; inset: 0; z-index: -1;
-  pointer-events: none; overflow: hidden;
-}
-
-/* ── ZONE DE SCROLL ── */
-#app {
-  position: fixed; top: 0; left: 0; right: 0; bottom: 72px;
-  overflow-y: auto; overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* ── PAGES ── */
+/* ── APP ── */
+#app { position: fixed; top: 0; left: 0; right: 0; bottom: 72px;
+       overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
 .page { display: none; padding: 16px 16px 40px; max-width: 480px; margin: 0 auto; }
 .page.active { display: block; }
 
@@ -44,70 +31,56 @@ body { height: 100%; font-family: 'DM Sans', sans-serif; overflow: hidden;
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   border: 1px solid rgba(255,255,255,0.85);
-  border-radius: 24px;
-  padding: 20px;
-  margin-bottom: 12px;
+  border-radius: 24px; padding: 20px; margin-bottom: 12px;
   box-shadow: 0 2px 20px rgba(0,0,0,0.06);
 }
+/* mini-carte budget dans le card */
+.mini-row {
+  background: rgba(255,255,255,0.78); border-radius: 16px;
+  padding: 11px 14px; margin-bottom: 8px;
+}
 
-/* ── TYPOGRAPHIE ── */
-.lbl {
-  font-size: 10px; font-weight: 600;
-  letter-spacing: 0.14em; text-transform: uppercase;
-  color: #8aaa8a; margin-bottom: 4px;
-}
-.titre {
-  font-family: 'Playfair Display', serif;
-  font-style: italic; font-size: 26px; font-weight: 400;
-  color: #1e2d1e; line-height: 1.2;
-}
+/* ── TYPO ── */
+.lbl  { font-size: 10px; font-weight: 600; letter-spacing: 0.14em;
+         text-transform: uppercase; color: #8aaa8a; }
+.titre { font-family: 'Playfair Display', serif; font-style: italic;
+          font-size: 26px; font-weight: 400; color: #1e2d1e; line-height: 1.2; }
 
 /* ── NAV ── */
 #nav {
   position: fixed; bottom: 0; left: 0; right: 0; height: 72px;
-  background: rgba(255,255,255,0.88);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-top: 1px solid rgba(0,0,0,0.07);
+  background: rgba(255,255,255,0.88); backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px); border-top: 1px solid rgba(0,0,0,0.07);
   display: flex; align-items: center; justify-content: center; gap: 6px;
-  padding: 0 12px;
-  padding-bottom: env(safe-area-inset-bottom);
-  z-index: 100;
+  padding: 0 12px; padding-bottom: env(safe-area-inset-bottom); z-index: 100;
 }
 .ntab {
   display: flex; flex-direction: column; align-items: center; gap: 3px;
   padding: 8px 24px; border-radius: 99px; cursor: pointer;
   color: #9aaa9a; font-size: 11px; font-weight: 500; letter-spacing: 0.04em;
-  transition: background 0.2s, color 0.2s;
-  border: none; background: none; font-family: 'DM Sans', sans-serif;
+  transition: background 0.2s, color 0.2s; border: none; background: none;
+  font-family: 'DM Sans', sans-serif;
 }
-.ntab svg {
-  width: 22px; height: 22px; stroke: currentColor;
-  fill: none; stroke-width: 1.8;
-  stroke-linecap: round; stroke-linejoin: round;
-}
+.ntab svg { width: 22px; height: 22px; stroke: currentColor; fill: none;
+             stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .ntab.active { color: #fff; }
 
 /* ── FAB ── */
 #fab {
   position: fixed; bottom: 88px; right: 20px;
   width: 52px; height: 52px; border-radius: 99px;
-  background: #1e3d1e; color: #fff; font-size: 26px; line-height: 1;
+  background: #1e3d1e; color: #fff; font-size: 26px;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer; border: none;
   box-shadow: 0 4px 20px rgba(30,61,30,0.35);
-  transition: transform 0.2s, background 0.2s;
-  z-index: 50;
+  transition: transform 0.2s; z-index: 50;
 }
 #fab:active { transform: scale(0.94); }
 
 /* ── MODAL ── */
 #modal {
-  position: fixed; inset: 0; z-index: 200;
-  display: none; align-items: flex-end;
-  background: rgba(0,0,0,0.38);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  position: fixed; inset: 0; z-index: 200; display: none; align-items: flex-end;
+  background: rgba(0,0,0,0.38); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
 }
 #modal.open { display: flex; }
 #modal-box {
@@ -115,26 +88,13 @@ body { height: 100%; font-family: 'DM Sans', sans-serif; overflow: hidden;
   background: #fff; border-radius: 28px 28px 0 0;
   padding: 12px 20px 48px; max-height: 88vh; overflow-y: auto;
 }
-#modal-handle {
-  width: 40px; height: 4px; background: #e0e0e0;
-  border-radius: 99px; margin: 0 auto 20px;
-}
+#modal-handle { width: 40px; height: 4px; background: #e0e0e0;
+                 border-radius: 99px; margin: 0 auto 20px; }
 
-/* ── BARRE DE PROGRESSION ── */
-.pbar { height: 6px; background: rgba(0,0,0,0.08); border-radius: 99px; overflow: hidden; }
-.pbar-fill { height: 100%; border-radius: 99px; transition: width 0.6s ease; }
-
-/* ── BOUTONS ── */
-.btn {
-  display: inline-flex; align-items: center; justify-content: center;
-  padding: 12px 24px; border-radius: 99px;
-  font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
-  cursor: pointer; border: none; transition: all 0.2s;
-}
-.btn-primary { background: #1e3d1e; color: #fff; }
-.btn-ghost   { background: rgba(0,0,0,0.06); color: #1e2d1e; }
-
-/* ── INPUTS ── */
+/* ── FORMS ── */
+.flbl { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+         text-transform: uppercase; color: #7a9a7a; margin-bottom: 6px; }
+.fgroup { margin-bottom: 16px; }
 input, textarea, select {
   font-family: 'DM Sans', sans-serif; font-size: 15px;
   border: 1.5px solid #e0e8e0; border-radius: 14px;
@@ -142,39 +102,76 @@ input, textarea, select {
   background: #fff; outline: none; transition: border-color 0.15s;
 }
 input:focus, textarea:focus, select:focus { border-color: #2a5c3a; }
-.flbl {
-  display: block; font-size: 11px; font-weight: 600;
-  letter-spacing: 0.08em; text-transform: uppercase;
-  color: #7a9a7a; margin-bottom: 6px;
+
+/* ── BOUTONS ── */
+.btn { display: inline-flex; align-items: center; justify-content: center;
+       padding: 12px 24px; border-radius: 99px; font-family: 'DM Sans', sans-serif;
+       font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
+.btn-primary { background: #1e3d1e; color: #fff; }
+.btn-ghost   { background: rgba(0,0,0,0.06); color: #1e2d1e; }
+.btn-sm      { padding: 8px 18px; font-size: 13px; }
+.btn-icon    { padding: 0; width: 36px; height: 36px; border-radius: 99px;
+               font-size: 18px; background: rgba(0,0,0,0.05); color: #5a7a5a; }
+
+/* ── PBAR ── */
+.pbar      { height: 6px; background: rgba(0,0,0,0.08); border-radius: 99px; overflow: hidden; }
+.pbar-fill { height: 100%; border-radius: 99px; transition: width 0.6s ease; }
+
+/* ── INTENTIONS ── */
+.int-row { display: flex; align-items: center; gap: 12px;
+           padding: 8px 0; cursor: pointer; user-select: none; }
+.int-row + .int-row { border-top: 1px solid rgba(0,0,0,0.04); }
+.int-chk {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 2px solid #c0d4c0; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
 }
-.fgroup { margin-bottom: 16px; }
+.int-chk.done { background: #1e3d1e; border-color: #1e3d1e; }
+.int-txt { font-size: 15px; color: #1e2d1e; flex: 1; line-height: 1.35; }
+.int-txt.done { text-decoration: line-through; color: #aac0aa; }
+
+/* ── RITUELS ── */
+.rit-row { display: flex; align-items: flex-start; gap: 10px;
+           padding: 6px 0; cursor: pointer; user-select: none; }
+.rit-chk {
+  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+  border: 2px solid #c0d4c0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; margin-top: 1px;
+}
+.rit-chk.done { background: #1e3d1e; border-color: #1e3d1e; }
+.rit-txt { font-size: 13px; color: #2d3d2d; flex: 1; line-height: 1.35; }
+.rit-txt.done { text-decoration: line-through; color: #aac0aa; }
+
+/* ── AGENDA ── */
+.ev-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; }
+.ev-row + .ev-row { border-top: 1px solid rgba(0,0,0,0.05); }
+
+/* ── COULEURS ÉVÉNEMENTS ── */
+.ev-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
 
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 99px; }
 
-/* ── UTILITAIRES ── */
-.row    { display: flex; align-items: center; }
+/* ── UTILS ── */
 .row-sb { display: flex; align-items: center; justify-content: space-between; }
 .sep    { height: 1px; background: rgba(0,0,0,0.06); margin: 8px 0; }
-
 </style>
 </head>
 <body>
 
-<!-- Fond mensuel -->
 <div id="bg"></div>
 <div id="bg-decor"></div>
 
-<!-- Pages -->
 <div id="app">
   <div id="pg-jour"   class="page active"></div>
   <div id="pg-mois"   class="page"></div>
   <div id="pg-budget" class="page"></div>
 </div>
 
-<!-- Navigation -->
 <nav id="nav">
   <button class="ntab active" id="tab-jour" onclick="goPage('jour')">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
@@ -190,10 +187,8 @@ input:focus, textarea:focus, select:focus { border-color: #2a5c3a; }
   </button>
 </nav>
 
-<!-- Bouton action -->
 <button id="fab" onclick="fabAction()">+</button>
 
-<!-- Modal -->
 <div id="modal">
   <div id="modal-box">
     <div id="modal-handle"></div>
@@ -208,170 +203,271 @@ input:focus, textarea:focus, select:focus { border-color: #2a5c3a; }
    THÈMES MENSUELS
 ════════════════════════════════════════ */
 var THEMES = [
-/* 0 Jan */ {
-  bg: 'linear-gradient(160deg,#dce8f2 0%,#edf4f8 50%,#f5f0ec 100%)',
-  accent: '#2a5a8a', blobL: 'rgba(170,205,230,0.45)', blobR: 'rgba(200,220,240,0.32)',
-  plantsL: ['1f332','2603','1fad6','2744','1f330'],
-  plantsR: ['2744','1f332','2603','1fad6','1f330'],
-  quote: 'Chaque hiver porte en lui un printemps qui frémit.',
-  quoteSub: 'Janvier · Hiver'
-},
-/* 1 Fév */ {
-  bg: 'linear-gradient(160deg,#f2dce8 0%,#faeef5 50%,#fdf5f0 100%)',
-  accent: '#a0426a', blobL: 'rgba(235,175,200,0.4)', blobR: 'rgba(250,200,220,0.3)',
-  plantsL: ['1f337','1f338','1f339','1f33c','1f4ab'],
-  plantsR: ['1f33c','1f338','1f337','1f339','1f4ab'],
-  quote: "L'amour est un murmure que la nature entend toujours.",
-  quoteSub: 'Février · Hiver doux'
-},
-/* 2 Mar */ {
-  bg: 'linear-gradient(160deg,#d8f0e0 0%,#ecf8f0 50%,#f5fcf5 100%)',
-  accent: '#2a7a4a', blobL: 'rgba(155,215,175,0.4)', blobR: 'rgba(175,235,195,0.3)',
-  plantsL: ['1f331','1f33f','1f340','1f338','1fab4'],
-  plantsR: ['1fab4','1f340','1f331','1f33f','1f338'],
-  quote: 'Le printemps est venu — même la branche la plus sèche ose un bourgeon.',
-  quoteSub: 'Mars · Printemps'
-},
-/* 3 Avr */ {
-  bg: 'linear-gradient(160deg,#ece0f2 0%,#f5eefb 50%,#fdf5ff 100%)',
-  accent: '#7a3a9a', blobL: 'rgba(205,165,235,0.35)', blobR: 'rgba(225,185,255,0.28)',
-  plantsL: ['1f337','1f33c','1f338','1f4ab','1fab7'],
-  plantsR: ['1fab7','1f33c','1f337','1f338','1f4ab'],
-  quote: 'Avril pluvieux, jardin pétillant de promesses.',
-  quoteSub: 'Avril · Printemps'
-},
-/* 4 Mai */ {
-  bg: 'linear-gradient(160deg,#d4ece0 0%,#e8f8f0 50%,#f5fdf8 100%)',
-  accent: '#1e5c3a', blobL: 'rgba(145,215,175,0.42)', blobR: 'rgba(165,235,195,0.32)',
-  plantsL: ['1f33c','1fab7','1f338','1f331','1f340'],
-  plantsR: ['1f340','1f338','1f33c','1fab7','1f331'],
-  quote: "Que mai t'apporte des matins clairs et la promesse douce du muguet.",
-  quoteSub: 'Mai · Printemps'
-},
-/* 5 Jun */ {
-  bg: 'linear-gradient(160deg,#f0f0d0 0%,#f8f8e8 50%,#fffef0 100%)',
-  accent: '#7a6a10', blobL: 'rgba(225,215,110,0.35)', blobR: 'rgba(240,230,145,0.28)',
-  plantsL: ['1f33b','1f338','1f33c','1fab7','1f340'],
-  plantsR: ['1f340','1f33c','1f33b','1f338','1fab7'],
-  quote: "L'été commence — le soleil ose enfin rester jusqu'au soir.",
-  quoteSub: 'Juin · Été'
-},
-/* 6 Jul */ {
-  bg: 'linear-gradient(160deg,#f2e0cc 0%,#faf0e4 50%,#fffbf5 100%)',
-  accent: '#9a5010', blobL: 'rgba(238,185,125,0.35)', blobR: 'rgba(255,205,155,0.28)',
-  plantsL: ['1f334','1f33b','1f338','1fab4','1f331'],
-  plantsR: ['1f331','1f33b','1f334','1fab4','1f338'],
-  quote: "Juillet : le temps ralentit, les pieds dans l'herbe chaude.",
-  quoteSub: 'Juillet · Été'
-},
-/* 7 Aoû */ {
-  bg: 'linear-gradient(160deg,#f0e8c8 0%,#f8f4e0 50%,#fffef0 100%)',
-  accent: '#8a6000', blobL: 'rgba(228,205,98,0.35)', blobR: 'rgba(245,225,135,0.28)',
-  plantsL: ['1f33b','1f33e','1f340','1fab7','1f338'],
-  plantsR: ['1f338','1f33e','1f33b','1f340','1fab7'],
-  quote: "Août brûle doucement — même l'ombre a une couleur de miel.",
-  quoteSub: 'Août · Été'
-},
-/* 8 Sep */ {
-  bg: 'linear-gradient(160deg,#f0e4d0 0%,#f8f0e4 50%,#fdf8f0 100%)',
-  accent: '#8a4a10', blobL: 'rgba(228,175,95,0.35)', blobR: 'rgba(245,195,135,0.28)',
-  plantsL: ['1f342','1f341','1f343','1f344','1fab9'],
-  plantsR: ['1fab9','1f344','1f342','1f341','1f343'],
-  quote: "Septembre : la lumière change d'angle et tout devient doré.",
-  quoteSub: 'Septembre · Automne'
-},
-/* 9 Oct */ {
-  bg: 'linear-gradient(160deg,#f0dcc8 0%,#f8ece0 50%,#fdf5ee 100%)',
-  accent: '#9a3a00', blobL: 'rgba(228,145,75,0.35)', blobR: 'rgba(245,165,105,0.28)',
-  plantsL: ['1f342','1f344','1f343','1f341','1fab9'],
-  plantsR: ['1fab9','1f341','1f342','1f344','1f343'],
-  quote: 'Octobre jonche les chemins de feuilles rousses et de silence.',
-  quoteSub: 'Octobre · Automne profond'
-},
-/* 10 Nov */ {
-  bg: 'linear-gradient(160deg,#e4e8e0 0%,#f0f4f0 50%,#f8faf8 100%)',
-  accent: '#3a5a3a', blobL: 'rgba(158,178,158,0.35)', blobR: 'rgba(178,198,178,0.28)',
-  plantsL: ['1f343','1f341','1f344','1fab9','1f332'],
-  plantsR: ['1f332','1f344','1f343','1f341','1fab9'],
-  quote: "Novembre est l'heure du silence avant la neige.",
-  quoteSub: 'Novembre · Automne tardif'
-},
-/* 11 Déc */ {
-  bg: 'linear-gradient(160deg,#d8eee8 0%,#e8f8f2 50%,#f5fefb 100%)',
-  accent: '#1a5a32', blobL: 'rgba(135,205,178,0.42)', blobR: 'rgba(158,228,198,0.32)',
-  plantsL: ['1f332','26c4','2744','1f33f','2b50'],
-  plantsR: ['2b50','1f33f','1f332','26c4','2744'],
-  quote: 'Décembre est là — allume une bougie et laisse le temps ralentir.',
-  quoteSub: 'Décembre · Hiver'
-}
+{bg:'linear-gradient(160deg,#dce8f2 0%,#edf4f8 50%,#f5f0ec 100%)',accent:'#2a5a8a',
+ blobL:'rgba(170,205,230,0.45)',blobR:'rgba(200,220,240,0.32)',
+ plantsL:['1f332','2603','1fad6','2744','1f330'],plantsR:['2744','1f332','2603','1fad6','1f330'],
+ quote:'Chaque hiver porte en lui un printemps qui frémit.',quoteSub:'Janvier · Hiver'},
+{bg:'linear-gradient(160deg,#f2dce8 0%,#faeef5 50%,#fdf5f0 100%)',accent:'#a0426a',
+ blobL:'rgba(235,175,200,0.4)',blobR:'rgba(250,200,220,0.3)',
+ plantsL:['1f337','1f338','1f339','1f33c','1f4ab'],plantsR:['1f33c','1f338','1f337','1f339','1f4ab'],
+ quote:"L'amour est un murmure que la nature entend toujours.",quoteSub:'Février · Hiver doux'},
+{bg:'linear-gradient(160deg,#d8f0e0 0%,#ecf8f0 50%,#f5fcf5 100%)',accent:'#2a7a4a',
+ blobL:'rgba(155,215,175,0.4)',blobR:'rgba(175,235,195,0.3)',
+ plantsL:['1f331','1f33f','1f340','1f338','1fab4'],plantsR:['1fab4','1f340','1f331','1f33f','1f338'],
+ quote:'Le printemps est venu — même la branche la plus sèche ose un bourgeon.',quoteSub:'Mars · Printemps'},
+{bg:'linear-gradient(160deg,#ece0f2 0%,#f5eefb 50%,#fdf5ff 100%)',accent:'#7a3a9a',
+ blobL:'rgba(205,165,235,0.35)',blobR:'rgba(225,185,255,0.28)',
+ plantsL:['1f337','1f33c','1f338','1f4ab','1fab7'],plantsR:['1fab7','1f33c','1f337','1f338','1f4ab'],
+ quote:'Avril pluvieux, jardin pétillant de promesses.',quoteSub:'Avril · Printemps'},
+{bg:'linear-gradient(160deg,#d4ece0 0%,#e8f8f0 50%,#f5fdf8 100%)',accent:'#1e5c3a',
+ blobL:'rgba(145,215,175,0.42)',blobR:'rgba(165,235,195,0.32)',
+ plantsL:['1f33c','1fab7','1f338','1f331','1f340'],plantsR:['1f340','1f338','1f33c','1fab7','1f331'],
+ quote:"Que mai t'apporte des matins clairs et la promesse douce du muguet.",quoteSub:'Mai · Printemps'},
+{bg:'linear-gradient(160deg,#f0f0d0 0%,#f8f8e8 50%,#fffef0 100%)',accent:'#7a6a10',
+ blobL:'rgba(225,215,110,0.35)',blobR:'rgba(240,230,145,0.28)',
+ plantsL:['1f33b','1f338','1f33c','1fab7','1f340'],plantsR:['1f340','1f33c','1f33b','1f338','1fab7'],
+ quote:"L'été commence — le soleil ose enfin rester jusqu'au soir.",quoteSub:'Juin · Été'},
+{bg:'linear-gradient(160deg,#f2e0cc 0%,#faf0e4 50%,#fffbf5 100%)',accent:'#9a5010',
+ blobL:'rgba(238,185,125,0.35)',blobR:'rgba(255,205,155,0.28)',
+ plantsL:['1f334','1f33b','1f338','1fab4','1f331'],plantsR:['1f331','1f33b','1f334','1fab4','1f338'],
+ quote:"Juillet : le temps ralentit, les pieds dans l'herbe chaude.",quoteSub:'Juillet · Été'},
+{bg:'linear-gradient(160deg,#f0e8c8 0%,#f8f4e0 50%,#fffef0 100%)',accent:'#8a6000',
+ blobL:'rgba(228,205,98,0.35)',blobR:'rgba(245,225,135,0.28)',
+ plantsL:['1f33b','1f33e','1f340','1fab7','1f338'],plantsR:['1f338','1f33e','1f33b','1f340','1fab7'],
+ quote:"Août brûle doucement — même l'ombre a une couleur de miel.",quoteSub:'Août · Été'},
+{bg:'linear-gradient(160deg,#f0e4d0 0%,#f8f0e4 50%,#fdf8f0 100%)',accent:'#8a4a10',
+ blobL:'rgba(228,175,95,0.35)',blobR:'rgba(245,195,135,0.28)',
+ plantsL:['1f342','1f341','1f343','1f344','1fab9'],plantsR:['1fab9','1f344','1f342','1f341','1f343'],
+ quote:"Septembre : la lumière change d'angle et tout devient doré.",quoteSub:'Septembre · Automne'},
+{bg:'linear-gradient(160deg,#f0dcc8 0%,#f8ece0 50%,#fdf5ee 100%)',accent:'#9a3a00',
+ blobL:'rgba(228,145,75,0.35)',blobR:'rgba(245,165,105,0.28)',
+ plantsL:['1f342','1f344','1f343','1f341','1fab9'],plantsR:['1fab9','1f341','1f342','1f344','1f343'],
+ quote:'Octobre jonche les chemins de feuilles rousses et de silence.',quoteSub:'Octobre · Automne profond'},
+{bg:'linear-gradient(160deg,#e4e8e0 0%,#f0f4f0 50%,#f8faf8 100%)',accent:'#3a5a3a',
+ blobL:'rgba(158,178,158,0.35)',blobR:'rgba(178,198,178,0.28)',
+ plantsL:['1f343','1f341','1f344','1fab9','1f332'],plantsR:['1f332','1f344','1f343','1f341','1fab9'],
+ quote:"Novembre est l'heure du silence avant la neige.",quoteSub:'Novembre · Automne tardif'},
+{bg:'linear-gradient(160deg,#d8eee8 0%,#e8f8f2 50%,#f5fefb 100%)',accent:'#1a5a32',
+ blobL:'rgba(135,205,178,0.42)',blobR:'rgba(158,228,198,0.32)',
+ plantsL:['1f332','26c4','2744','1f33f','2b50'],plantsR:['2b50','1f33f','1f332','26c4','2744'],
+ quote:'Décembre est là — allume une bougie et laisse le temps ralentir.',quoteSub:'Décembre · Hiver'}
 ];
 
-var MOIS_FR   = ['Janvier','Février','Mars','Avril','Mai','Juin',
-                 'Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+/* ════════════════════════════════════════
+   DONNÉES STATIQUES
+════════════════════════════════════════ */
+var MOIS_FR   = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 var JOURS_FR  = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
-var JOURS_LONG = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+var JOURS_LONG= ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
 
-var curPage = 'jour';
+var METEO = [
+  {ic:'❄️',t:3, h:6, l:-1,lever:'08:10',vent:'Bise 18 km/h',   desc:"Ciel gris, brume froide en plaine."},
+  {ic:'🌦️',t:7, h:10,l:3, lever:'07:40',vent:'Brise 10 km/h',  desc:"Le ciel hésite entre pluie et lumière."},
+  {ic:'🌸',t:12,h:16,l:7, lever:'07:05',vent:'Brise 8 km/h',   desc:"L'air sent la terre fraîche et les premières fleurs."},
+  {ic:'🌦️',t:15,h:19,l:10,lever:'06:35',vent:'Vent 12 km/h',   desc:"Averses et éclaircies, lumière vive."},
+  {ic:'☀️', t:18,h:22,l:12,lever:'06:14',vent:'Brise 8 km/h',   desc:"Une douce brume matinale s'attarde sur les feuilles encore fraîches."},
+  {ic:'🌤️',t:23,h:27,l:17,lever:'05:52',vent:'Brise 6 km/h',   desc:"L'été s'installe, l'air vibre doucement."},
+  {ic:'☀️', t:27,h:31,l:21,lever:'05:55',vent:'Brise 4 km/h',   desc:"Ciel bleu profond, chaleur estivale éclatante."},
+  {ic:'🌻',t:26,h:30,l:19,lever:'06:22',vent:'Brise 7 km/h',   desc:"Chaleur persistante, lumière dorée de fin d'été."},
+  {ic:'🍂',t:19,h:23,l:13,lever:'07:00',vent:'Brise 10 km/h',  desc:"L'air se rafraîchit, les premières feuilles tombent."},
+  {ic:'🌧️',t:13,h:16,l:8, lever:'07:40',vent:'Vent 15 km/h',   desc:"Ciel lourd, averses fréquentes."},
+  {ic:'🌫️',t:7, h:10,l:3, lever:'08:12',vent:'Bise 12 km/h',   desc:"Brume tenace, lumière feutrée."},
+  {ic:'❄️',t:2, h:5, l:-2,lever:'08:40',vent:'Bise 16 km/h',   desc:"Froid vif, peut-être quelques flocons."}
+];
+
+var CUISINE = [
+  {title:'Velouté de courge & lait de coco',        desc:'Gingembre, muscade, une pointe de curry — doux et réconfortant.',
+   photo:'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80'},
+  {title:'Riz au lait de rose & cardamome',          desc:'Pétales cristallisés, une note florale sucrée pour se gâter.',
+   photo:'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=600&q=80'},
+  {title:'Salade de jeunes pousses & agrumes',       desc:'Fenouil rasé, orange sanguine, sumac — fraîcheur immédiate.',
+   photo:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80'},
+  {title:'Soupe de petits pois & menthe',            desc:"Crème d'avocat, fèves fraîches — léger et printanier.",
+   photo:'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80'},
+  {title:'Œuf poché, asperges & labneh à l\'aneth', desc:'Un déjeuner printanier, prêt en quinze minutes — citron, poivre concassé.',
+   photo:'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=600&q=80'},
+  {title:'Gaspacho de tomates rôties & basilic',    desc:"Tomates confites, huile d'olive fruitée — dîner sans feu.",
+   photo:'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&q=80'},
+  {title:'Salade de pastèque, feta & menthe',        desc:'Sirop de citron vert, fleur de sel — cinq minutes.',
+   photo:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80'},
+  {title:'Bruschetta de figues & ricotta',           desc:'Miel, noix torréfiées, thym frais — aperitivo estival.',
+   photo:'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600&q=80'},
+  {title:'Risotto potimarron & sauge brûlée',        desc:'Parmesan, beurre noisette — le comfort food de saison.',
+   photo:'https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?w=600&q=80'},
+  {title:'Crème de châtaignes & lardons fumés',     desc:'Crème fraîche, noisettes torréfiées — automne dans un bol.',
+   photo:'https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?w=600&q=80'},
+  {title:'Soupe de lentilles corail & citron',       desc:'Cumin, coriandre, harissa douce — réconfortante et rapide.',
+   photo:'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80'},
+  {title:'Bredele & chocolat chaud viennois',        desc:'Beurre, vanille, muscade — les sablés de Noël.',
+   photo:'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=600&q=80'}
+];
+
+var PHASES = [
+  {name:'Menstruelle',  desc:'Repos, douceur, introspection.',                                              from:1,  to:6},
+  {name:'Folliculaire', desc:"L'énergie monte. Idéal pour planifier et démarrer de nouveaux projets.",     from:7,  to:13},
+  {name:'Ovulatoire',   desc:'Pic d\'énergie et de clarté. Moment idéal pour communiquer et créer.',       from:14, to:18},
+  {name:'Lutéale',      desc:'Recentrage progressif. Écouter ses besoins, ralentir en fin de phase.',      from:19, to:28}
+];
+
+var EV_COLORS = ['#4a8a6a','#e07080','#6a80e0','#e0a06a','#a06ae0','#6ac0d0'];
+
+var DEF_RM = ['Boire un grand verre d\'eau','10 min d\'étirements','Lecture / journal — 15 min','Préparer une intention'];
+var DEF_RE = ['Tisane sans écran','Ranger l\'atelier','Préparer les affaires du lendemain','Gratitude — 3 choses'];
 
 /* ════════════════════════════════════════
-   THÈME : applique fond + décorations
+   ÉTAT & PERSISTANCE
 ════════════════════════════════════════ */
+var KEY = 'jcerise-v2';
+var S = {
+  events:      {},
+  intentions:  {},
+  ritualsDone: {},
+  health:      {},
+  braindump:   {},
+  budget: {
+    income: 2400,
+    fixed: [
+      {id:'f1',name:'Loyer & charges',budget:980, color:'#6a9ae0'},
+      {id:'f2',name:'Abonnements',    budget:80,  color:'#6ac0d0'}
+    ],
+    envelopes: [
+      {id:'e1',name:'Alimentation',budget:500, color:'#6ac0a0'},
+      {id:'e2',name:'Atelier',     budget:1500,color:'#e0a06a'},
+      {id:'e3',name:'Soin de soi', budget:200, color:'#e08aaa'}
+    ],
+    transactions: []
+  },
+  cycle:    {start:null, length:28},
+  settings: {city:'Inverness', ritualsM:DEF_RM.slice(), ritualsE:DEF_RE.slice()}
+};
+
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} }
+function load() {
+  try {
+    var raw = localStorage.getItem(KEY);
+    if (!raw) return;
+    var p = JSON.parse(raw);
+    if (p.events)      S.events      = p.events;
+    if (p.intentions)  S.intentions  = p.intentions;
+    if (p.ritualsDone) S.ritualsDone = p.ritualsDone;
+    if (p.health)      S.health      = p.health;
+    if (p.braindump)   S.braindump   = p.braindump;
+    if (p.budget)      S.budget      = p.budget;
+    if (p.cycle)       S.cycle       = p.cycle;
+    if (p.settings)    S.settings    = Object.assign({}, S.settings, p.settings);
+  } catch(e) { console.warn('load', e); }
+}
+
+/* ════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════ */
+function pad2(n)    { return String(n).padStart(2,'0'); }
+function mkId()     { return Math.random().toString(36).slice(2,9); }
+function todayKey() { var d=new Date(); return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+function escH(s)    { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtE(n)    { return Math.round(n)+' €'; }
+
+function getCycleDay() {
+  if (!S.cycle.start) return null;
+  var diff = Math.floor((Date.now() - new Date(S.cycle.start+'T00:00:00').getTime()) / 86400000);
+  var d = (diff % S.cycle.length) + 1;
+  return d < 1 ? 1 : d;
+}
+function getCyclePhase(day) {
+  for (var i = 0; i < PHASES.length; i++) {
+    if (day >= PHASES[i].from && day <= PHASES[i].to) return PHASES[i];
+  }
+  return PHASES[PHASES.length-1];
+}
+function getEnvSpent(id) {
+  var ym = new Date().getFullYear()+'-'+pad2(new Date().getMonth()+1);
+  var t = 0;
+  for (var i = 0; i < S.budget.transactions.length; i++) {
+    var tx = S.budget.transactions[i];
+    if (tx.envId === id && tx.date && tx.date.indexOf(ym) === 0) t += tx.amount||0;
+  }
+  return t;
+}
+function getFixedSpent(id) {
+  var ym = new Date().getFullYear()+'-'+pad2(new Date().getMonth()+1);
+  var t = 0;
+  for (var i = 0; i < S.budget.transactions.length; i++) {
+    var tx = S.budget.transactions[i];
+    if (tx.fixedId === id && tx.date && tx.date.indexOf(ym) === 0) t += tx.amount||0;
+  }
+  return t;
+}
+function getTotalSpent() {
+  var v = 0, f = 0;
+  for (var i = 0; i < S.budget.envelopes.length; i++) v += getEnvSpent(S.budget.envelopes[i].id);
+  for (var i = 0; i < S.budget.fixed.length; i++)     f += getFixedSpent(S.budget.fixed[i].id);
+  return {vr:v, fx:f};
+}
+
+/* Sauvegarder les textareas avant tout re-render */
+function saveTextareas() {
+  var dk = todayKey();
+  var hn = document.getElementById('health-ta');
+  if (hn) {
+    if (!S.health[dk]) S.health[dk] = {note:''};
+    S.health[dk].note = hn.value;
+  }
+  var bd = document.getElementById('braindump-ta');
+  if (bd) S.braindump[dk] = bd.value;
+  save();
+}
+
+/* Icône SVG check (blanc) */
+function svgCheck() {
+  return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+}
+
+/* ════════════════════════════════════════
+   THÈME
+════════════════════════════════════════ */
+var curPage = 'jour';
+var clockTick = null;
+
 function applyTheme(m) {
   var th  = THEMES[m];
   var CDN = 'https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/svg/';
-  var sz  = [54, 44, 50, 40, 36];
-  var rot = [-10, 8, -6, 10, -8];
-
+  var sz  = [54,44,50,40,36];
+  var rot = [-10,8,-6,10,-8];
   document.getElementById('bg').style.background = th.bg;
-
   function mkPanel(list, side) {
-    var imgs = '';
-    for (var i = 0; i < list.length; i++) {
-      imgs += '<img src="' + CDN + list[i] + '.svg" alt="" '
-            + 'style="width:' + sz[i] + 'px;height:' + sz[i] + 'px;'
-            + 'transform:rotate(' + rot[i] + 'deg);display:block;'
-            + 'margin:6px auto;flex-shrink:0" '
-            + 'onerror="this.style.display=\'none\'">';
+    var s = '';
+    for (var i=0;i<list.length;i++) {
+      s += '<img src="'+CDN+list[i]+'.svg" alt="" style="width:'+sz[i]+'px;height:'+sz[i]+'px;transform:rotate('+rot[i]+'deg);display:block;margin:6px auto;flex-shrink:0" onerror="this.style.display=\'none\'">';
     }
-    return '<div style="position:absolute;' + side + ':6px;top:64px;'
-         + 'display:flex;flex-direction:column;align-items:center;'
-         + 'opacity:0.4;pointer-events:none">' + imgs + '</div>';
+    return '<div style="position:absolute;'+side+':6px;top:64px;display:flex;flex-direction:column;align-items:center;opacity:0.4;pointer-events:none">'+s+'</div>';
   }
-
-  var bL = '<div style="position:absolute;bottom:-80px;left:-100px;width:300px;height:300px;'
-         + 'border-radius:50%;background:' + th.blobL + ';filter:blur(48px);pointer-events:none"></div>';
-  var bR = '<div style="position:absolute;top:15%;right:-90px;width:260px;height:260px;'
-         + 'border-radius:50%;background:' + th.blobR + ';filter:blur(40px);pointer-events:none"></div>';
-  var bB = '<div style="position:absolute;bottom:80px;right:16px;width:130px;height:130px;'
-         + 'border-radius:50%;background:rgba(255,175,175,0.22);filter:blur(30px);pointer-events:none"></div>';
-
-  document.getElementById('bg-decor').innerHTML =
-    bL + bR + bB + mkPanel(th.plantsL, 'left') + mkPanel(th.plantsR, 'right');
+  var bL='<div style="position:absolute;bottom:-80px;left:-100px;width:300px;height:300px;border-radius:50%;background:'+th.blobL+';filter:blur(48px);pointer-events:none"></div>';
+  var bR='<div style="position:absolute;top:15%;right:-90px;width:260px;height:260px;border-radius:50%;background:'+th.blobR+';filter:blur(40px);pointer-events:none"></div>';
+  var bB='<div style="position:absolute;bottom:80px;right:16px;width:130px;height:130px;border-radius:50%;background:rgba(255,175,175,0.22);filter:blur(30px);pointer-events:none"></div>';
+  document.getElementById('bg-decor').innerHTML = bL+bR+bB+mkPanel(th.plantsL,'left')+mkPanel(th.plantsR,'right');
 }
 
 /* ════════════════════════════════════════
    NAVIGATION
 ════════════════════════════════════════ */
 function goPage(name) {
+  saveTextareas();
   curPage = name;
   var th = THEMES[new Date().getMonth()];
-
-  ['jour', 'mois', 'budget'].forEach(function(p) {
-    var pg  = document.getElementById('pg-' + p);
-    var tab = document.getElementById('tab-' + p);
-    if (pg)  pg.className = 'page' + (p === name ? ' active' : '');
+  ['jour','mois','budget'].forEach(function(p) {
+    var pg  = document.getElementById('pg-'+p);
+    var tab = document.getElementById('tab-'+p);
+    if (pg)  pg.className = 'page'+(p===name?' active':'');
     if (tab) {
-      tab.className    = 'ntab' + (p === name ? ' active' : '');
-      tab.style.background = (p === name ? th.accent : '');
-      tab.style.color      = (p === name ? '#fff' : '');
+      tab.className        = 'ntab'+(p===name?' active':'');
+      tab.style.background = (p===name ? th.accent : '');
+      tab.style.color      = (p===name ? '#fff' : '');
     }
   });
-
   document.getElementById('app').scrollTop = 0;
-
-  if (name === 'jour')   renderJour();
-  if (name === 'mois')   renderMois();
-  if (name === 'budget') renderBudget();
+  if (name==='jour')   renderJour();
+  if (name==='mois')   renderMois();
+  if (name==='budget') renderBudget();
 }
 
 /* ════════════════════════════════════════
@@ -392,44 +488,466 @@ document.getElementById('modal').addEventListener('click', function(e) {
    FAB
 ════════════════════════════════════════ */
 function fabAction() {
-  openModal(
-    '<p style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:20px;color:#1e2d1e;margin-bottom:12px">Ajouter…</p>'
-  + '<p style="color:#8aaa8a;font-size:14px">Bientôt disponible 🌿</p>'
-  );
+  if (curPage === 'jour' || curPage === 'mois') openAddEvent(todayKey());
 }
 
 /* ════════════════════════════════════════
-   RENDUS — squelettes provisoires
+   RENDER JOUR
 ════════════════════════════════════════ */
 function renderJour() {
-  var th = THEMES[new Date().getMonth()];
-  document.getElementById('pg-jour').innerHTML =
-    '<div class="card" style="margin-top:8px;padding:32px 20px;text-align:center">'
-  + '<div class="lbl">' + th.quoteSub + '</div>'
-  + '<div class="titre" style="margin-top:8px;font-size:20px">' + th.quote + '</div>'
-  + '</div>';
+  if (clockTick) { clearInterval(clockTick); clockTick = null; }
+
+  var now  = new Date();
+  var m    = now.getMonth();
+  var th   = THEMES[m];
+  var met  = METEO[m];
+  var rec  = CUISINE[m];
+  var dk   = todayKey();
+
+  var evs   = (S.events[dk]      || []).slice().sort(function(a,b){ return (a.time||'').localeCompare(b.time||''); });
+  var ints  = S.intentions[dk]   || [];
+  var rDone = S.ritualsDone[dk]  || {m:[], e:[]};
+  var hlth  = S.health[dk]       || {note:''};
+  var bd    = S.braindump[dk]    || '';
+
+  var rM = S.settings.ritualsM || DEF_RM;
+  var rE = S.settings.ritualsE || DEF_RE;
+
+  /* Progression rituels */
+  var rTotal = rM.length + rE.length, rDoneN = 0;
+  for (var i=0; i<rM.length; i++) if (rDone.m && rDone.m[i]) rDoneN++;
+  for (var i=0; i<rE.length; i++) if (rDone.e && rDone.e[i]) rDoneN++;
+  var rPct = rTotal ? Math.round(rDoneN/rTotal*100) : 0;
+
+  /* Compteur intentions */
+  var intDone = 0;
+  for (var i=0; i<ints.length; i++) if (ints[i].done) intDone++;
+
+  /* Horloge */
+  var hh = pad2(now.getHours()), mm = pad2(now.getMinutes());
+  var jourStr = JOURS_LONG[now.getDay()].toUpperCase()+' '+now.getDate()+' '+MOIS_FR[m].toUpperCase();
+
+  /* Symptôme santé */
+  var symptom = (hlth.note && hlth.note.trim()) ? hlth.note.split('\n')[0].slice(0,40) : 'Comment te sens-tu ?';
+
+  /* Cycle */
+  var cycleDay = getCycleDay();
+  var phase    = cycleDay ? getCyclePhase(cycleDay) : null;
+
+  var h = '';
+
+  /* ── CARTE 1 : HÉRO ── */
+  h += '<div class="card" style="margin-top:8px;padding:22px">';
+  /* date */
+  h += '<div style="font-size:11px;font-weight:600;letter-spacing:0.1em;color:#8aaa8a;margin-bottom:6px">'+jourStr+'</div>';
+  /* horloge + météo */
+  h += '<div style="display:flex;align-items:flex-end;justify-content:space-between">';
+  h += '<div id="clock-display" style="font-size:68px;font-weight:300;letter-spacing:-3px;line-height:1;color:#1e2d1e;font-family:\'DM Sans\',sans-serif">'+hh+':'+mm+'</div>';
+  h += '<div style="text-align:right">';
+  h += '<div style="font-size:10px;font-weight:600;letter-spacing:0.12em;color:#8aaa8a;margin-bottom:3px">☁ '+escH(S.settings.city).toUpperCase()+'</div>';
+  h += '<div style="display:flex;align-items:center;gap:6px;justify-content:flex-end">';
+  h += '<span style="font-size:20px">'+met.ic+'</span>';
+  h += '<span style="font-size:32px;font-weight:500;color:#1e2d1e;letter-spacing:-1px">'+met.t+'°</span>';
+  h += '</div>';
+  h += '<div style="font-size:11px;color:#9aaa9a">H : '+met.h+'° · L : '+met.l+'°</div>';
+  h += '</div>';
+  h += '</div>';
+  /* description poétique */
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:13px;color:#7a9a7a;margin-top:10px;line-height:1.5">'+escH(met.desc)+'</div>';
+  /* citation */
+  h += '<div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(0,0,0,0.06)">';
+  h += '<div style="display:flex;gap:10px;align-items:flex-start">';
+  h += '<div style="font-size:22px;color:#c0d8c0;line-height:1;flex-shrink:0;padding-top:4px">❝</div>';
+  h += '<div>';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:16px;line-height:1.55;color:#2d3d2d">« '+escH(th.quote)+' »</div>';
+  h += '<div style="font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#9aaa9a;margin-top:7px">CITATION DU MOMENT · '+MOIS_FR[m].toUpperCase()+'</div>';
+  h += '</div>';
+  h += '</div>';
+  h += '</div>';
+  /* rituels progress */
+  h += '<div style="margin-top:14px">';
+  h += '<div style="display:flex;justify-content:space-between;margin-bottom:5px">';
+  h += '<span style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#8aaa8a">RITUELS DU JOUR</span>';
+  h += '<span style="font-size:10px;font-weight:700;color:#8aaa8a">'+rPct+'%</span>';
+  h += '</div>';
+  h += '<div class="pbar"><div class="pbar-fill" style="width:'+rPct+'%;background:'+th.accent+'"></div></div>';
+  h += '</div>';
+  /* lever + vent */
+  h += '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:12px;color:#8aaa8a">';
+  h += '<span>☀ Lever '+met.lever+'</span>';
+  h += '<span>⇒ '+met.vent+'</span>';
+  h += '</div>';
+  h += '</div>';
+
+  /* ── CARTE 2 : AGENDA ── */
+  h += '<div class="card">';
+  h += '<div class="row-sb" style="margin-bottom:14px">';
+  h += '<div style="display:flex;align-items:center;gap:8px">';
+  h += '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8aaa8a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+  h += '<span class="lbl">AGENDA DU JOUR</span>';
+  h += '</div>';
+  h += '<span style="font-size:12px;color:#8aaa8a">'+evs.length+' événement'+(evs.length!==1?'s':'')+'</span>';
+  h += '</div>';
+  if (evs.length === 0) {
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:15px;color:#a0b4a0;padding:4px 0">Aucun événement — une page douce qui t\'attend.</div>';
+  } else {
+    for (var i=0; i<evs.length; i++) {
+      var ev = evs[i];
+      h += '<div class="ev-row">';
+      h += '<div style="min-width:48px">';
+      h += '<div style="font-size:14px;font-weight:700;color:#2d4d2d">'+escH(ev.time)+'</div>';
+      if (ev.endTime) h += '<div style="font-size:11px;color:#9aaa9a">'+escH(ev.endTime)+'</div>';
+      h += '</div>';
+      h += '<div class="ev-dot" style="background:'+(ev.color||EV_COLORS[0])+'"></div>';
+      h += '<div style="flex:1">';
+      h += '<div style="font-size:15px;font-weight:500;color:#1e2d1e">'+escH(ev.title)+'</div>';
+      if (ev.loc) h += '<div style="font-size:12px;color:#8aaa8a;margin-top:2px">⊙ '+escH(ev.loc)+'</div>';
+      h += '</div>';
+      h += '<button onclick="deleteEvent(\''+dk+'\',\''+ev.id+'\')" style="border:none;background:none;color:#ccc;cursor:pointer;font-size:20px;padding:0;line-height:1">×</button>';
+      h += '</div>';
+    }
+  }
+  h += '<button onclick="openAddEvent(\''+dk+'\')" style="display:flex;align-items:center;gap:6px;width:100%;margin-top:10px;border:none;background:none;cursor:pointer;color:#8aaa8a;font-size:13px;font-family:\'DM Sans\',sans-serif;padding:4px 0">+ Ajouter un événement</button>';
+  h += '</div>';
+
+  /* ── CARTE 3 : INTENTIONS ── */
+  h += '<div class="card">';
+  h += '<div class="row-sb" style="margin-bottom:14px">';
+  h += '<div><div class="lbl">AUJOURD\'HUI</div><div class="titre" style="font-size:24px">Intentions</div></div>';
+  if (ints.length) h += '<div style="font-size:13px;color:#8aaa8a;font-weight:500">'+intDone+'/'+ints.length+'</div>';
+  h += '</div>';
+  for (var i=0; i<ints.length; i++) {
+    var it = ints[i];
+    h += '<div class="int-row" onclick="toggleIntention(\''+dk+'\',\''+it.id+'\')">';
+    h += '<div class="int-chk'+(it.done?' done':'')+'">'+( it.done ? svgCheck() : '')+'</div>';
+    h += '<div class="int-txt'+(it.done?' done':'')+'">'+escH(it.text)+'</div>';
+    h += '<button onclick="event.stopPropagation();deleteIntention(\''+dk+'\',\''+it.id+'\')" style="border:none;background:none;color:#ddd;cursor:pointer;font-size:20px;padding:0;line-height:1">×</button>';
+    h += '</div>';
+  }
+  h += '<div style="display:flex;gap:8px;margin-top:10px">';
+  h += '<input id="int-input" type="text" placeholder="Ajouter une intention…" style="font-size:14px;padding:9px 13px;border-radius:12px" onkeydown="if(event.key===\'Enter\')addIntention(\''+dk+'\')">';
+  h += '<button onclick="addIntention(\''+dk+'\')" class="btn btn-primary btn-sm" style="flex-shrink:0;padding:0;width:38px;height:38px;border-radius:12px;font-size:20px">+</button>';
+  h += '</div>';
+  h += '</div>';
+
+  /* ── CARTE 4 : BUDGET MINI ── */
+  var sp = getTotalSpent();
+  var rav = Math.max(0, (S.budget.income||2400) - sp.vr - sp.fx);
+  h += '<div class="card">';
+  h += '<div class="lbl" style="margin-bottom:4px">ENVELOPES</div>';
+  h += '<div class="titre" style="font-size:24px;margin-bottom:6px">Reste à vivre</div>';
+  h += '<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:16px">';
+  h += '<div style="font-size:46px;font-weight:600;letter-spacing:-2px;color:#1e2d1e;line-height:1">'+fmtE(rav)+'</div>';
+  h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#8aaa8a">CE MOIS-CI</div>';
+  h += '</div>';
+  /* Fixe */
+  h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.14em;color:#8aaa8a;margin-bottom:8px">FIXE</div>';
+  for (var i=0; i<S.budget.fixed.length; i++) {
+    var f = S.budget.fixed[i];
+    var fs = getFixedSpent(f.id);
+    var fp = f.budget ? Math.min(100, Math.round(fs/f.budget*100)) : 0;
+    h += '<div class="mini-row">';
+    h += '<div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#5a7a5a;margin-bottom:6px">';
+    h += '<span>'+escH(f.name)+'</span><span>'+fmtE(fs)+' / '+fmtE(f.budget)+'</span>';
+    h += '</div>';
+    h += '<div class="pbar"><div class="pbar-fill" style="width:'+fp+'%;background:'+f.color+'"></div></div>';
+    h += '</div>';
+  }
+  /* Variable */
+  h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.14em;color:#8aaa8a;margin:12px 0 8px">VARIABLE</div>';
+  for (var i=0; i<S.budget.envelopes.length; i++) {
+    var e = S.budget.envelopes[i];
+    var es = getEnvSpent(e.id);
+    var ep = e.budget ? Math.min(100, Math.round(es/e.budget*100)) : 0;
+    h += '<div class="mini-row">';
+    h += '<div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#5a7a5a;margin-bottom:6px">';
+    h += '<span>'+escH(e.name)+'</span><span>'+fmtE(es)+' / '+fmtE(e.budget)+'</span>';
+    h += '</div>';
+    h += '<div class="pbar"><div class="pbar-fill" style="width:'+ep+'%;background:'+e.color+'"></div></div>';
+    h += '</div>';
+  }
+  h += '<div onclick="goPage(\'budget\')" style="text-align:center;margin-top:8px;font-size:13px;font-weight:600;color:'+th.accent+';cursor:pointer">Voir le détail ↗</div>';
+  h += '</div>';
+
+  /* ── CARTE 5 : SANTÉ ── */
+  h += '<div class="card">';
+  h += '<div class="row-sb" style="margin-bottom:12px">';
+  h += '<div><div class="lbl">SANTÉ DU JOUR</div>';
+  h += '<div class="titre" style="font-size:22px">'+escH(symptom)+'</div></div>';
+  h += '<span style="font-size:26px;opacity:0.65">🧠</span>';
+  h += '</div>';
+  h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c0a0a0;margin-bottom:6px">TAPE POUR ENREGISTRER</div>';
+  h += '<textarea id="health-ta" rows="3" placeholder="J\'ai mal à la tête…" '
+     + 'oninput="syncHealthTitle(this.value,\''+dk+'\')" '
+     + 'style="background:rgba(250,215,215,0.42);border:none;border-radius:16px;'
+     + 'padding:14px 16px;width:100%;font-family:\'Playfair Display\',serif;'
+     + 'font-style:italic;font-size:15px;color:#4d2d2d;min-height:70px;resize:none;outline:none">'
+     + escH(hlth.note)+'</textarea>';
+  h += '</div>';
+
+  /* ── CARTE 6 : BRAIN DUMP ── */
+  h += '<div class="card">';
+  h += '<div class="row-sb" style="margin-bottom:8px">';
+  h += '<div style="display:flex;align-items:center;gap:6px"><span style="font-size:14px">📝</span><span class="lbl">BRAIN DUMP</span></div>';
+  h += '<span style="font-size:11px;color:#9aaa9a;font-style:italic">Auto-sauvegardé</span>';
+  h += '</div>';
+  h += '<textarea id="braindump-ta" placeholder="Dépose ici tout ce qui encombre ton esprit…" '
+     + 'oninput="saveBraindump(\''+dk+'\',this.value);this.style.height=\'auto\';this.style.height=this.scrollHeight+\'px\'" '
+     + 'style="width:100%;border:none;background:transparent;font-family:\'Caveat\',cursive;'
+     + 'font-size:17px;color:#2d3d2d;resize:none;outline:none;min-height:72px;line-height:1.5;display:block">'
+     + escH(bd)+'</textarea>';
+  h += '</div>';
+
+  /* ── CARTE 7 : CUISINE ── */
+  h += '<div class="card" style="padding:0;overflow:hidden">';
+  h += '<img src="'+rec.photo+'" alt="" style="width:100%;height:150px;object-fit:cover;display:block" onerror="this.style.display=\'none\'">';
+  h += '<div style="padding:16px 18px">';
+  h += '<div class="lbl" style="margin-bottom:4px">CUISINE EXPRESS</div>';
+  h += '<div class="titre" style="font-size:20px;margin-bottom:6px">'+escH(rec.title)+'</div>';
+  h += '<div style="font-size:13px;color:#7a9a7a;line-height:1.5">'+escH(rec.desc)+'</div>';
+  h += '<div style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:700;color:'+th.accent+';margin-top:12px;cursor:pointer">Voir la recette <span>→</span></div>';
+  h += '</div>';
+  h += '</div>';
+
+  /* ── CARTE 8 : BIO-RYTHME ── */
+  if (cycleDay) {
+    var r = 58, circ = 2*Math.PI*r;
+    var offset = circ * (1 - cycleDay/S.cycle.length);
+    h += '<div class="card">';
+    h += '<div class="row-sb" style="margin-bottom:8px">';
+    h += '<div><div class="lbl">BIO-RYTHME</div>';
+    h += '<div class="titre" style="font-size:22px">'+(phase?phase.name:'')+'</div></div>';
+    h += '<button onclick="openCycleModal()" class="btn-icon" style="border:none;font-family:\'DM Sans\',sans-serif;cursor:pointer">⚙</button>';
+    h += '</div>';
+    h += '<svg width="160" height="160" viewBox="0 0 160 160" style="display:block;margin:8px auto">';
+    h += '<circle cx="80" cy="80" r="'+r+'" fill="none" stroke="rgba(0,0,0,0.07)" stroke-width="10"/>';
+    h += '<circle cx="80" cy="80" r="'+r+'" fill="none" stroke="'+th.accent+'" stroke-width="10" stroke-linecap="round"'
+       + ' stroke-dasharray="'+circ.toFixed(1)+'" stroke-dashoffset="'+offset.toFixed(1)+'" transform="rotate(-90 80 80)"/>';
+    h += '<text x="80" y="68" text-anchor="middle" font-size="14" fill="#9aaa9a">◇</text>';
+    h += '<text x="80" y="96" text-anchor="middle" font-size="34" font-weight="600" fill="#1e2d1e" font-family="DM Sans,sans-serif">'+cycleDay+'</text>';
+    h += '<text x="80" y="114" text-anchor="middle" font-size="9" fill="#9aaa9a" letter-spacing="2">JOUR DU CYCLE</text>';
+    h += '</svg>';
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:14px;color:#5a7a5a;text-align:center;line-height:1.6;margin-top:4px">'+(phase?escH(phase.desc):'')+'</div>';
+    h += '</div>';
+  } else {
+    h += '<div class="card" onclick="openCycleModal()" style="cursor:pointer">';
+    h += '<div class="lbl" style="margin-bottom:6px">BIO-RYTHME</div>';
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:15px;color:#8aaa8a">Configure ton cycle pour suivre ton énergie naturelle →</div>';
+    h += '</div>';
+  }
+
+  /* ── CARTE 9 : RITUELS ── */
+  h += '<div class="card">';
+  h += '<div class="lbl" style="margin-bottom:4px">RITUELS</div>';
+  h += '<div class="titre" style="font-size:22px;margin-bottom:16px">Ancrer la journée</div>';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">';
+  /* Matin */
+  h += '<div>';
+  h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#8aaa8a;margin-bottom:10px">☀ MATIN</div>';
+  for (var i=0; i<rM.length; i++) {
+    var done = rDone.m && rDone.m[i];
+    h += '<div class="rit-row" onclick="toggleRitual(\''+dk+'\',\'m\','+i+')">';
+    h += '<div class="rit-chk'+(done?' done':'')+'">'+( done ? svgCheck() : '')+'</div>';
+    h += '<div class="rit-txt'+(done?' done':'')+'">'+escH(rM[i])+'</div>';
+    h += '</div>';
+  }
+  h += '</div>';
+  /* Soir */
+  h += '<div>';
+  h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#8aaa8a;margin-bottom:10px">☽ SOIR</div>';
+  for (var i=0; i<rE.length; i++) {
+    var done = rDone.e && rDone.e[i];
+    h += '<div class="rit-row" onclick="toggleRitual(\''+dk+'\',\'e\','+i+')">';
+    h += '<div class="rit-chk'+(done?' done':'')+'">'+( done ? svgCheck() : '')+'</div>';
+    h += '<div class="rit-txt'+(done?' done':'')+'">'+escH(rE[i])+'</div>';
+    h += '</div>';
+  }
+  h += '</div>';
+  h += '</div>';
+  h += '</div>';
+
+  document.getElementById('pg-jour').innerHTML = h;
+
+  /* Horloge live */
+  clockTick = setInterval(function() {
+    var n = new Date();
+    var el = document.getElementById('clock-display');
+    if (el) el.textContent = pad2(n.getHours())+':'+pad2(n.getMinutes());
+  }, 15000);
 }
 
+/* ════════════════════════════════════════
+   INTERACTIONS JOUR
+════════════════════════════════════════ */
+function syncHealthTitle(val, dk) {
+  if (!S.health[dk]) S.health[dk] = {note:''};
+  S.health[dk].note = val;
+  save();
+  var first = val.split('\n')[0].slice(0,40);
+  var el = document.querySelector('#pg-jour .titre');
+  /* on ne met à jour que le titre santé (3ème .titre dans la page) */
+  var titres = document.querySelectorAll('#pg-jour .titre');
+  /* index 2 = budget, index 3 = santé */
+  if (titres[3]) titres[3].textContent = first || 'Comment te sens-tu ?';
+}
+
+function saveBraindump(dk, val) {
+  S.braindump[dk] = val;
+  save();
+}
+
+function toggleIntention(dk, id) {
+  saveTextareas();
+  var list = S.intentions[dk];
+  if (!list) return;
+  for (var i=0; i<list.length; i++) { if (list[i].id === id) { list[i].done = !list[i].done; break; } }
+  save();
+  renderJour();
+}
+
+function deleteIntention(dk, id) {
+  saveTextareas();
+  if (!S.intentions[dk]) return;
+  S.intentions[dk] = S.intentions[dk].filter(function(it){ return it.id !== id; });
+  save();
+  renderJour();
+}
+
+function addIntention(dk) {
+  var inp = document.getElementById('int-input');
+  if (!inp) return;
+  var txt = inp.value.trim();
+  if (!txt) return;
+  if (!S.intentions[dk]) S.intentions[dk] = [];
+  S.intentions[dk].push({id:mkId(), text:txt, done:false});
+  save();
+  saveTextareas();
+  renderJour();
+}
+
+function toggleRitual(dk, part, idx) {
+  saveTextareas();
+  if (!S.ritualsDone[dk]) S.ritualsDone[dk] = {m:[], e:[]};
+  var arr = S.ritualsDone[dk][part] || [];
+  arr[idx] = !arr[idx];
+  S.ritualsDone[dk][part] = arr;
+  save();
+  renderJour();
+}
+
+/* ── Ajouter un événement ── */
+function openAddEvent(dk) {
+  var th = THEMES[new Date().getMonth()];
+  var selColor = EV_COLORS[0];
+  var h = '';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:22px;color:#1e2d1e;margin-bottom:20px">Nouvel événement</div>';
+  h += '<div class="fgroup"><label class="flbl">Titre</label><input id="ev-title" type="text" placeholder="Stand-up, rendez-vous…"></div>';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" class="fgroup">';
+  h += '<div><label class="flbl">Début</label><input type="time" id="ev-time" value="09:00"></div>';
+  h += '<div><label class="flbl">Fin</label><input type="time" id="ev-end" value="10:00"></div>';
+  h += '</div>';
+  h += '<div class="fgroup"><label class="flbl">Lieu (optionnel)</label><input id="ev-loc" type="text" placeholder="Café, bureau…"></div>';
+  h += '<div class="fgroup"><label class="flbl">Couleur</label><div style="display:flex;gap:8px;margin-top:6px">';
+  for (var i=0; i<EV_COLORS.length; i++) {
+    h += '<div onclick="pickEvColor(\''+EV_COLORS[i]+'\',this)" style="width:26px;height:26px;border-radius:50%;background:'+EV_COLORS[i]+';cursor:pointer;border:3px solid '+(i===0?'#1e3d1e':'transparent')+';transition:border .15s"></div>';
+  }
+  h += '</div></div>';
+  h += '<input type="hidden" id="ev-color" value="'+EV_COLORS[0]+'">';
+  h += '<input type="hidden" id="ev-date" value="'+dk+'">';
+  h += '<div style="display:flex;gap:10px">';
+  h += '<button class="btn btn-ghost" onclick="closeModal()" style="flex:1">Annuler</button>';
+  h += '<button class="btn btn-primary" onclick="saveEvent()" style="flex:2">Enregistrer</button>';
+  h += '</div>';
+  openModal(h);
+  setTimeout(function(){ var el=document.getElementById('ev-title'); if(el)el.focus(); }, 100);
+}
+
+function pickEvColor(c, el) {
+  document.getElementById('ev-color').value = c;
+  var dots = el.parentNode.querySelectorAll('div');
+  for (var i=0; i<dots.length; i++) dots[i].style.borderColor = 'transparent';
+  el.style.borderColor = '#1e3d1e';
+}
+
+function saveEvent() {
+  var title = (document.getElementById('ev-title')||{}).value || '';
+  title = title.trim();
+  if (!title) { var el=document.getElementById('ev-title'); if(el)el.focus(); return; }
+  var dk = (document.getElementById('ev-date')||{}).value || todayKey();
+  if (!S.events[dk]) S.events[dk] = [];
+  S.events[dk].push({
+    id:      mkId(),
+    title:   title,
+    time:    (document.getElementById('ev-time')||{}).value || '',
+    endTime: (document.getElementById('ev-end')||{}).value || '',
+    loc:     ((document.getElementById('ev-loc')||{}).value || '').trim(),
+    color:   (document.getElementById('ev-color')||{}).value || EV_COLORS[0]
+  });
+  save();
+  closeModal();
+  if (curPage === 'jour') renderJour();
+}
+
+function deleteEvent(dk, id) {
+  saveTextareas();
+  if (!S.events[dk]) return;
+  S.events[dk] = S.events[dk].filter(function(e){ return e.id !== id; });
+  save();
+  if (curPage === 'jour') renderJour();
+}
+
+/* ── Cycle ── */
+function openCycleModal() {
+  var h = '';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:22px;color:#1e2d1e;margin-bottom:20px">Bio-rythme</div>';
+  h += '<div class="fgroup"><label class="flbl">Premier jour de tes dernières règles</label>';
+  h += '<input type="date" id="cy-start" value="'+(S.cycle.start||'')+'"></div>';
+  h += '<div class="fgroup"><label class="flbl">Durée du cycle (jours)</label>';
+  h += '<input type="number" id="cy-len" value="'+(S.cycle.length||28)+'" min="21" max="40"></div>';
+  h += '<div style="display:flex;gap:10px">';
+  h += '<button class="btn btn-ghost" onclick="closeModal()" style="flex:1">Annuler</button>';
+  h += '<button class="btn btn-primary" onclick="saveCycle()" style="flex:2">Enregistrer</button>';
+  h += '</div>';
+  openModal(h);
+}
+
+function saveCycle() {
+  S.cycle.start  = (document.getElementById('cy-start')||{}).value || null;
+  S.cycle.length = parseInt((document.getElementById('cy-len')||{}).value)||28;
+  save();
+  closeModal();
+  renderJour();
+}
+
+/* ════════════════════════════════════════
+   RENDER MOIS (stub)
+════════════════════════════════════════ */
 function renderMois() {
   var now = new Date();
   document.getElementById('pg-mois').innerHTML =
     '<div class="card" style="margin-top:8px;padding:32px 20px;text-align:center">'
   + '<div class="lbl">Calendrier</div>'
-  + '<div class="titre" style="margin-top:8px">' + MOIS_FR[now.getMonth()] + ' ' + now.getFullYear() + '</div>'
+  + '<div class="titre" style="margin-top:8px">'+MOIS_FR[now.getMonth()]+' '+now.getFullYear()+'</div>'
+  + '<div style="color:#8aaa8a;font-size:14px;margin-top:12px">Bientôt disponible 🌿</div>'
   + '</div>';
 }
 
+/* ════════════════════════════════════════
+   RENDER BUDGET (stub)
+════════════════════════════════════════ */
 function renderBudget() {
   document.getElementById('pg-budget').innerHTML =
     '<div class="card" style="margin-top:8px;padding:32px 20px;text-align:center">'
   + '<div class="lbl">Budget</div>'
   + '<div class="titre" style="margin-top:8px">Reste à vivre</div>'
+  + '<div style="color:#8aaa8a;font-size:14px;margin-top:12px">Bientôt disponible 🌿</div>'
   + '</div>';
 }
 
 /* ════════════════════════════════════════
    INIT
 ════════════════════════════════════════ */
+load();
 applyTheme(new Date().getMonth());
 goPage('jour');
 </script>
