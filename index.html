@@ -230,6 +230,9 @@ input:focus, textarea:focus, select:focus {
   #modal-box { border-radius: 32px; }
 }
 </style>
+<!-- Firebase SDK (compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -278,6 +281,24 @@ input:focus, textarea:focus, select:focus {
 
 <script>
 'use strict';
+
+/* ════════════════════════════════════════
+   FIREBASE CONFIG
+   → Remplace les valeurs ci-dessous par
+     celles de ta console Firebase
+════════════════════════════════════════ */
+var FIREBASE_CONFIG = {
+  apiKey:            "REMPLACE",
+  authDomain:        "REMPLACE",
+  databaseURL:       "REMPLACE",
+  projectId:         "REMPLACE",
+  storageBucket:     "REMPLACE",
+  messagingSenderId: "REMPLACE",
+  appId:             "REMPLACE"
+};
+/* Clé de ta famille : tous les appareils
+   qui ont la même clé partagent les données */
+var FAMILY_KEY = "famille-laura";
 
 /* ════════════════════════════════════════
    THÈMES MENSUELS
@@ -585,22 +606,85 @@ var S = {
   settings: {city:'Inverness', ritualsM:DEF_RM.slice(), ritualsE:DEF_RE.slice()}
 };
 
-function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} }
+/* ── ID unique par appareil pour éviter les boucles de sync ── */
+var DEVICE_ID = (function() {
+  var id = localStorage.getItem('__device_id__');
+  if (!id) { id = 'dev_' + Math.random().toString(36).slice(2,10); localStorage.setItem('__device_id__', id); }
+  return id;
+}());
+
+var dbRef    = null;
+var fbTimer  = null;
+var fbOwnSave = false; /* true quand c'est NOUS qui venons de sauvegarder */
+
+function save() {
+  /* 1. Sauvegarde locale immédiate */
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {}
+  /* 2. Sauvegarde Firebase (debouncée 800 ms) */
+  if (dbRef) {
+    if (fbTimer) clearTimeout(fbTimer);
+    fbTimer = setTimeout(function() {
+      fbOwnSave = true;
+      S._dev = DEVICE_ID; /* marque l'auteur */
+      dbRef.set(S).catch(function(e) { console.warn('Firebase save:', e); });
+    }, 800);
+  }
+}
+
+function applyLoadedData(p) {
+  if (p.events)      S.events      = p.events;
+  if (p.intentions)  S.intentions  = p.intentions;
+  if (p.ritualsDone) S.ritualsDone = p.ritualsDone;
+  if (p.health)      S.health      = p.health;
+  if (p.braindump)   S.braindump   = p.braindump;
+  if (p.calNotes)    S.calNotes    = p.calNotes;
+  if (p.budget)  { S.budget = p.budget; if (!S.budget.fixedPaid) S.budget.fixedPaid = {}; }
+  if (p.cuisine) S.cuisine = p.cuisine;
+  if (p.cycle)       S.cycle       = p.cycle;
+  if (p.settings)    S.settings    = Object.assign({}, S.settings, p.settings);
+  /* Sauvegarde locale après sync Firebase */
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {}
+}
+
+function refreshCurrentPage() {
+  /* Ne pas re-rendre si l'utilisateur est en train de taper */
+  var active = document.activeElement;
+  if (active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT')) return;
+  if (curPage === 'jour')    renderJour();
+  else if (curPage === 'mois')    renderMois();
+  else if (curPage === 'budget')  renderBudget();
+  else if (curPage === 'cuisine') renderCuisine();
+}
+
+function initFirebase() {
+  if (!FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey === 'REMPLACE') return;
+  try {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    dbRef = firebase.database().ref('journal/' + FAMILY_KEY);
+    /* Chargement initial depuis Firebase */
+    dbRef.once('value', function(snap) {
+      var data = snap.val();
+      if (data) {
+        applyLoadedData(data);
+        refreshCurrentPage();
+      }
+      /* Écoute les mises à jour des autres appareils */
+      dbRef.on('value', function(snap) {
+        if (fbOwnSave) { fbOwnSave = false; return; }
+        var data = snap.val();
+        if (!data || data._dev === DEVICE_ID) return;
+        applyLoadedData(data);
+        refreshCurrentPage();
+      });
+    }, function(err) { console.warn('Firebase load:', err); });
+  } catch(e) { console.warn('Firebase init:', e); }
+}
+
 function load() {
   try {
     var raw = localStorage.getItem(KEY);
     if (!raw) return;
-    var p = JSON.parse(raw);
-    if (p.events)      S.events      = p.events;
-    if (p.intentions)  S.intentions  = p.intentions;
-    if (p.ritualsDone) S.ritualsDone = p.ritualsDone;
-    if (p.health)      S.health      = p.health;
-    if (p.braindump)   S.braindump   = p.braindump;
-    if (p.calNotes)    S.calNotes    = p.calNotes;
-    if (p.budget)  { S.budget = p.budget; if (!S.budget.fixedPaid) S.budget.fixedPaid = {}; }
-    if (p.cuisine) S.cuisine = p.cuisine;
-    if (p.cycle)       S.cycle       = p.cycle;
-    if (p.settings)    S.settings    = Object.assign({}, S.settings, p.settings);
+    applyLoadedData(JSON.parse(raw));
   } catch(e) { console.warn('load', e); }
 }
 
@@ -2312,17 +2396,19 @@ function parseCoursesList() {
 /* ════════════════════════════════════════
    INIT
 ════════════════════════════════════════ */
-load();
+load();                          /* localStorage → affichage immédiat  */
 applyTheme(new Date().getMonth());
 goPage('jour');
+initFirebase();                  /* Firebase → sync en arrière-plan    */
 
 /* Sauvegarde de secours si l'onglet est fermé brutalement */
 window.addEventListener('beforeunload', function() {
   var bd = document.getElementById('braindump-ta');
   if (bd) S.braindump[todayKey()] = bd.value;
   var cn = document.getElementById('cal-note-ta');
-  if (cn) S.calNotes[calSel] = cn.value;
-  save();
+  if (cn && calSel) S.calNotes[calSel] = cn.value;
+  /* Sauvegarde synchrone localStorage uniquement (Firebase async ne peut pas finir) */
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {}
 });
 </script>
 </body>
