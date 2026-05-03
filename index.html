@@ -56,7 +56,7 @@ body { height: 100%; font-family: 'DM Sans', sans-serif; overflow: hidden;
 }
 .ntab {
   display: flex; flex-direction: column; align-items: center; gap: 3px;
-  padding: 8px 24px; border-radius: 99px; cursor: pointer;
+  padding: 8px 14px; border-radius: 99px; cursor: pointer;
   color: #9aaa9a; font-size: 11px; font-weight: 500; letter-spacing: 0.04em;
   transition: background 0.2s, color 0.2s; border: none; background: none;
   font-family: 'DM Sans', sans-serif;
@@ -167,9 +167,10 @@ input:focus, textarea:focus, select:focus { border-color: #2a5c3a; }
 <div id="bg-decor"></div>
 
 <div id="app">
-  <div id="pg-jour"   class="page active"></div>
-  <div id="pg-mois"   class="page"></div>
-  <div id="pg-budget" class="page"></div>
+  <div id="pg-jour"    class="page active"></div>
+  <div id="pg-mois"    class="page"></div>
+  <div id="pg-budget"  class="page"></div>
+  <div id="pg-cuisine" class="page"></div>
 </div>
 
 <nav id="nav">
@@ -184,6 +185,10 @@ input:focus, textarea:focus, select:focus { border-color: #2a5c3a; }
   <button class="ntab" id="tab-budget" onclick="goPage('budget')">
     <svg viewBox="0 0 24 24"><path d="M2 8h20M2 16h20"/><rect x="2" y="5" width="20" height="14" rx="3"/></svg>
     Budget
+  </button>
+  <button class="ntab" id="tab-cuisine" onclick="goPage('cuisine')">
+    <svg viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+    Cuisine
   </button>
 </nav>
 
@@ -330,6 +335,38 @@ var CAL_STICKERS = [
   /* Déc */ {days:[6,13,24,31], emojis:['1f332','26c4','2744','2b50']}
 ];
 
+/* Placards cuisine */
+var PLACARDS = [
+  {id:'p1',name:'Salé',    desc:'Pâtes, riz, conserves, épices',     color:'#f0ede8',emoji:'1fad9'},
+  {id:'p2',name:'Sucré',   desc:'Chocolat, miel, biscuits, farines', color:'#fce8ee',emoji:'1f36b'},
+  {id:'p3',name:'Frais',   desc:'Légumes, laitages, herbes',          color:'#e8f4e8',emoji:'1f96c'},
+  {id:'p4',name:'Surgelé', desc:'Pois, glaces, plats',                color:'#e8eef8',emoji:'1f9ca'}
+];
+
+/* Recettes cuisine */
+var REC_LIST = [
+  {id:'r01',cat:'PETIT DÉJEUNER',time:5, title:'Yaourt, miel & flocons grillés',      ing:['yaourt','miel','flocons d\'avoine']},
+  {id:'r02',cat:'DÉJEUNER',      time:15,title:'Pâtes citron & épinards',              ing:['pâtes','épinards','citron','huile d\'olive']},
+  {id:'r03',cat:'DÉJEUNER',      time:15,title:'Bowl petits pois & yaourt',             ing:['petits pois','yaourt','citron','huile d\'olive']},
+  {id:'r04',cat:'DESSERT',       time:10,title:'Mousse chocolat-yaourt',                ing:['chocolat','yaourt']},
+  {id:'r05',cat:'DÉJEUNER',      time:20,title:'Riz aux pois chiches & tomates',        ing:['riz','pois chiches','tomates','huile d\'olive','oignon']},
+  {id:'r06',cat:'SNACK',         time:10,title:'Houmous express',                       ing:['pois chiches','citron','huile d\'olive','ail']},
+  {id:'r07',cat:'PETIT DÉJEUNER',time:10,title:'Porridge miel & banane',                ing:['flocons d\'avoine','miel','banane','lait']},
+  {id:'r08',cat:'PETIT DÉJEUNER',time:5, title:'Toast chocolat-banane',                  ing:['pain','chocolat','banane']},
+  {id:'r09',cat:'PETIT DÉJEUNER',time:10,title:'Œufs brouillés aux épinards',            ing:['œufs','épinards','beurre']},
+  {id:'r10',cat:'DÉJEUNER',      time:20,title:'Salade riz & pois chiches',               ing:['riz','pois chiches','citron','huile d\'olive']},
+  {id:'r11',cat:'DÎNER',         time:25,title:'Gratin de pâtes & épinards',               ing:['pâtes','épinards','crème','fromage']},
+  {id:'r12',cat:'DESSERT',       time:15,title:'Cookies chocolat & flocons',               ing:['chocolat','flocons d\'avoine','miel','beurre']},
+  {id:'r13',cat:'SNACK',         time:5, title:'Tartines miel & graines',                  ing:['pain','miel','graines']},
+  {id:'r14',cat:'DÎNER',         time:20,title:'Riz sauté aux légumes',                    ing:['riz','carottes','oignon','huile d\'olive']},
+  {id:'r15',cat:'PETIT DÉJEUNER',time:5, title:'Smoothie banane-yaourt',                    ing:['banane','yaourt','miel']},
+  {id:'r16',cat:'DÎNER',         time:30,title:'Pâtes aux tomates confites',                ing:['pâtes','tomates','ail','huile d\'olive']},
+  {id:'r17',cat:'DESSERT',       time:20,title:'Crumble pomme & flocons',                    ing:['pommes','flocons d\'avoine','miel','beurre']},
+  {id:'r18',cat:'SNACK',         time:5, title:'Chocolat chaud & flocons',                    ing:['chocolat','flocons d\'avoine','lait']},
+  {id:'r19',cat:'DÉJEUNER',      time:15,title:'Taboulé pois chiches & citron',               ing:['pois chiches','citron','tomates','huile d\'olive']},
+  {id:'r20',cat:'DÎNER',         time:25,title:'Riz & petits pois sautés',                    ing:['riz','petits pois','oignon','huile d\'olive']}
+];
+
 /* ════════════════════════════════════════
    ÉTAT & PERSISTANCE
 ════════════════════════════════════════ */
@@ -360,6 +397,23 @@ var S = {
     fixedPaid: {},
     transactions: []
   },
+  cuisine: {
+    pantry: [
+      {id:'ci01',name:'Pâtes complètes',     placardId:'p1'},
+      {id:'ci02',name:'Riz basmati',          placardId:'p1'},
+      {id:'ci03',name:'Pois chiches',         placardId:'p1'},
+      {id:'ci04',name:'Tomates',              placardId:'p1'},
+      {id:'ci05',name:'Huile d\'olive',       placardId:'p1'},
+      {id:'ci06',name:'Chocolat noir',        placardId:'p2'},
+      {id:'ci07',name:'Miel',                 placardId:'p2'},
+      {id:'ci08',name:'Flocons d\'avoine',    placardId:'p2'},
+      {id:'ci09',name:'Œufs',                placardId:'p3'},
+      {id:'ci10',name:'Yaourt grec',          placardId:'p3'},
+      {id:'ci11',name:'Citron',               placardId:'p3'},
+      {id:'ci12',name:'Épinards',             placardId:'p3'},
+      {id:'ci13',name:'Petits pois surgelés', placardId:'p4'}
+    ]
+  },
   cycle:    {start:null, length:28},
   settings: {city:'Inverness', ritualsM:DEF_RM.slice(), ritualsE:DEF_RE.slice()}
 };
@@ -375,7 +429,8 @@ function load() {
     if (p.ritualsDone) S.ritualsDone = p.ritualsDone;
     if (p.health)      S.health      = p.health;
     if (p.braindump)   S.braindump   = p.braindump;
-    if (p.budget) { S.budget = p.budget; if (!S.budget.fixedPaid) S.budget.fixedPaid = {}; }
+    if (p.budget)  { S.budget = p.budget; if (!S.budget.fixedPaid) S.budget.fixedPaid = {}; }
+    if (p.cuisine) S.cuisine = p.cuisine;
     if (p.cycle)       S.cycle       = p.cycle;
     if (p.settings)    S.settings    = Object.assign({}, S.settings, p.settings);
   } catch(e) { console.warn('load', e); }
@@ -491,7 +546,8 @@ var curPage = 'jour';
 var clockTick = null;
 var calM   = new Date().getMonth();
 var calY   = new Date().getFullYear();
-var calSel = null; /* date-key du jour sélectionné dans le calendrier */
+var calSel = null;
+var cuisineFilter = 'Tout';
 
 function applyTheme(m) {
   var th  = THEMES[m];
@@ -521,7 +577,7 @@ function goPage(name) {
   var themeM = (name === 'mois') ? calM : new Date().getMonth();
   applyTheme(themeM);
   var th = THEMES[themeM];
-  ['jour','mois','budget'].forEach(function(p) {
+  ['jour','mois','budget','cuisine'].forEach(function(p) {
     var pg  = document.getElementById('pg-'+p);
     var tab = document.getElementById('tab-'+p);
     if (pg)  pg.className = 'page'+(p===name?' active':'');
@@ -532,9 +588,10 @@ function goPage(name) {
     }
   });
   document.getElementById('app').scrollTop = 0;
-  if (name==='jour')   renderJour();
-  if (name==='mois')   renderMois();
-  if (name==='budget') renderBudget();
+  if (name==='jour')    renderJour();
+  if (name==='mois')    renderMois();
+  if (name==='budget')  renderBudget();
+  if (name==='cuisine') renderCuisine();
 }
 
 /* ════════════════════════════════════════
@@ -557,6 +614,8 @@ document.getElementById('modal').addEventListener('click', function(e) {
 function fabAction() {
   if (curPage === 'budget') {
     if (S.budget.envelopes.length > 0) openAddTransaction(S.budget.envelopes[0].id);
+  } else if (curPage === 'cuisine') {
+    openQuickAddPantry();
   } else {
     openAddEvent(todayKey());
   }
@@ -1392,6 +1451,274 @@ function renderBudget() {
   h += '</div>';
 
   document.getElementById('pg-budget').innerHTML = h;
+}
+
+/* ════════════════════════════════════════
+   CUISINE — HELPERS
+════════════════════════════════════════ */
+function normCat(s) {
+  return s.toUpperCase()
+    .replace(/[ÉÈÊË]/g,'E').replace(/[ÀÂÄÃ]/g,'A')
+    .replace(/[ÎÏÌ]/g,'I').replace(/[ÔÖÕ]/g,'O')
+    .replace(/[ÙÛÜÚ]/g,'U').replace(/Ç/g,'C');
+}
+
+function hasIngredient(ing) {
+  var n = ing.toLowerCase();
+  var p = S.cuisine.pantry;
+  for (var i = 0; i < p.length; i++) {
+    var item = p[i].name.toLowerCase();
+    if (item.indexOf(n) >= 0 || n.indexOf(item) >= 0) return true;
+    var words = n.split(/[\s']+/);
+    for (var j = 0; j < words.length; j++) {
+      if (words[j].length >= 4 && item.indexOf(words[j]) >= 0) return true;
+    }
+  }
+  return false;
+}
+
+function getRecipeMatch(rec) {
+  var matched = [], count = 0;
+  for (var i = 0; i < rec.ing.length; i++) {
+    var m = hasIngredient(rec.ing[i]);
+    matched.push(m);
+    if (m) count++;
+  }
+  return {pct: rec.ing.length ? Math.round(count/rec.ing.length*100) : 0, matched: matched};
+}
+
+function setCuisineFilter(f) { cuisineFilter = f; renderCuisine(); }
+
+function renderPlacardItems(plId, items) {
+  var h = '';
+  if (items.length === 0) {
+    return '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:14px;color:#aac0aa;padding:8px 0">Placard vide — ajoute tes premiers articles.</div>';
+  }
+  for (var i = 0; i < items.length; i++) {
+    var it = items[i];
+    h += '<div id="plitem-'+it.id+'" style="display:flex;align-items:center;padding:10px 0;'+(i>0?'border-top:1px solid rgba(0,0,0,0.05)':'')+';">';
+    h += '<div style="flex:1;font-size:15px;color:#1e2d1e">'+escH(it.name)+'</div>';
+    h += '<button onclick="removePlacardItem(\''+it.id+'\',\''+plId+'\')" style="border:none;background:none;color:#ddd;cursor:pointer;font-size:20px;padding:0;line-height:1">×</button>';
+    h += '</div>';
+  }
+  return h;
+}
+
+function openPlacard(plId) {
+  var pl = null;
+  for (var i = 0; i < PLACARDS.length; i++) { if (PLACARDS[i].id === plId) { pl = PLACARDS[i]; break; } }
+  if (!pl) return;
+  var CDN = 'https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/svg/';
+  var items = [];
+  for (var i = 0; i < S.cuisine.pantry.length; i++) { if (S.cuisine.pantry[i].placardId === plId) items.push(S.cuisine.pantry[i]); }
+  var h = '';
+  h += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">';
+  h += '<div style="width:44px;height:44px;border-radius:14px;background:'+pl.color+';display:flex;align-items:center;justify-content:center;flex-shrink:0">';
+  h += '<img src="'+CDN+pl.emoji+'.svg" alt="" style="width:26px;height:26px" onerror="this.style.display=\'none\'">';
+  h += '</div>';
+  h += '<div><div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:20px;color:#1e2d1e">'+escH(pl.name)+'</div>';
+  h += '<div style="font-size:12px;color:#9aaa9a">'+escH(pl.desc)+'</div></div></div>';
+  h += '<div id="pl-items-'+plId+'">'+renderPlacardItems(plId, items)+'</div>';
+  h += '<div style="display:flex;gap:8px;margin-top:12px">';
+  h += '<input id="pl-inp-'+plId+'" type="text" placeholder="Ajouter un article…" style="flex:1;font-size:14px" onkeydown="if(event.key===\'Enter\')addPlacardItem(\''+plId+'\')">';
+  h += '<button onclick="addPlacardItem(\''+plId+'\')" class="btn btn-primary btn-sm" style="flex-shrink:0;padding:0;width:38px;height:38px;border-radius:12px;font-size:20px">+</button>';
+  h += '</div>';
+  openModal(h);
+  setTimeout(function(){ var el=document.getElementById('pl-inp-'+plId); if(el)el.focus(); }, 100);
+}
+
+function addPlacardItem(plId) {
+  var inp = document.getElementById('pl-inp-'+plId);
+  if (!inp) return;
+  var name = inp.value.trim();
+  if (!name) return;
+  S.cuisine.pantry.push({id:mkId(), name:name, placardId:plId});
+  save();
+  inp.value = '';
+  var items = [];
+  for (var i = 0; i < S.cuisine.pantry.length; i++) { if (S.cuisine.pantry[i].placardId === plId) items.push(S.cuisine.pantry[i]); }
+  var el = document.getElementById('pl-items-'+plId);
+  if (el) el.innerHTML = renderPlacardItems(plId, items);
+  renderCuisine();
+}
+
+function removePlacardItem(id, plId) {
+  S.cuisine.pantry = S.cuisine.pantry.filter(function(x){ return x.id !== id; });
+  save();
+  var items = [];
+  for (var i = 0; i < S.cuisine.pantry.length; i++) { if (S.cuisine.pantry[i].placardId === plId) items.push(S.cuisine.pantry[i]); }
+  var el = document.getElementById('pl-items-'+plId);
+  if (el) el.innerHTML = renderPlacardItems(plId, items);
+  renderCuisine();
+}
+
+function openQuickAddPantry() {
+  var CDN = 'https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/svg/';
+  var h = '';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:22px;color:#1e2d1e;margin-bottom:20px">Ajouter un article</div>';
+  h += '<div class="fgroup"><label class="flbl">Article</label>';
+  h += '<input type="text" id="qa-name" placeholder="Ex: Tomates, Yaourt…"></div>';
+  h += '<div class="fgroup"><label class="flbl">Placard</label><select id="qa-placard">';
+  for (var i = 0; i < PLACARDS.length; i++) {
+    h += '<option value="'+PLACARDS[i].id+'">'+escH(PLACARDS[i].name)+'</option>';
+  }
+  h += '</select></div>';
+  h += '<div style="display:flex;gap:10px">';
+  h += '<button class="btn btn-ghost" onclick="closeModal()" style="flex:1">Annuler</button>';
+  h += '<button class="btn btn-primary" onclick="saveQuickPantry()" style="flex:2">Ajouter</button>';
+  h += '</div>';
+  openModal(h);
+  setTimeout(function(){ var el=document.getElementById('qa-name'); if(el)el.focus(); }, 100);
+}
+
+function saveQuickPantry() {
+  var name = (((document.getElementById('qa-name')||{}).value)||'').trim();
+  var plId = ((document.getElementById('qa-placard')||{}).value||'p1');
+  if (!name) { var el=document.getElementById('qa-name'); if(el)el.focus(); return; }
+  S.cuisine.pantry.push({id:mkId(), name:name, placardId:plId});
+  save();
+  closeModal();
+  renderCuisine();
+}
+
+/* ════════════════════════════════════════
+   RENDER CUISINE
+════════════════════════════════════════ */
+function renderCuisine() {
+  var now    = new Date();
+  var m      = now.getMonth();
+  var th     = THEMES[m];
+  var CDN    = 'https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/svg/';
+  var pantry = S.cuisine.pantry;
+  var total  = pantry.length;
+
+  var h = '';
+
+  /* ── HÉRO ── */
+  h += '<div class="card" style="margin-top:8px;padding:24px 20px">';
+  h += '<div class="lbl" style="margin-bottom:8px">MA CUISINE</div>';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:52px;font-weight:400;line-height:1;color:#1e2d1e;margin-bottom:8px">'+total+' articles</div>';
+  h += '<div style="font-size:14px;color:#7a9a7a">rangés dans tes '+PLACARDS.length+' placards</div>';
+  h += '</div>';
+
+  /* ── MES PLACARDS ── */
+  h += '<div style="margin-bottom:12px">';
+  h += '<div class="lbl" style="margin-bottom:6px">MES PLACARDS</div>';
+  h += '<div class="titre" style="font-size:26px;margin-bottom:12px">Range, retrouve, cuisine</div>';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  for (var i = 0; i < PLACARDS.length; i++) {
+    var pl  = PLACARDS[i];
+    var its = [];
+    for (var j = 0; j < pantry.length; j++) { if (pantry[j].placardId === pl.id) its.push(pantry[j]); }
+    var prev = '';
+    for (var j = 0; j < Math.min(3, its.length); j++) { if (j > 0) prev += ' · '; prev += escH(its[j].name); }
+    if (its.length > 3) prev += ' · <span style="color:#9aaa9a">+' +(its.length-3)+'</span>';
+    h += '<div onclick="openPlacard(\''+pl.id+'\')" style="background:'+pl.color+';border-radius:20px;padding:16px 14px;cursor:pointer;border:1.5px solid rgba(255,255,255,0.85);box-shadow:0 1px 8px rgba(0,0,0,0.05)">';
+    h += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">';
+    h += '<div style="width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,0.72);display:flex;align-items:center;justify-content:center;flex-shrink:0">';
+    h += '<img src="'+CDN+pl.emoji+'.svg" alt="" style="width:26px;height:26px" onerror="this.style.display=\'none\'">';
+    h += '</div>';
+    h += '<div><div style="font-size:9px;font-weight:700;letter-spacing:0.1em;color:#7a9a7a">PLACARD</div>';
+    h += '<div class="titre" style="font-size:20px">'+escH(pl.name)+'</div></div></div>';
+    h += '<div style="font-size:11px;color:#9aaa9a;margin-bottom:12px">'+escH(pl.desc)+'</div>';
+    h += '<div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px">';
+    h += '<div style="font-size:32px;font-weight:700;color:#1e2d1e;line-height:1">'+its.length+'</div>';
+    h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#9aaa9a">ARTICLES</div>';
+    h += '</div>';
+    h += '<div style="font-size:11px;color:#5a7a5a;line-height:1.5">';
+    h += prev || '<span style="color:#c0d4c0;font-style:italic">Vide</span>';
+    h += '</div></div>';
+  }
+  h += '</div></div>';
+
+  /* ── QUE CUISINER MAINTENANT ── */
+  var matchedRecs = [];
+  for (var i = 0; i < REC_LIST.length; i++) {
+    var rec = REC_LIST[i];
+    var md  = getRecipeMatch(rec);
+    if (md.pct > 0) matchedRecs.push({rec:rec, pct:md.pct, matched:md.matched});
+  }
+  matchedRecs.sort(function(a,b){ return b.pct - a.pct; });
+
+  h += '<div class="card">';
+  h += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">';
+  h += '<span style="font-size:13px">🍳</span><span class="lbl">AVEC MES PLACARDS</span></div>';
+  h += '<div class="titre" style="font-size:22px;margin-bottom:4px">Que cuisiner maintenant ?</div>';
+  h += '<div style="font-size:13px;color:#7a9a7a;margin-bottom:14px">Recettes triées selon ce que tu as déjà.</div>';
+
+  if (matchedRecs.length === 0) {
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:14px;color:#a0b4a0">Ajoute des articles dans tes placards pour voir les recettes correspondantes.</div>';
+  } else {
+    var topRecs = matchedRecs.slice(0, 6);
+    for (var i = 0; i < topRecs.length; i++) {
+      var item = topRecs[i], rec = item.rec, pct = item.pct, mtch = item.matched;
+      h += '<div style="padding:13px 0;'+(i>0?'border-top:1px solid rgba(0,0,0,0.05)':'')+';">';
+      h += '<div style="display:flex;align-items:flex-start;gap:8px">';
+      h += '<div style="flex:1">';
+      h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:#9aaa9a;margin-bottom:4px">'+escH(rec.cat)+' · '+rec.time+' MIN</div>';
+      h += '<div style="font-family:\'Playfair Display\',serif;font-size:17px;color:#1e2d1e;margin-bottom:8px;line-height:1.3">'+escH(rec.title)+'</div>';
+      h += '<div style="display:flex;flex-wrap:wrap;gap:3px">';
+      for (var j = 0; j < rec.ing.length; j++) {
+        h += '<div style="display:inline-flex;align-items:center;gap:5px;background:rgba(0,0,0,0.05);border-radius:99px;padding:4px 9px">';
+        if (mtch[j]) {
+          h += '<div style="width:14px;height:14px;border-radius:50%;background:#1e3d1e;flex-shrink:0;display:flex;align-items:center;justify-content:center">';
+          h += '<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+          h += '</div>';
+        } else {
+          h += '<div style="width:14px;height:14px;border-radius:50%;border:1.5px solid #c0d4c0;flex-shrink:0"></div>';
+        }
+        h += '<span style="font-size:11px;color:#2d3d2d">'+escH(rec.ing[j])+'</span></div>';
+      }
+      h += '</div></div>';
+      /* Badge */
+      var bb, bf;
+      if (pct===100){bb='#1e3d1e';bf='#fff';}
+      else if(pct>=50){bb='rgba(220,90,80,0.14)';bf='#b03030';}
+      else{bb='rgba(0,0,0,0.07)';bf='#9aaa9a';}
+      h += '<div style="flex-shrink:0;padding:5px 11px;border-radius:99px;background:'+bb+';font-size:12px;font-weight:700;color:'+bf+'">'+pct+'%</div>';
+      h += '</div></div>';
+    }
+  }
+  h += '</div>';
+
+  /* ── INSPIRATIONS ── */
+  var CATS = ['Tout','Petit déjeuner','Snack','Déjeuner','Dîner','Dessert'];
+  var filtered = [];
+  for (var i = 0; i < REC_LIST.length; i++) {
+    var rec = REC_LIST[i];
+    if (cuisineFilter === 'Tout' || normCat(rec.cat) === normCat(cuisineFilter)) filtered.push(rec);
+  }
+
+  h += '<div class="card">';
+  h += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">';
+  h += '<span style="font-size:12px;color:'+th.accent+'">✦</span><span class="lbl">INSPIRATIONS</span></div>';
+  var sub = cuisineFilter === 'Tout' ? 'En 15-20 minutes' : cuisineFilter;
+  h += '<div class="titre" style="font-size:22px;margin-bottom:12px">'+escH(sub)+'</div>';
+  /* Filter tabs */
+  h += '<div style="display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px;margin-bottom:14px;scrollbar-width:none">';
+  for (var i = 0; i < CATS.length; i++) {
+    var ct  = CATS[i];
+    var isOn = cuisineFilter === ct;
+    h += '<button onclick="setCuisineFilter(\''+escH(ct)+'\')" ';
+    h += 'style="padding:7px 14px;border-radius:99px;border:none;flex-shrink:0;white-space:nowrap;';
+    h += 'background:'+(isOn?th.accent:'rgba(0,0,0,0.06)')+';';
+    h += 'color:'+(isOn?'#fff':'#5a7a5a')+';';
+    h += 'font-size:12px;font-weight:600;font-family:\'DM Sans\',sans-serif;cursor:pointer">'+escH(ct)+'</button>';
+  }
+  h += '</div>';
+  /* Recipe grid 2 colonnes */
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  for (var i = 0; i < filtered.length; i++) {
+    var rec = filtered[i];
+    h += '<div style="background:rgba(255,255,255,0.78);border-radius:16px;padding:14px 12px;border:1.5px solid rgba(255,255,255,0.85)">';
+    h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.07em;color:#9aaa9a;margin-bottom:5px">'+escH(rec.cat)+'</div>';
+    h += '<div style="font-family:\'Playfair Display\',serif;font-size:14px;color:#1e2d1e;line-height:1.4;margin-bottom:8px">'+escH(rec.title)+'</div>';
+    h += '<div style="font-size:11px;color:#9aaa9a">⏱ '+rec.time+' min · '+rec.ing.length+' ingrédients</div>';
+    h += '</div>';
+  }
+  h += '</div></div>';
+
+  document.getElementById('pg-cuisine').innerHTML = h;
 }
 
 /* ════════════════════════════════════════
