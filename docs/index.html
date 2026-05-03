@@ -543,6 +543,7 @@ var S = {
   ritualsDone: {},
   health:      {},
   braindump:   {},
+  calNotes:    {},
   budget: {
     income: 2400,
     envelopes: [
@@ -595,6 +596,7 @@ function load() {
     if (p.ritualsDone) S.ritualsDone = p.ritualsDone;
     if (p.health)      S.health      = p.health;
     if (p.braindump)   S.braindump   = p.braindump;
+    if (p.calNotes)    S.calNotes    = p.calNotes;
     if (p.budget)  { S.budget = p.budget; if (!S.budget.fixedPaid) S.budget.fixedPaid = {}; }
     if (p.cuisine) S.cuisine = p.cuisine;
     if (p.cycle)       S.cycle       = p.cycle;
@@ -692,6 +694,8 @@ function saveTextareas() {
   var dk = todayKey();
   var bd = document.getElementById('braindump-ta');
   if (bd) S.braindump[dk] = bd.value;
+  var cn = document.getElementById('cal-note-ta');
+  if (cn && calSel) S.calNotes[calSel] = cn.value;
   save();
 }
 
@@ -1138,6 +1142,11 @@ function saveBraindump(dk, val) {
   save();
 }
 
+function saveCalNote(dk, val) {
+  S.calNotes[dk] = val;
+  save();
+}
+
 function toggleIntention(dk, id) {
   saveTextareas();
   var list = S.intentions[dk];
@@ -1412,6 +1421,7 @@ function renderMois() {
   /* ── JOUR SÉLECTIONNÉ ── */
   var selDate = new Date(calSel+'T12:00:00');
   var selEvs  = (S.events[calSel]||[]).slice().sort(function(a,b){ return (a.time||'').localeCompare(b.time||''); });
+  var selNote = escH(S.calNotes[calSel] || '');
 
   h += '<div class="card span2">';
   h += '<div class="row-sb" style="margin-bottom:12px">';
@@ -1419,15 +1429,13 @@ function renderMois() {
   h += '<div class="lbl">'+JOURS_LONG[selDate.getDay()].toUpperCase()+'</div>';
   h += '<div class="titre" style="font-size:22px">'+selDate.getDate()+' '+MOIS_FR[selDate.getMonth()].toLowerCase()+'</div>';
   h += '</div>';
-  h += '<button style="border:none;background:rgba(0,0,0,0.05);border-radius:99px;'
-     + 'padding:6px 12px;font-size:12px;color:#5a7a5a;cursor:pointer;'
-     + 'font-family:\'DM Sans\',sans-serif">◌ Règles</button>';
   h += '</div>';
 
+  /* Événements */
   if (selEvs.length === 0) {
     h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;'
-       + 'font-size:15px;color:#a0b4a0;line-height:1.55">'
-       + 'Aucun événement programmé. Une page douce qui t\'attend.</div>';
+       + 'font-size:15px;color:#a0b4a0;line-height:1.55;margin-bottom:4px">'
+       + 'Aucun rendez-vous. Une page douce qui t\'attend.</div>';
   } else {
     for (var i=0; i<selEvs.length; i++) {
       var ev = selEvs[i];
@@ -1448,9 +1456,22 @@ function renderMois() {
 
   h += '<button onclick="openAddEvent(\''+calSel+'\')" '
      + 'style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;'
-     + 'margin-top:12px;border:1.5px dashed rgba(0,0,0,0.1);background:none;cursor:pointer;'
+     + 'margin-top:10px;border:1.5px dashed rgba(0,0,0,0.1);background:none;cursor:pointer;'
      + 'color:#8aaa8a;font-size:13px;font-family:\'DM Sans\',sans-serif;'
-     + 'padding:10px;border-radius:14px">+ Ajouter un événement</button>';
+     + 'padding:10px;border-radius:14px">+ Ajouter un rendez-vous</button>';
+
+  /* Zone de notes libres du jour */
+  h += '<div style="margin-top:16px;border-top:1px solid rgba(0,0,0,0.06);padding-top:14px">';
+  h += '<div class="lbl" style="margin-bottom:8px">NOTES DU JOUR</div>';
+  h += '<textarea id="cal-note-ta" '
+     + 'placeholder="Tâches, idées, pensées… tout ce qui passe par la tête ce jour-là." '
+     + 'oninput="saveCalNote(\''+calSel+'\',this.value);this.style.height=\'auto\';this.style.height=this.scrollHeight+\'px\'" '
+     + 'style="width:100%;min-height:90px;resize:none;border:1.5px solid rgba(0,0,0,0.08);'
+     + 'border-radius:14px;padding:12px 14px;font-family:\'DM Sans\',sans-serif;font-size:14px;'
+     + 'line-height:1.6;color:#1e2d1e;background:rgba(255,255,255,0.7);outline:none;'
+     + 'box-sizing:border-box;overflow:hidden">'+selNote+'</textarea>';
+  h += '</div>';
+
   h += '</div>';
 
   /* ── STATS SANTÉ DU MOIS ── */
@@ -1490,6 +1511,9 @@ function renderMois() {
   h += '</div>';
 
   document.getElementById('pg-mois').innerHTML = h;
+  /* Auto-resize si la note a déjà du contenu */
+  var cta = document.getElementById('cal-note-ta');
+  if (cta && cta.value) { cta.style.height = 'auto'; cta.style.height = cta.scrollHeight+'px'; }
 }
 
 /* Navigation calendrier */
@@ -2291,6 +2315,15 @@ function parseCoursesList() {
 load();
 applyTheme(new Date().getMonth());
 goPage('jour');
+
+/* Sauvegarde de secours si l'onglet est fermé brutalement */
+window.addEventListener('beforeunload', function() {
+  var bd = document.getElementById('braindump-ta');
+  if (bd) S.braindump[todayKey()] = bd.value;
+  var cn = document.getElementById('cal-note-ta');
+  if (cn) S.calNotes[calSel] = cn.value;
+  save();
+});
 </script>
 </body>
 </html>
