@@ -159,6 +159,27 @@ input:focus, textarea:focus, select:focus { border-color: #2a5c3a; }
 /* ── UTILS ── */
 .row-sb { display: flex; align-items: center; justify-content: space-between; }
 .sep    { height: 1px; background: rgba(0,0,0,0.06); margin: 8px 0; }
+
+/* ── RESPONSIVE DESKTOP ── */
+@media (min-width: 768px) {
+  #nav {
+    position: fixed; top: 0; left: 0; bottom: 0; height: 100%;
+    width: 190px; flex-direction: column; justify-content: center;
+    gap: 6px; padding: 24px 14px;
+    border-top: none; border-right: 1px solid rgba(0,0,0,0.07);
+  }
+  .ntab { width: 100%; flex-direction: row; gap: 10px; padding: 11px 16px;
+           border-radius: 16px; font-size: 13px; justify-content: flex-start; }
+  .ntab svg { flex-shrink: 0; }
+  #app  { left: 190px; bottom: 0; right: 0; }
+  .page { max-width: none; display: grid; grid-template-columns: 1fr 1fr;
+           gap: 14px; align-items: start; padding: 20px 20px 40px; grid-auto-flow: dense; }
+  .page > div:not(.card) { grid-column: 1 / -1; }
+  .span2 { grid-column: 1 / -1; }
+  #fab { bottom: 24px; right: 24px; }
+  #modal { align-items: center; }
+  #modal-box { border-radius: 28px; }
+}
 </style>
 </head>
 <body>
@@ -345,26 +366,86 @@ var PLACARDS = [
 
 /* Recettes cuisine */
 var REC_LIST = [
-  {id:'r01',cat:'PETIT DÉJEUNER',time:5, title:'Yaourt, miel & flocons grillés',      ing:['yaourt','miel','flocons d\'avoine']},
-  {id:'r02',cat:'DÉJEUNER',      time:15,title:'Pâtes citron & épinards',              ing:['pâtes','épinards','citron','huile d\'olive']},
-  {id:'r03',cat:'DÉJEUNER',      time:15,title:'Bowl petits pois & yaourt',             ing:['petits pois','yaourt','citron','huile d\'olive']},
-  {id:'r04',cat:'DESSERT',       time:10,title:'Mousse chocolat-yaourt',                ing:['chocolat','yaourt']},
-  {id:'r05',cat:'DÉJEUNER',      time:20,title:'Riz aux pois chiches & tomates',        ing:['riz','pois chiches','tomates','huile d\'olive','oignon']},
-  {id:'r06',cat:'SNACK',         time:10,title:'Houmous express',                       ing:['pois chiches','citron','huile d\'olive','ail']},
-  {id:'r07',cat:'PETIT DÉJEUNER',time:10,title:'Porridge miel & banane',                ing:['flocons d\'avoine','miel','banane','lait']},
-  {id:'r08',cat:'PETIT DÉJEUNER',time:5, title:'Toast chocolat-banane',                  ing:['pain','chocolat','banane']},
-  {id:'r09',cat:'PETIT DÉJEUNER',time:10,title:'Œufs brouillés aux épinards',            ing:['œufs','épinards','beurre']},
-  {id:'r10',cat:'DÉJEUNER',      time:20,title:'Salade riz & pois chiches',               ing:['riz','pois chiches','citron','huile d\'olive']},
-  {id:'r11',cat:'DÎNER',         time:25,title:'Gratin de pâtes & épinards',               ing:['pâtes','épinards','crème','fromage']},
-  {id:'r12',cat:'DESSERT',       time:15,title:'Cookies chocolat & flocons',               ing:['chocolat','flocons d\'avoine','miel','beurre']},
-  {id:'r13',cat:'SNACK',         time:5, title:'Tartines miel & graines',                  ing:['pain','miel','graines']},
-  {id:'r14',cat:'DÎNER',         time:20,title:'Riz sauté aux légumes',                    ing:['riz','carottes','oignon','huile d\'olive']},
-  {id:'r15',cat:'PETIT DÉJEUNER',time:5, title:'Smoothie banane-yaourt',                    ing:['banane','yaourt','miel']},
-  {id:'r16',cat:'DÎNER',         time:30,title:'Pâtes aux tomates confites',                ing:['pâtes','tomates','ail','huile d\'olive']},
-  {id:'r17',cat:'DESSERT',       time:20,title:'Crumble pomme & flocons',                    ing:['pommes','flocons d\'avoine','miel','beurre']},
-  {id:'r18',cat:'SNACK',         time:5, title:'Chocolat chaud & flocons',                    ing:['chocolat','flocons d\'avoine','lait']},
-  {id:'r19',cat:'DÉJEUNER',      time:15,title:'Taboulé pois chiches & citron',               ing:['pois chiches','citron','tomates','huile d\'olive']},
-  {id:'r20',cat:'DÎNER',         time:25,title:'Riz & petits pois sautés',                    ing:['riz','petits pois','oignon','huile d\'olive']}
+  {id:'r01',cat:'PETIT DÉJEUNER',time:5,
+   photo:'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=600&q=80',
+   title:'Yaourt, miel & flocons grillés',ing:['yaourt','miel','flocons d\'avoine'],
+   steps:['Faire griller les flocons à sec dans une poêle 2 min jusqu\'à légère coloration.','Verser le yaourt dans un bol.','Napper de miel et parsemer des flocons grillés. Servir aussitôt.']},
+  {id:'r02',cat:'DÉJEUNER',time:15,
+   photo:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80',
+   title:'Pâtes citron & épinards',ing:['pâtes','épinards','citron','huile d\'olive'],
+   steps:['Cuire les pâtes al dente. Réserver une louche d\'eau de cuisson.','Sauter les épinards 2 min à l\'huile d\'olive avec sel et poivre.','Égoutter les pâtes, mélanger avec les épinards, zeste et jus de citron. Ajuster avec l\'eau de cuisson.']},
+  {id:'r03',cat:'DÉJEUNER',time:15,
+   photo:'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80',
+   title:'Bowl petits pois & yaourt',ing:['petits pois','yaourt','citron','huile d\'olive'],
+   steps:['Cuire les petits pois 3 min à l\'eau bouillante. Égoutter et laisser tiédir.','Fouetter le yaourt avec le jus de citron et l\'huile d\'olive. Assaisonner.','Verser le yaourt dans un bol, ajouter les petits pois, un filet d\'huile et le zeste de citron.']},
+  {id:'r04',cat:'DESSERT',time:10,
+   photo:'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=600&q=80',
+   title:'Mousse chocolat-yaourt',ing:['chocolat','yaourt'],
+   steps:['Faire fondre le chocolat au bain-marie. Laisser tiédir 2 min.','Incorporer le yaourt en fouettant vivement pour obtenir une texture aérée.','Verser dans des verrines et réfrigérer au moins 30 min.']},
+  {id:'r05',cat:'DÉJEUNER',time:20,
+   photo:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80',
+   title:'Riz aux pois chiches & tomates',ing:['riz','pois chiches','tomates','huile d\'olive','oignon'],
+   steps:['Faire revenir l\'oignon émincé à l\'huile d\'olive 3 min jusqu\'à translucidité.','Ajouter les tomates concassées et les pois chiches égouttés. Cuire 5 min à feu moyen.','Incorporer le riz cuit, mélanger, rectifier l\'assaisonnement et servir.']},
+  {id:'r06',cat:'SNACK',time:10,
+   photo:'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&q=80',
+   title:'Houmous express',ing:['pois chiches','citron','huile d\'olive','ail'],
+   steps:['Égoutter les pois chiches. Garder 3 cs du liquide de conserve.','Mixer avec l\'ail, le jus de citron, l\'huile d\'olive et le liquide jusqu\'à consistance crémeuse.','Assaisonner, verser dans un bol, arroser d\'huile d\'olive et d\'un trait de citron.']},
+  {id:'r07',cat:'PETIT DÉJEUNER',time:10,
+   photo:'https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?w=600&q=80',
+   title:'Porridge miel & banane',ing:['flocons d\'avoine','miel','banane','lait'],
+   steps:['Porter le lait à frémissement dans une casserole.','Ajouter les flocons et cuire 3 min en remuant jusqu\'à consistance épaisse.','Verser dans un bol, garnir de rondelles de banane et napper de miel.']},
+  {id:'r08',cat:'PETIT DÉJEUNER',time:5,
+   photo:'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=600&q=80',
+   title:'Toast chocolat-banane',ing:['pain','chocolat','banane'],
+   steps:['Faire griller le pain jusqu\'à légère dorure.','Faire fondre le chocolat 30 sec au micro-ondes, remuer.','Étaler le chocolat fondu sur le toast, garnir de rondelles de banane.']},
+  {id:'r09',cat:'PETIT DÉJEUNER',time:10,
+   photo:'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=600&q=80',
+   title:'Œufs brouillés aux épinards',ing:['œufs','épinards','beurre'],
+   steps:['Battre les œufs avec sel et poivre.','Faire fondre le beurre à feu doux, ajouter les épinards 1 min.','Verser les œufs et remuer doucement jusqu\'à prise crémeuse. Retirer du feu légèrement avant la fin.']},
+  {id:'r10',cat:'DÉJEUNER',time:20,
+   photo:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80',
+   title:'Salade riz & pois chiches',ing:['riz','pois chiches','citron','huile d\'olive'],
+   steps:['Cuire le riz selon les indications. Laisser refroidir complètement.','Égoutter et rincer les pois chiches.','Mélanger riz, pois chiches, jus de citron et huile d\'olive. Assaisonner généreusement.']},
+  {id:'r11',cat:'DÎNER',time:25,
+   photo:'https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?w=600&q=80',
+   title:'Gratin de pâtes & épinards',ing:['pâtes','épinards','crème','fromage'],
+   steps:['Cuire les pâtes al dente. Sauter les épinards 2 min avec un peu d\'ail.','Mélanger pâtes, épinards et crème dans un plat à gratin. Assaisonner.','Parsemer de fromage râpé et enfourner 15 min à 200°C jusqu\'à gratinage.']},
+  {id:'r12',cat:'DESSERT',time:15,
+   photo:'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=600&q=80',
+   title:'Cookies chocolat & flocons',ing:['chocolat','flocons d\'avoine','miel','beurre'],
+   steps:['Préchauffer le four à 180°C. Faire fondre le beurre.','Mélanger flocons, chocolat concassé, miel et beurre fondu jusqu\'à pâte homogène.','Former des boules, aplatir sur une plaque. Enfourner 10-12 min. Laisser refroidir.']},
+  {id:'r13',cat:'SNACK',time:5,
+   photo:'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600&q=80',
+   title:'Tartines miel & graines',ing:['pain','miel','graines'],
+   steps:['Faire griller les tranches de pain.','Napper généreusement de miel.','Parsemer de graines mixtes (tournesol, courge, sésame). Croquer immédiatement.']},
+  {id:'r14',cat:'DÎNER',time:20,
+   photo:'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&q=80',
+   title:'Riz sauté aux légumes',ing:['riz','carottes','oignon','huile d\'olive'],
+   steps:['Cuire le riz. Émincer l\'oignon et couper les carottes en julienne fine.','Faire revenir l\'oignon 2 min à l\'huile d\'olive. Ajouter les carottes, cuire 5 min à feu vif.','Incorporer le riz cuit, sauter 2 min. Assaisonner, servir bien chaud.']},
+  {id:'r15',cat:'PETIT DÉJEUNER',time:5,
+   photo:'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80',
+   title:'Smoothie banane-yaourt',ing:['banane','yaourt','miel'],
+   steps:['Couper la banane en morceaux (peut être surgelée pour plus d\'onctuosité).','Mixer banane, yaourt et miel jusqu\'à consistance lisse.','Verser dans un verre et servir immédiatement.']},
+  {id:'r16',cat:'DÎNER',time:30,
+   photo:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80',
+   title:'Pâtes aux tomates confites',ing:['pâtes','tomates','ail','huile d\'olive'],
+   steps:['Couper les tomates en deux. Les disposer sur une plaque avec l\'ail écrasé et l\'huile d\'olive. Enfourner 20 min à 180°C.','Cuire les pâtes al dente pendant ce temps.','Mélanger les pâtes égouttées avec les tomates confites et leur jus. Assaisonner.']},
+  {id:'r17',cat:'DESSERT',time:20,
+   photo:'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=600&q=80',
+   title:'Crumble pomme & flocons',ing:['pommes','flocons d\'avoine','miel','beurre'],
+   steps:['Préchauffer le four à 180°C. Éplucher et couper les pommes en dés.','Mélanger flocons, miel et beurre fondu jusqu\'à texture sableuse.','Disposer les pommes dans un plat, couvrir du crumble. Enfourner 18 min.']},
+  {id:'r18',cat:'SNACK',time:5,
+   photo:'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=600&q=80',
+   title:'Chocolat chaud & flocons',ing:['chocolat','flocons d\'avoine','lait'],
+   steps:['Chauffer le lait dans une casserole à feu doux.','Ajouter le chocolat cassé en morceaux et remuer jusqu\'à fonte complète.','Verser dans une tasse, garnir d\'une pincée de flocons et d\'un carré de chocolat.']},
+  {id:'r19',cat:'DÉJEUNER',time:15,
+   photo:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80',
+   title:'Taboulé pois chiches & citron',ing:['pois chiches','citron','tomates','huile d\'olive'],
+   steps:['Égoutter les pois chiches. Couper les tomates en petits dés.','Mélanger pois chiches, tomates, jus de citron et huile d\'olive.','Laisser mariner 5 min, assaisonner, parsemer de persil frais si dispo.']},
+  {id:'r20',cat:'DÎNER',time:25,
+   photo:'https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?w=600&q=80',
+   title:'Riz & petits pois sautés',ing:['riz','petits pois','oignon','huile d\'olive'],
+   steps:['Cuire le riz. Décongeler les petits pois.','Faire revenir l\'oignon émincé à l\'huile d\'olive 2 min.','Ajouter le riz et les petits pois, sauter 3 min à feu vif. Assaisonner et servir.']}
 ];
 
 /* ════════════════════════════════════════
@@ -524,11 +605,6 @@ function getTotalSpent() {
 /* Sauvegarder les textareas avant tout re-render */
 function saveTextareas() {
   var dk = todayKey();
-  var hn = document.getElementById('health-ta');
-  if (hn) {
-    if (!S.health[dk]) S.health[dk] = {note:''};
-    S.health[dk].note = hn.value;
-  }
   var bd = document.getElementById('braindump-ta');
   if (bd) S.braindump[dk] = bd.value;
   save();
@@ -615,7 +691,7 @@ function fabAction() {
   if (curPage === 'budget') {
     if (S.budget.envelopes.length > 0) openAddTransaction(S.budget.envelopes[0].id);
   } else if (curPage === 'cuisine') {
-    openQuickAddPantry();
+    openCuisineFABMenu();
   } else {
     openAddEvent(todayKey());
   }
@@ -637,7 +713,7 @@ function renderJour() {
   var evs   = (S.events[dk]      || []).slice().sort(function(a,b){ return (a.time||'').localeCompare(b.time||''); });
   var ints  = S.intentions[dk]   || [];
   var rDone = S.ritualsDone[dk]  || {m:[], e:[]};
-  var hlth  = S.health[dk]       || {note:''};
+  var hlth  = S.health[dk]       || {headaches:[]};
   var bd    = S.braindump[dk]    || '';
 
   var rM = S.settings.ritualsM || DEF_RM;
@@ -657,9 +733,6 @@ function renderJour() {
   var hh = pad2(now.getHours()), mm = pad2(now.getMinutes());
   var jourStr = JOURS_LONG[now.getDay()].toUpperCase()+' '+now.getDate()+' '+MOIS_FR[m].toUpperCase();
 
-  /* Symptôme santé */
-  var symptom = (hlth.note && hlth.note.trim()) ? hlth.note.split('\n')[0].slice(0,40) : 'Comment te sens-tu ?';
-
   /* Cycle */
   var cycleDay = getCycleDay();
   var phase    = cycleDay ? getCyclePhase(cycleDay) : null;
@@ -667,7 +740,7 @@ function renderJour() {
   var h = '';
 
   /* ── CARTE 1 : HÉRO ── */
-  h += '<div class="card" style="margin-top:8px;padding:22px">';
+  h += '<div class="card span2" style="margin-top:8px;padding:22px">';
   /* date */
   h += '<div style="font-size:11px;font-weight:600;letter-spacing:0.1em;color:#8aaa8a;margin-bottom:6px">'+jourStr+'</div>';
   /* horloge + météo */
@@ -766,7 +839,7 @@ function renderJour() {
   for (var i=0; i<S.budget.envelopes.length; i++) varSpent4 += getEnvSpent(S.budget.envelopes[i].id);
   var income4 = S.budget.income || 2400;
   var rav4 = Math.max(0, income4 - fixedTot4 - varSpent4);
-  h += '<div class="card">';
+  h += '<div class="card span2">';
   h += '<div class="lbl" style="margin-bottom:4px">BUDGET · '+MOIS_FR[m].toUpperCase()+'</div>';
   h += '<div class="titre" style="font-size:24px;margin-bottom:6px">Reste à vivre</div>';
   h += '<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px">';
@@ -793,19 +866,35 @@ function renderJour() {
   h += '</div>';
 
   /* ── CARTE 5 : SANTÉ ── */
+  var hds = (hlth.headaches || []);
   h += '<div class="card">';
   h += '<div class="row-sb" style="margin-bottom:12px">';
   h += '<div><div class="lbl">SANTÉ DU JOUR</div>';
-  h += '<div class="titre" style="font-size:22px">'+escH(symptom)+'</div></div>';
+  h += '<div class="titre" style="font-size:22px">Maux de tête</div></div>';
   h += '<span style="font-size:26px;opacity:0.65">🧠</span>';
   h += '</div>';
-  h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#c0a0a0;margin-bottom:6px">TAPE POUR ENREGISTRER</div>';
-  h += '<textarea id="health-ta" rows="3" placeholder="J\'ai mal à la tête…" '
-     + 'oninput="syncHealthTitle(this.value,\''+dk+'\')" '
-     + 'style="background:rgba(250,215,215,0.42);border:none;border-radius:16px;'
-     + 'padding:14px 16px;width:100%;font-family:\'Playfair Display\',serif;'
-     + 'font-style:italic;font-size:15px;color:#4d2d2d;min-height:70px;resize:none;outline:none">'
-     + escH(hlth.note)+'</textarea>';
+  if (hds.length === 0) {
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:14px;color:#a0b4a0;padding:4px 0 10px">Aucun mal de tête aujourd\'hui — c\'est bon signe !</div>';
+  } else {
+    for (var i=0; i<hds.length; i++) {
+      var hd = hds[i];
+      h += '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;'+(i>0?'border-top:1px solid rgba(0,0,0,0.05)':'')+'">';
+      h += '<div style="width:32px;height:32px;border-radius:50%;background:rgba(220,90,80,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px">🧠</div>';
+      h += '<div style="flex:1">';
+      h += '<div style="font-size:14px;font-weight:600;color:#2d1e1e">'+(hd.med==='Aucun'?'Sans médicament':escH(hd.med))+'</div>';
+      h += '<div style="font-size:11px;color:#9aaa9a">'+escH(hd.time)+'</div>';
+      h += '</div>';
+      h += '<button onclick="removeHeadache(\''+dk+'\',\''+hd.id+'\')" style="border:none;background:none;color:#ddd;cursor:pointer;font-size:20px;padding:0;line-height:1">×</button>';
+      h += '</div>';
+    }
+  }
+  if (hds.length < 4) {
+    h += '<button onclick="openAddHeadache(\''+dk+'\')" ';
+    h += 'style="display:flex;align-items:center;gap:6px;width:100%;margin-top:8px;border:1.5px dashed rgba(220,90,80,0.3);';
+    h += 'background:rgba(220,90,80,0.04);cursor:pointer;color:#c05050;font-size:13px;';
+    h += 'font-family:\'DM Sans\',sans-serif;padding:9px 14px;border-radius:14px;font-weight:600">';
+    h += '+ Ajouter un mal de tête ('+hds.length+'/4)</button>';
+  }
   h += '</div>';
 
   /* ── CARTE 6 : BRAIN DUMP ── */
@@ -860,7 +949,7 @@ function renderJour() {
   }
 
   /* ── CARTE 9 : RITUELS ── */
-  h += '<div class="card">';
+  h += '<div class="card span2">';
   h += '<div class="lbl" style="margin-bottom:4px">RITUELS</div>';
   h += '<div class="titre" style="font-size:22px;margin-bottom:16px">Ancrer la journée</div>';
   h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">';
@@ -902,16 +991,39 @@ function renderJour() {
 /* ════════════════════════════════════════
    INTERACTIONS JOUR
 ════════════════════════════════════════ */
-function syncHealthTitle(val, dk) {
-  if (!S.health[dk]) S.health[dk] = {note:''};
-  S.health[dk].note = val;
+function openAddHeadache(dk) {
+  var meds = ['Excedrin','Paracétamol','Ibuprofène','Autre','Aucun'];
+  var mb = '';
+  mb += '<div class="lbl" style="margin-bottom:6px">NOUVEAU MAL DE TÊTE</div>';
+  mb += '<div class="titre" style="font-size:22px;margin-bottom:16px">Quel médicament ?</div>';
+  for (var i=0; i<meds.length; i++) {
+    var med = meds[i];
+    mb += '<button onclick="saveHeadache(\''+dk+'\',\''+med+'\')" ';
+    mb += 'style="display:block;width:100%;text-align:left;padding:14px 18px;margin-bottom:8px;';
+    mb += 'border:1.5px solid rgba(0,0,0,0.08);border-radius:16px;background:rgba(255,255,255,0.72);';
+    mb += 'font-size:15px;font-family:\'DM Sans\',sans-serif;cursor:pointer;color:#1e2d1e;font-weight:500">';
+    mb += escH(med)+'</button>';
+  }
+  mb += '<button onclick="closeModal()" style="display:block;width:100%;margin-top:4px;padding:12px;border:none;background:none;color:#9aaa9a;font-size:14px;font-family:\'DM Sans\',sans-serif;cursor:pointer">Annuler</button>';
+  openModal(mb);
+}
+
+function saveHeadache(dk, med) {
+  if (!S.health[dk]) S.health[dk] = {headaches:[]};
+  if (!S.health[dk].headaches) S.health[dk].headaches = [];
+  var now = new Date();
+  var t = pad2(now.getHours())+':'+pad2(now.getMinutes());
+  S.health[dk].headaches.push({id:mkId(), time:t, med:med});
   save();
-  var first = val.split('\n')[0].slice(0,40);
-  var el = document.querySelector('#pg-jour .titre');
-  /* on ne met à jour que le titre santé (3ème .titre dans la page) */
-  var titres = document.querySelectorAll('#pg-jour .titre');
-  /* index 2 = budget, index 3 = santé */
-  if (titres[3]) titres[3].textContent = first || 'Comment te sens-tu ?';
+  closeModal();
+  renderJour();
+}
+
+function removeHeadache(dk, id) {
+  if (!S.health[dk] || !S.health[dk].headaches) return;
+  S.health[dk].headaches = S.health[dk].headaches.filter(function(h){ return h.id !== id; });
+  save();
+  renderJour();
 }
 
 function saveBraindump(dk, val) {
@@ -1097,7 +1209,7 @@ function renderMois() {
   h += '</div>';
 
   /* ── GRILLE ── */
-  h += '<div class="card" style="padding:14px 12px">';
+  h += '<div class="card span2" style="padding:14px 12px">';
 
   /* En-têtes jours */
   h += '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px">';
@@ -1187,7 +1299,7 @@ function renderMois() {
   var selDate = new Date(calSel+'T12:00:00');
   var selEvs  = (S.events[calSel]||[]).slice().sort(function(a,b){ return (a.time||'').localeCompare(b.time||''); });
 
-  h += '<div class="card">';
+  h += '<div class="card span2">';
   h += '<div class="row-sb" style="margin-bottom:12px">';
   h += '<div>';
   h += '<div class="lbl">'+JOURS_LONG[selDate.getDay()].toUpperCase()+'</div>';
@@ -1225,6 +1337,42 @@ function renderMois() {
      + 'margin-top:12px;border:1.5px dashed rgba(0,0,0,0.1);background:none;cursor:pointer;'
      + 'color:#8aaa8a;font-size:13px;font-family:\'DM Sans\',sans-serif;'
      + 'padding:10px;border-radius:14px">+ Ajouter un événement</button>';
+  h += '</div>';
+
+  /* ── STATS SANTÉ DU MOIS ── */
+  var prefix = y+'-'+pad2(m+1)+'-';
+  var totalHd = 0;
+  var medCount = {};
+  for (var dk3 in S.health) {
+    if (dk3.indexOf(prefix) === 0) {
+      var dayH = S.health[dk3];
+      var dayHds = dayH.headaches || [];
+      totalHd += dayHds.length;
+      for (var i=0; i<dayHds.length; i++) {
+        var med = dayHds[i].med || 'Autre';
+        medCount[med] = (medCount[med] || 0) + 1;
+      }
+    }
+  }
+  h += '<div class="card">';
+  h += '<div class="row-sb" style="margin-bottom:12px">';
+  h += '<div><div class="lbl">SANTÉ · '+MOIS_FR[m].toUpperCase()+'</div>';
+  h += '<div class="titre" style="font-size:22px">Maux de tête</div></div>';
+  h += '<span style="font-size:26px;opacity:0.6">🧠</span>';
+  h += '</div>';
+  h += '<div style="font-size:42px;font-weight:600;letter-spacing:-2px;color:#1e2d1e;line-height:1;margin-bottom:6px">'+totalHd+'</div>';
+  h += '<div style="font-size:12px;color:#9aaa9a;margin-bottom:14px">ce mois-ci</div>';
+  if (totalHd > 0) {
+    h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#8aaa8a;margin-bottom:8px">PAR MÉDICAMENT</div>';
+    for (var med in medCount) {
+      h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-top:1px solid rgba(0,0,0,0.05)">';
+      h += '<span style="font-size:14px;color:#2d1e1e">'+escH(med)+'</span>';
+      h += '<span style="font-size:14px;font-weight:700;color:#c05050">'+medCount[med]+'×</span>';
+      h += '</div>';
+    }
+  } else {
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:14px;color:#a0b4a0">Aucun mal de tête ce mois-ci !</div>';
+  }
   h += '</div>';
 
   document.getElementById('pg-mois').innerHTML = h;
@@ -1322,6 +1470,7 @@ function openManageEnv() {
     h += '<div style="flex:1;font-size:15px;font-weight:500;color:#1e2d1e">'+escH(e.name)+'</div>';
     h += '<input type="number" id="env-bud-'+e.id+'" value="'+e.budget+'" min="0" '
        + 'style="width:80px;text-align:right;padding:7px 10px;font-size:14px" placeholder="0">';
+    h += '<button onclick="deleteEnvelope(\''+e.id+'\')" style="border:none;background:none;color:#ddd;cursor:pointer;font-size:22px;padding:0 2px;line-height:1;flex-shrink:0">×</button>';
     h += '</div>';
   }
   h += '<div style="display:flex;gap:10px;margin-top:16px">';
@@ -1363,7 +1512,7 @@ function renderBudget() {
   var h = '';
 
   /* ── HÉRO ── */
-  h += '<div class="card" style="margin-top:8px;padding:24px 20px">';
+  h += '<div class="card span2" style="margin-top:8px;padding:24px 20px">';
   h += '<div class="lbl" style="margin-bottom:10px">RESTE À VIVRE · '+MOIS_FR[m].toUpperCase()+' '+y+'</div>';
   h += '<div style="font-size:50px;font-weight:600;letter-spacing:-2px;color:#1e2d1e;line-height:1;';
   h += 'font-family:\'DM Sans\',sans-serif;margin-bottom:8px">'+fmtEuroCents(Math.max(0,rav))+'</div>';
@@ -1388,11 +1537,14 @@ function renderBudget() {
   h += '</div>';
 
   /* ── DÉPENSES VARIABLES ── */
-  h += '<div class="card">';
+  h += '<div class="card span2">';
   h += '<div class="lbl" style="margin-bottom:8px">DÉPENSES VARIABLES · '+MOIS_FR[m].toUpperCase()+'</div>';
   h += '<div class="row-sb" style="margin-bottom:16px">';
   h += '<div class="titre" style="font-size:22px">Envelopes</div>';
+  h += '<div style="display:flex;gap:8px">';
+  h += '<button onclick="openAddEnvelope()" class="btn btn-primary btn-sm">+ Nouvelle</button>';
   h += '<button onclick="openManageEnv()" class="btn btn-ghost btn-sm">Gérer</button>';
+  h += '</div>';
   h += '</div>';
   /* Grille 3 colonnes */
   h += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">';
@@ -1421,31 +1573,35 @@ function renderBudget() {
   h += '</div>';
 
   /* ── CHARGES FIXES ── */
-  h += '<div class="card">';
+  h += '<div class="card span2">';
   h += '<div class="lbl" style="margin-bottom:8px">CHARGES FIXES DU MOIS</div>';
   h += '<div class="row-sb" style="margin-bottom:4px">';
   h += '<div class="titre" style="font-size:22px">Prélèvements</div>';
+  h += '<div style="display:flex;align-items:center;gap:8px">';
   h += '<div style="background:rgba(30,61,30,0.1);border-radius:99px;padding:5px 12px;';
   h += 'font-size:11px;font-weight:700;color:#2a5a2a;letter-spacing:0.06em">'+paidCount+'/'+S.budget.fixed.length+' RÉGLÉS</div>';
+  h += '<button onclick="openAddFixed()" style="width:28px;height:28px;border-radius:50%;background:#1e3d1e;border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:\'DM Sans\',sans-serif;line-height:1">+</button>';
+  h += '</div>';
   h += '</div>';
   h += '<div style="font-size:13px;color:#7a9a7a;margin-bottom:14px">Total : <strong>'+fmtE(fixedTot)+'</strong></div>';
   for (var i = 0; i < S.budget.fixed.length; i++) {
     var f    = S.budget.fixed[i];
     var paid = isFixedPaid(f.id);
-    h += '<div onclick="toggleFixedPaid(\''+f.id+'\')" '
-       + 'style="display:flex;align-items:center;gap:12px;padding:11px 0;cursor:pointer;user-select:none;'
+    h += '<div style="display:flex;align-items:center;gap:12px;padding:11px 0;user-select:none;'
        + (i > 0 ? 'border-top:1px solid rgba(0,0,0,0.05)' : '')+';">';
-    h += '<div style="width:26px;height:26px;border-radius:50%;flex-shrink:0;'
+    h += '<div onclick="toggleFixedPaid(\''+f.id+'\')" style="width:26px;height:26px;border-radius:50%;flex-shrink:0;cursor:pointer;'
        + 'display:flex;align-items:center;justify-content:center;transition:all .2s;'
        + (paid ? 'background:#1e3d1e;border:2px solid #1e3d1e' : 'background:transparent;border:2px solid #c0d4c0')+';">';
     if (paid) h += svgCheck();
     h += '</div>';
-    h += '<div style="flex:1">';
+    h += '<div onclick="toggleFixedPaid(\''+f.id+'\')" style="flex:1;cursor:pointer">';
     h += '<div style="font-size:15px;font-weight:500;color:'+(paid?'#aac0aa':'#1e2d1e')+';'
        + (paid?'text-decoration:line-through':'')+'">'+escH(f.name)+'</div>';
     h += '<div style="font-size:11px;color:#9aaa9a;margin-top:1px">Le '+f.day+' du mois</div>';
     h += '</div>';
     h += '<div style="font-size:16px;font-weight:700;color:'+(paid?'#9aaa9a':'#1e2d1e')+'">'+fmtE(f.amount)+'</div>';
+    h += '<button onclick="openEditFixed(\''+f.id+'\')" style="border:none;background:none;color:#b0c0b0;cursor:pointer;font-size:16px;padding:0 2px;line-height:1" title="Modifier">✎</button>';
+    h += '<button onclick="deleteFixed(\''+f.id+'\')" style="border:none;background:none;color:#ddd;cursor:pointer;font-size:20px;padding:0;line-height:1" title="Supprimer">×</button>';
     h += '</div>';
   }
   h += '</div>';
@@ -1595,7 +1751,7 @@ function renderCuisine() {
   var h = '';
 
   /* ── HÉRO ── */
-  h += '<div class="card" style="margin-top:8px;padding:24px 20px">';
+  h += '<div class="card span2" style="margin-top:8px;padding:24px 20px">';
   h += '<div class="lbl" style="margin-bottom:8px">MA CUISINE</div>';
   h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:52px;font-weight:400;line-height:1;color:#1e2d1e;margin-bottom:8px">'+total+' articles</div>';
   h += '<div style="font-size:14px;color:#7a9a7a">rangés dans tes '+PLACARDS.length+' placards</div>';
@@ -1640,7 +1796,7 @@ function renderCuisine() {
   }
   matchedRecs.sort(function(a,b){ return b.pct - a.pct; });
 
-  h += '<div class="card">';
+  h += '<div class="card span2">';
   h += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">';
   h += '<span style="font-size:13px">🍳</span><span class="lbl">AVEC MES PLACARDS</span></div>';
   h += '<div class="titre" style="font-size:22px;margin-bottom:4px">Que cuisiner maintenant ?</div>';
@@ -1652,7 +1808,7 @@ function renderCuisine() {
     var topRecs = matchedRecs.slice(0, 6);
     for (var i = 0; i < topRecs.length; i++) {
       var item = topRecs[i], rec = item.rec, pct = item.pct, mtch = item.matched;
-      h += '<div style="padding:13px 0;'+(i>0?'border-top:1px solid rgba(0,0,0,0.05)':'')+';">';
+      h += '<div onclick="openRecipeModal(\''+rec.id+'\')" style="padding:13px 0;cursor:pointer;'+(i>0?'border-top:1px solid rgba(0,0,0,0.05)':'')+';">';
       h += '<div style="display:flex;align-items:flex-start;gap:8px">';
       h += '<div style="flex:1">';
       h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:#9aaa9a;margin-bottom:4px">'+escH(rec.cat)+' · '+rec.time+' MIN</div>';
@@ -1689,7 +1845,7 @@ function renderCuisine() {
     if (cuisineFilter === 'Tout' || normCat(rec.cat) === normCat(cuisineFilter)) filtered.push(rec);
   }
 
-  h += '<div class="card">';
+  h += '<div class="card span2">';
   h += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">';
   h += '<span style="font-size:12px;color:'+th.accent+'">✦</span><span class="lbl">INSPIRATIONS</span></div>';
   var sub = cuisineFilter === 'Tout' ? 'En 15-20 minutes' : cuisineFilter;
@@ -1710,15 +1866,309 @@ function renderCuisine() {
   h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
   for (var i = 0; i < filtered.length; i++) {
     var rec = filtered[i];
-    h += '<div style="background:rgba(255,255,255,0.78);border-radius:16px;padding:14px 12px;border:1.5px solid rgba(255,255,255,0.85)">';
-    h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.07em;color:#9aaa9a;margin-bottom:5px">'+escH(rec.cat)+'</div>';
-    h += '<div style="font-family:\'Playfair Display\',serif;font-size:14px;color:#1e2d1e;line-height:1.4;margin-bottom:8px">'+escH(rec.title)+'</div>';
-    h += '<div style="font-size:11px;color:#9aaa9a">⏱ '+rec.time+' min · '+rec.ing.length+' ingrédients</div>';
-    h += '</div>';
+    h += '<div onclick="openRecipeModal(\''+rec.id+'\')" style="background:rgba(255,255,255,0.78);border-radius:16px;padding:0;border:1.5px solid rgba(255,255,255,0.85);overflow:hidden;cursor:pointer">';
+    if (rec.photo) {
+      h += '<img src="'+rec.photo+'" alt="" style="width:100%;height:90px;object-fit:cover;display:block" onerror="this.style.display=\'none\'">';
+    }
+    h += '<div style="padding:10px 12px">';
+    h += '<div style="font-size:9px;font-weight:700;letter-spacing:0.07em;color:#9aaa9a;margin-bottom:4px">'+escH(rec.cat)+'</div>';
+    h += '<div style="font-family:\'Playfair Display\',serif;font-size:13px;color:#1e2d1e;line-height:1.4;margin-bottom:6px">'+escH(rec.title)+'</div>';
+    h += '<div style="font-size:10px;color:#9aaa9a">⏱ '+rec.time+' min</div>';
+    h += '</div></div>';
   }
   h += '</div></div>';
 
   document.getElementById('pg-cuisine').innerHTML = h;
+}
+
+/* ════════════════════════════════════════
+   RECETTE MODAL
+════════════════════════════════════════ */
+function openRecipeModal(recId) {
+  var rec = null;
+  for (var i=0; i<REC_LIST.length; i++) { if (REC_LIST[i].id === recId) { rec = REC_LIST[i]; break; } }
+  if (!rec) return;
+  var pantry = S.cuisine.pantry;
+  var mb = '';
+  if (rec.photo) {
+    mb += '<div style="margin:-20px -20px 16px;border-radius:20px 20px 0 0;overflow:hidden;height:180px">';
+    mb += '<img src="'+rec.photo+'" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.style.display=\'none\'">';
+    mb += '</div>';
+  }
+  mb += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#9aaa9a;margin-bottom:4px">'+escH(rec.cat)+' · '+rec.time+' MIN</div>';
+  mb += '<div style="font-family:\'Playfair Display\',serif;font-size:22px;color:#1e2d1e;margin-bottom:16px;line-height:1.3">'+escH(rec.title)+'</div>';
+  mb += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#8aaa8a;margin-bottom:8px">INGRÉDIENTS</div>';
+  var pantryNames = [];
+  for (var j=0; j<pantry.length; j++) pantryNames.push(pantry[j].name.toLowerCase());
+  for (var j=0; j<rec.ing.length; j++) {
+    var ing = rec.ing[j];
+    var inPantry = false;
+    for (var k=0; k<pantryNames.length; k++) {
+      if (pantryNames[k].indexOf(ing.toLowerCase()) !== -1 || ing.toLowerCase().indexOf(pantryNames[k]) !== -1) { inPantry = true; break; }
+    }
+    mb += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid rgba(0,0,0,0.05)">';
+    mb += '<div style="width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;';
+    mb += inPantry ? 'background:#1e3d1e">' + svgCheck() : 'border:1.5px solid #c0d4c0">';
+    mb += '</div>';
+    mb += '<span style="font-size:14px;color:'+(inPantry?'#1e2d1e':'#7a9a7a')+'">'+escH(ing)+'</span>';
+    if (!inPantry) mb += '<span style="font-size:10px;color:#c0d4c0;margin-left:auto">À acheter</span>';
+    mb += '</div>';
+  }
+  if (rec.steps && rec.steps.length) {
+    mb += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#8aaa8a;margin-top:16px;margin-bottom:8px">PRÉPARATION</div>';
+    for (var j=0; j<rec.steps.length; j++) {
+      mb += '<div style="display:flex;gap:12px;padding:8px 0;'+(j>0?'border-top:1px solid rgba(0,0,0,0.05)':'')+'">';
+      mb += '<div style="width:22px;height:22px;border-radius:50%;background:rgba(106,154,106,0.15);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#5a8a5a">'+(j+1)+'</div>';
+      mb += '<div style="font-size:14px;color:#2d3d2d;line-height:1.5;padding-top:2px">'+escH(rec.steps[j])+'</div>';
+      mb += '</div>';
+    }
+  }
+  mb += '<button onclick="closeModal()" style="display:block;width:100%;margin-top:16px;padding:13px;border:none;background:rgba(0,0,0,0.06);border-radius:14px;color:#5a7a5a;font-size:14px;font-weight:600;font-family:\'DM Sans\',sans-serif;cursor:pointer">Fermer</button>';
+  openModal(mb);
+}
+
+/* ════════════════════════════════════════
+   BUDGET CRUD — ENVELOPES
+════════════════════════════════════════ */
+var _newEnvEmoji = '1f4b0';
+var _newEnvColor = 'rgba(180,220,200,0.35)';
+var _ENVELOPE_COLORS = [
+  'rgba(180,220,200,0.35)','rgba(200,180,230,0.35)','rgba(220,200,160,0.35)',
+  'rgba(160,200,230,0.35)','rgba(240,180,160,0.35)','rgba(200,220,160,0.35)'
+];
+var _ENVELOPE_EMOJIS = ['1f4b0','1f6d2','1f96a','1f3e0','1f697','2708','1f457','1f48a','1f3cb','1f3a8'];
+
+function openAddEnvelope() {
+  var mb = '';
+  mb += '<div class="lbl" style="margin-bottom:6px">NOUVELLE ENVELOPPE</div>';
+  mb += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="ne-emojis">';
+  var CDN = 'https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/svg/';
+  for (var i=0; i<_ENVELOPE_EMOJIS.length; i++) {
+    var em = _ENVELOPE_EMOJIS[i];
+    var sel = em === _newEnvEmoji;
+    mb += '<div onclick="pickNE(\'emoji\',\''+em+'\',this)" ';
+    mb += 'style="width:40px;height:40px;border-radius:12px;background:'+(sel?'rgba(30,61,30,0.15)':'rgba(0,0,0,0.05)')+';';
+    mb += 'border:2px solid '+(sel?'#1e3d1e':'transparent')+';cursor:pointer;display:flex;align-items:center;justify-content:center">';
+    mb += '<img src="'+CDN+em+'.svg" alt="" style="width:22px;height:22px" onerror="this.style.display=\'none\'">';
+    mb += '</div>';
+  }
+  mb += '</div>';
+  mb += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px" id="ne-colors">';
+  for (var i=0; i<_ENVELOPE_COLORS.length; i++) {
+    var col = _ENVELOPE_COLORS[i];
+    var sel = col === _newEnvColor;
+    mb += '<div onclick="pickNE(\'color\',\''+col+'\',this)" ';
+    mb += 'style="width:28px;height:28px;border-radius:50%;background:'+col+';cursor:pointer;';
+    mb += 'border:2px solid '+(sel?'#1e3d1e':'rgba(0,0,0,0.1)')+'"></div>';
+  }
+  mb += '</div>';
+  mb += '<input id="ne-name" type="text" placeholder="Nom de l\'enveloppe" style="font-size:15px;padding:11px 14px;border-radius:14px;margin-bottom:10px">';
+  mb += '<input id="ne-budget" type="number" placeholder="Budget (€)" style="font-size:15px;padding:11px 14px;border-radius:14px;margin-bottom:14px">';
+  mb += '<button onclick="saveNewEnvelope()" class="btn btn-primary" style="width:100%;padding:13px;font-size:15px">Créer l\'enveloppe</button>';
+  mb += '<button onclick="closeModal()" style="display:block;width:100%;margin-top:8px;padding:10px;border:none;background:none;color:#9aaa9a;font-size:14px;font-family:\'DM Sans\',sans-serif;cursor:pointer">Annuler</button>';
+  openModal(mb);
+}
+
+function pickNE(type, val, el) {
+  if (type === 'emoji') {
+    _newEnvEmoji = val;
+    var els = document.getElementById('ne-emojis').children;
+    for (var i=0; i<els.length; i++) {
+      els[i].style.background = 'rgba(0,0,0,0.05)';
+      els[i].style.border = '2px solid transparent';
+    }
+    el.style.background = 'rgba(30,61,30,0.15)';
+    el.style.border = '2px solid #1e3d1e';
+  } else {
+    _newEnvColor = val;
+    var els = document.getElementById('ne-colors').children;
+    for (var i=0; i<els.length; i++) els[i].style.border = '2px solid rgba(0,0,0,0.1)';
+    el.style.border = '2px solid #1e3d1e';
+  }
+}
+
+function saveNewEnvelope() {
+  var name = (document.getElementById('ne-name').value || '').trim();
+  var bgt  = parseFloat(document.getElementById('ne-budget').value) || 0;
+  if (!name) { alert('Donne un nom à cette enveloppe.'); return; }
+  S.budget.envelopes.push({id:mkId(), name:name, emoji:_newEnvEmoji, color:_newEnvColor, budget:bgt});
+  save();
+  closeModal();
+  renderBudget();
+}
+
+function deleteEnvelope(id) {
+  if (!confirm('Supprimer cette enveloppe et toutes ses dépenses ?')) return;
+  S.budget.envelopes = S.budget.envelopes.filter(function(e){ return e.id !== id; });
+  for (var dk in S.budget.transactions) {
+    S.budget.transactions[dk] = S.budget.transactions[dk].filter(function(t){ return t.envelopeId !== id; });
+  }
+  save();
+  closeModal();
+  renderBudget();
+}
+
+/* ════════════════════════════════════════
+   BUDGET CRUD — FIXED CHARGES
+════════════════════════════════════════ */
+function openAddFixed() {
+  var mb = '';
+  mb += '<div class="lbl" style="margin-bottom:6px">NOUVEAU PRÉLÈVEMENT</div>';
+  mb += '<div class="titre" style="font-size:20px;margin-bottom:14px">Ajouter une charge fixe</div>';
+  mb += '<input id="af-name" type="text" placeholder="Nom (ex: Loyer)" style="font-size:15px;padding:11px 14px;border-radius:14px;margin-bottom:10px">';
+  mb += '<input id="af-amount" type="number" placeholder="Montant (€)" style="font-size:15px;padding:11px 14px;border-radius:14px;margin-bottom:10px">';
+  mb += '<input id="af-day" type="number" min="1" max="31" placeholder="Jour du mois (ex: 5)" style="font-size:15px;padding:11px 14px;border-radius:14px;margin-bottom:14px">';
+  mb += '<button onclick="saveNewFixed()" class="btn btn-primary" style="width:100%;padding:13px;font-size:15px">Ajouter</button>';
+  mb += '<button onclick="closeModal()" style="display:block;width:100%;margin-top:8px;padding:10px;border:none;background:none;color:#9aaa9a;font-size:14px;font-family:\'DM Sans\',sans-serif;cursor:pointer">Annuler</button>';
+  openModal(mb);
+}
+
+function saveNewFixed() {
+  var name   = (document.getElementById('af-name').value || '').trim();
+  var amount = parseFloat(document.getElementById('af-amount').value) || 0;
+  var day    = parseInt(document.getElementById('af-day').value) || 1;
+  if (!name) { alert('Donne un nom à ce prélèvement.'); return; }
+  S.budget.fixed.push({id:mkId(), name:name, amount:amount, day:day});
+  save();
+  closeModal();
+  renderBudget();
+}
+
+function openEditFixed(id) {
+  var f = null;
+  for (var i=0; i<S.budget.fixed.length; i++) { if (S.budget.fixed[i].id === id) { f = S.budget.fixed[i]; break; } }
+  if (!f) return;
+  var mb = '';
+  mb += '<div class="lbl" style="margin-bottom:6px">MODIFIER LE PRÉLÈVEMENT</div>';
+  mb += '<div class="titre" style="font-size:20px;margin-bottom:14px">'+escH(f.name)+'</div>';
+  mb += '<input id="ef-id" type="hidden" value="'+id+'">';
+  mb += '<input id="ef-name" type="text" value="'+escH(f.name)+'" style="font-size:15px;padding:11px 14px;border-radius:14px;margin-bottom:10px">';
+  mb += '<input id="ef-amount" type="number" value="'+f.amount+'" style="font-size:15px;padding:11px 14px;border-radius:14px;margin-bottom:10px">';
+  mb += '<input id="ef-day" type="number" min="1" max="31" value="'+f.day+'" style="font-size:15px;padding:11px 14px;border-radius:14px;margin-bottom:14px">';
+  mb += '<button onclick="saveEditFixed()" class="btn btn-primary" style="width:100%;padding:13px;font-size:15px">Enregistrer</button>';
+  mb += '<button onclick="closeModal()" style="display:block;width:100%;margin-top:8px;padding:10px;border:none;background:none;color:#9aaa9a;font-size:14px;font-family:\'DM Sans\',sans-serif;cursor:pointer">Annuler</button>';
+  openModal(mb);
+}
+
+function saveEditFixed() {
+  var id     = document.getElementById('ef-id').value;
+  var name   = (document.getElementById('ef-name').value || '').trim();
+  var amount = parseFloat(document.getElementById('ef-amount').value) || 0;
+  var day    = parseInt(document.getElementById('ef-day').value) || 1;
+  if (!name) { alert('Le nom est requis.'); return; }
+  for (var i=0; i<S.budget.fixed.length; i++) {
+    if (S.budget.fixed[i].id === id) { S.budget.fixed[i].name = name; S.budget.fixed[i].amount = amount; S.budget.fixed[i].day = day; break; }
+  }
+  save();
+  closeModal();
+  renderBudget();
+}
+
+function deleteFixed(id) {
+  if (!confirm('Supprimer ce prélèvement ?')) return;
+  S.budget.fixed = S.budget.fixed.filter(function(f){ return f.id !== id; });
+  if (S.budget.fixedPaid) {
+    var newPaid = {};
+    for (var k in S.budget.fixedPaid) { if (k !== id) newPaid[k] = S.budget.fixedPaid[k]; }
+    S.budget.fixedPaid = newPaid;
+  }
+  save();
+  renderBudget();
+}
+
+/* ════════════════════════════════════════
+   CUISINE FAB MENU + IMPORT COURSES
+════════════════════════════════════════ */
+function openCuisineFABMenu() {
+  var mb = '';
+  mb += '<div class="titre" style="font-size:20px;margin-bottom:16px">Ajouter des articles</div>';
+  mb += '<button onclick="closeModal();setTimeout(openQuickAddPantry,100)" ';
+  mb += 'style="display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:16px 18px;';
+  mb += 'margin-bottom:10px;border:1.5px solid rgba(0,0,0,0.08);border-radius:18px;';
+  mb += 'background:rgba(255,255,255,0.72);font-family:\'DM Sans\',sans-serif;cursor:pointer">';
+  mb += '<span style="font-size:28px">✏️</span>';
+  mb += '<div><div style="font-size:15px;font-weight:600;color:#1e2d1e">Saisir manuellement</div>';
+  mb += '<div style="font-size:12px;color:#9aaa9a">Ajouter un article dans un placard</div></div>';
+  mb += '</button>';
+  mb += '<button onclick="closeModal();setTimeout(openPasteList,100)" ';
+  mb += 'style="display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:16px 18px;';
+  mb += 'margin-bottom:10px;border:1.5px solid rgba(0,0,0,0.08);border-radius:18px;';
+  mb += 'background:rgba(255,255,255,0.72);font-family:\'DM Sans\',sans-serif;cursor:pointer">';
+  mb += '<span style="font-size:28px">📋</span>';
+  mb += '<div><div style="font-size:15px;font-weight:600;color:#1e2d1e">Coller une liste de courses</div>';
+  mb += '<div style="font-size:12px;color:#9aaa9a">Importer et distribuer automatiquement</div></div>';
+  mb += '</button>';
+  mb += '<button onclick="closeModal()" ';
+  mb += 'style="display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:16px 18px;';
+  mb += 'margin-bottom:10px;border:1.5px solid rgba(220,90,80,0.2);border-radius:18px;';
+  mb += 'background:rgba(220,90,80,0.05);font-family:\'DM Sans\',sans-serif;cursor:pointer">';
+  mb += '<span style="font-size:28px">📷</span>';
+  mb += '<div><div style="font-size:15px;font-weight:600;color:#1e2d1e">Scanner un ticket</div>';
+  mb += '<div style="font-size:12px;color:#9aaa9a">Fonctionnalité à venir…</div></div>';
+  mb += '</button>';
+  mb += '<button onclick="closeModal()" style="display:block;width:100%;margin-top:4px;padding:10px;border:none;background:none;color:#9aaa9a;font-size:14px;font-family:\'DM Sans\',sans-serif;cursor:pointer">Annuler</button>';
+  openModal(mb);
+}
+
+var _COURSE_KEYWORDS = {
+  'Sec & Conserves'  : ['riz','pâtes','farine','sucre','sel','café','thé','huile','vinaigre','boîte','conserve','lentille','pois','haricot','quinoa','couscous','semoule'],
+  'Épices & Condiments': ['poivre','cumin','paprika','curcuma','cannelle','herbe','moutarde','sauce','mayonnaise','ketchup','curry','basilic','origan','thym','romarin'],
+  'Frigo & Produits Frais': ['lait','beurre','fromage','yaourt','œuf','crème','jambon','poulet','viande','poisson','tofu','légume','salade','carotte','courgette','tomate','poireau','brocoli','épinard'],
+  'Fruits & Snacks'  : ['pomme','banane','orange','raisin','fraise','fruit','noix','amande','biscuit','chocolat','chips','gâteau','pain','baguette','brioche'],
+  'Boissons'         : ['eau','jus','soda','limonade','bière','vin','sirop']
+};
+
+function openPasteList() {
+  var mb = '';
+  mb += '<div class="lbl" style="margin-bottom:6px">IMPORTER UNE LISTE</div>';
+  mb += '<div class="titre" style="font-size:20px;margin-bottom:8px">Coller ta liste de courses</div>';
+  mb += '<div style="font-size:12px;color:#9aaa9a;margin-bottom:12px">Un article par ligne. Je les distribue automatiquement dans tes placards.</div>';
+  mb += '<textarea id="paste-list-ta" rows="10" placeholder="Yaourt x2\nRiz basmati\nHuile d\'olive\nPommes\nFromage râpé…" ';
+  mb += 'style="width:100%;font-size:14px;border:1.5px solid rgba(0,0,0,0.1);border-radius:14px;padding:12px 14px;';
+  mb += 'font-family:\'DM Sans\',sans-serif;resize:vertical;outline:none;min-height:180px"></textarea>';
+  mb += '<button onclick="parseCoursesList()" class="btn btn-primary" style="width:100%;padding:13px;font-size:15px;margin-top:12px">Importer dans les placards</button>';
+  mb += '<button onclick="closeModal()" style="display:block;width:100%;margin-top:8px;padding:10px;border:none;background:none;color:#9aaa9a;font-size:14px;font-family:\'DM Sans\',sans-serif;cursor:pointer">Annuler</button>';
+  openModal(mb);
+}
+
+function parseCoursesList() {
+  var ta = document.getElementById('paste-list-ta');
+  if (!ta) return;
+  var lines = ta.value.split('\n');
+  var added = 0;
+  for (var i=0; i<lines.length; i++) {
+    var line = lines[i].replace(/x\d+$/i,'').replace(/\d+$/,'').trim();
+    if (!line) continue;
+    var targetPlacard = PLACARDS[0].id;
+    var lineLow = line.toLowerCase();
+    for (var cat in _COURSE_KEYWORDS) {
+      var kws = _COURSE_KEYWORDS[cat];
+      var found = false;
+      for (var k=0; k<kws.length; k++) {
+        if (lineLow.indexOf(kws[k]) !== -1) { found = true; break; }
+      }
+      if (found) {
+        for (var p=0; p<PLACARDS.length; p++) {
+          if (PLACARDS[p].name === cat) { targetPlacard = PLACARDS[p].id; break; }
+        }
+        break;
+      }
+    }
+    var exists = false;
+    for (var j=0; j<S.cuisine.pantry.length; j++) {
+      if (S.cuisine.pantry[j].name.toLowerCase() === line.toLowerCase()) { exists = true; break; }
+    }
+    if (!exists) {
+      S.cuisine.pantry.push({id:mkId(), name:line, placardId:targetPlacard});
+      added++;
+    }
+  }
+  save();
+  closeModal();
+  renderCuisine();
+  if (added > 0) {
+    setTimeout(function(){ alert(added+' article'+(added>1?'s':'')+' ajouté'+(added>1?'s':'')+' dans tes placards !'); }, 200);
+  }
 }
 
 /* ════════════════════════════════════════
