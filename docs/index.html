@@ -603,6 +603,7 @@ var S = {
     ]
   },
   cycle:    {start:null, length:28},
+  monthTodos: {},
   settings: {city:'Inverness', ritualsM:DEF_RM.slice(), ritualsE:DEF_RE.slice()}
 };
 
@@ -671,6 +672,10 @@ function applyLoadedData(p) {
   if (p.cuisine) {
     S.cuisine = p.cuisine;
     S.cuisine.pantry = toArr(S.cuisine.pantry);
+  }
+  if (p.monthTodos) {
+    S.monthTodos = p.monthTodos;
+    for (var mk in S.monthTodos) { S.monthTodos[mk] = toArr(S.monthTodos[mk]); }
   }
   if (p.cycle)    S.cycle    = p.cycle;
   if (p.settings) {
@@ -1045,24 +1050,23 @@ function renderJour() {
   h += '<button onclick="openAddEvent(\''+dk+'\')" style="display:flex;align-items:center;gap:6px;width:100%;margin-top:10px;border:none;background:none;cursor:pointer;color:#8aaa8a;font-size:13px;font-family:\'DM Sans\',sans-serif;padding:4px 0">+ Ajouter un événement</button>';
   h += '</div>';
 
-  /* ── CARTE 3 : INTENTIONS ── */
+  /* ── CARTE 3 : TO-DO JOURNALIÈRE ── */
+  var todoDone = 0;
+  for (var i=0; i<ints.length; i++) if(ints[i].done) todoDone++;
+  var todoPct = ints.length ? Math.round(todoDone/ints.length*100) : 0;
   h += '<div class="card">';
-  h += '<div class="row-sb" style="margin-bottom:14px">';
-  h += '<div><div class="lbl">AUJOURD\'HUI</div><div class="titre" style="font-size:24px">Intentions</div></div>';
-  if (ints.length) h += '<div style="font-size:13px;color:#8aaa8a;font-weight:500">'+intDone+'/'+ints.length+'</div>';
-  h += '</div>';
-  for (var i=0; i<ints.length; i++) {
-    var it = ints[i];
-    h += '<div class="int-row" onclick="toggleIntention(\''+dk+'\',\''+it.id+'\')">';
-    h += '<div class="int-chk'+(it.done?' done':'')+'">'+( it.done ? svgCheck() : '')+'</div>';
-    h += '<div class="int-txt'+(it.done?' done':'')+'">'+escH(it.text)+'</div>';
-    h += '<button onclick="event.stopPropagation();deleteIntention(\''+dk+'\',\''+it.id+'\')" style="border:none;background:none;color:#ddd;cursor:pointer;font-size:20px;padding:0;line-height:1">×</button>';
+  h += '<div class="row-sb" style="margin-bottom:10px">';
+  h += '<div><div class="lbl">TÂCHES DU JOUR</div>';
+  h += '<div class="titre" style="font-size:22px">To-do</div></div>';
+  if (ints.length) {
+    h += '<div style="text-align:right">';
+    h += '<div style="font-size:13px;font-weight:700;color:'+th.accent+'">'+todoDone+'/'+ints.length+'</div>';
+    h += '<div style="font-size:10px;color:#9aaa9a">'+todoPct+'%</div>';
     h += '</div>';
   }
-  h += '<div style="display:flex;gap:8px;margin-top:10px">';
-  h += '<input id="int-input" type="text" placeholder="Ajouter une intention…" style="font-size:14px;padding:9px 13px;border-radius:12px" onkeydown="if(event.key===\'Enter\')addIntention(\''+dk+'\')">';
-  h += '<button onclick="addIntention(\''+dk+'\')" class="btn btn-primary btn-sm" style="flex-shrink:0;padding:0;width:38px;height:38px;border-radius:12px;font-size:20px">+</button>';
   h += '</div>';
+  if (ints.length) { h += '<div class="pbar" style="margin-bottom:12px"><div class="pbar-fill" style="width:'+todoPct+'%;background:'+th.accent+'"></div></div>'; }
+  h += '<div id="todo-day-'+dk+'">'+buildTodoDayInner(dk)+'</div>';
   h += '</div>';
 
   /* ── CARTE 4 : BUDGET MINI ── */
@@ -1268,34 +1272,322 @@ function saveCalNote(dk, val) {
   save();
 }
 
-function toggleIntention(dk, id) {
-  saveTextareas();
-  var list = S.intentions[dk];
-  if (!list) return;
-  for (var i=0; i<list.length; i++) { if (list[i].id === id) { list[i].done = !list[i].done; break; } }
-  save();
-  renderJour();
+/* ════════════════════════════════════════
+   TO-DO — helpers & interactions
+════════════════════════════════════════ */
+var PRIO = {
+  high:   {color:'#e07070', next:'normal', label:'🔴'},
+  normal: {color:'#e0a454', next:'low',    label:'🟡'},
+  low:    {color:'#8aba8a', next:'high',   label:'🟢'}
+};
+
+function dayAfter(dk) {
+  var d = new Date(dk+'T12:00:00');
+  d.setDate(d.getDate()+1);
+  return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
+}
+function moisKey() { return calY+'-'+pad2(calM+1); }
+function nowMoisKey() { var n=new Date(); return n.getFullYear()+'-'+pad2(n.getMonth()+1); }
+
+/* ── Refresh partiel de la liste todo d'un jour ── */
+function refreshTodoDayEl(dk) {
+  var el = document.getElementById('todo-day-'+dk);
+  if (el) el.innerHTML = buildTodoDayInner(dk);
+}
+function refreshTodoMonthEl(mk) {
+  var el = document.getElementById('todo-month-'+mk);
+  if (el) el.innerHTML = buildTodoMonthInner(mk);
 }
 
-function deleteIntention(dk, id) {
-  saveTextareas();
-  if (!S.intentions[dk]) return;
-  S.intentions[dk] = S.intentions[dk].filter(function(it){ return it.id !== id; });
-  save();
-  renderJour();
-}
-
-function addIntention(dk) {
-  var inp = document.getElementById('int-input');
+/* ── CRUD journalier ── */
+function addTodoDay(dk) {
+  var inp = document.getElementById('todo-inp-'+dk);
   if (!inp) return;
   var txt = inp.value.trim();
   if (!txt) return;
   if (!S.intentions[dk]) S.intentions[dk] = [];
-  S.intentions[dk].push({id:mkId(), text:txt, done:false});
+  S.intentions[dk].push({id:mkId(),text:txt,done:false,priority:'normal'});
+  inp.value = '';
   save();
-  saveTextareas();
-  renderJour();
+  refreshTodoDayEl(dk);
 }
+function toggleTodoDay(dk, id) {
+  var list = S.intentions[dk];
+  if (!list) return;
+  for (var i=0; i<list.length; i++) { if (list[i].id===id){ list[i].done=!list[i].done; break; } }
+  save();
+  refreshTodoDayEl(dk);
+}
+function deleteTodoDay(dk, id) {
+  if (!S.intentions[dk]) return;
+  S.intentions[dk] = S.intentions[dk].filter(function(t){ return t.id!==id; });
+  save();
+  refreshTodoDayEl(dk);
+}
+function cyclePrioDay(dk, id) {
+  var list = S.intentions[dk];
+  if (!list) return;
+  for (var i=0; i<list.length; i++) {
+    if (list[i].id===id){ list[i].priority = PRIO[list[i].priority||'normal'].next; break; }
+  }
+  save();
+  refreshTodoDayEl(dk);
+}
+/* Envoyer au lendemain */
+function sendTomorrow(dk, id) {
+  var list = S.intentions[dk]||[];
+  var task = null;
+  for (var i=0; i<list.length; i++){ if(list[i].id===id){ task=list[i]; break; } }
+  if (!task) return;
+  var tom = dayAfter(dk);
+  if (!S.intentions[tom]) S.intentions[tom]=[];
+  S.intentions[tom].push({id:mkId(),text:task.text,done:false,priority:task.priority||'normal'});
+  S.intentions[dk] = list.filter(function(t){ return t.id!==id; });
+  save();
+  refreshTodoDayEl(dk);
+}
+/* Envoyer à la liste du mois */
+function sendToMonth(dk, id) {
+  var list = S.intentions[dk]||[];
+  var task = null;
+  for (var i=0; i<list.length; i++){ if(list[i].id===id){ task=list[i]; break; } }
+  if (!task) return;
+  var mk = nowMoisKey();
+  if (!S.monthTodos[mk]) S.monthTodos[mk]=[];
+  S.monthTodos[mk].push({id:mkId(),text:task.text,done:false,priority:task.priority||'normal'});
+  S.intentions[dk] = list.filter(function(t){ return t.id!==id; });
+  save();
+  refreshTodoDayEl(dk);
+  refreshTodoMonthEl(mk);
+}
+
+/* ── CRUD mensuel ── */
+function addTodoMonth(mk) {
+  var inp = document.getElementById('todo-inp-m-'+mk);
+  if (!inp) return;
+  var txt = inp.value.trim();
+  if (!txt) return;
+  if (!S.monthTodos[mk]) S.monthTodos[mk]=[];
+  S.monthTodos[mk].push({id:mkId(),text:txt,done:false,priority:'normal'});
+  inp.value = '';
+  save();
+  refreshTodoMonthEl(mk);
+}
+function toggleTodoMonth(mk, id) {
+  var list = S.monthTodos[mk];
+  if (!list) return;
+  for (var i=0; i<list.length; i++){ if(list[i].id===id){ list[i].done=!list[i].done; break; } }
+  save();
+  refreshTodoMonthEl(mk);
+}
+function deleteTodoMonth(mk, id) {
+  if (!S.monthTodos[mk]) return;
+  S.monthTodos[mk] = S.monthTodos[mk].filter(function(t){ return t.id!==id; });
+  save();
+  refreshTodoMonthEl(mk);
+}
+function cyclePrioMonth(mk, id) {
+  var list = S.monthTodos[mk];
+  if (!list) return;
+  for (var i=0; i<list.length; i++){
+    if(list[i].id===id){ list[i].priority=PRIO[list[i].priority||'normal'].next; break; }
+  }
+  save();
+  refreshTodoMonthEl(mk);
+}
+/* Envoyer vers un jour */
+function sendMonthToDay(mk, id, toDk) {
+  var list = S.monthTodos[mk]||[];
+  var task = null;
+  for (var i=0; i<list.length; i++){ if(list[i].id===id){ task=list[i]; break; } }
+  if (!task) return;
+  if (!S.intentions[toDk]) S.intentions[toDk]=[];
+  S.intentions[toDk].push({id:mkId(),text:task.text,done:false,priority:task.priority||'normal',fromMonth:mk});
+  save();
+  refreshTodoDayEl(toDk);
+  refreshTodoMonthEl(mk);
+}
+
+/* ════════════════════════════════════════
+   BUILD HTML — to-do journalier (dk)
+════════════════════════════════════════ */
+function buildTodoDayInner(dk) {
+  var list = (S.intentions[dk]||[]);
+  var isToday = (dk === todayKey());
+  var isSel   = (curPage === 'mois');
+  var tom     = dayAfter(dk);
+  var done    = 0;
+  for (var i=0; i<list.length; i++) if(list[i].done) done++;
+  var h = '';
+
+  /* Reporter depuis hier */
+  if (isToday) {
+    var yest = dayAfter(dk); /* reuse dayAfter backwards */
+    var yd = new Date(dk+'T12:00:00'); yd.setDate(yd.getDate()-1);
+    var ydKey = yd.getFullYear()+'-'+pad2(yd.getMonth()+1)+'-'+pad2(yd.getDate());
+    var leftovers = (S.intentions[ydKey]||[]).filter(function(t){ return !t.done; });
+    if (leftovers.length) {
+      h += '<div style="display:flex;align-items:center;justify-content:space-between;'
+         + 'background:rgba(224,164,84,0.12);border-radius:12px;padding:8px 12px;margin-bottom:10px;'
+         + 'border:1px solid rgba(224,164,84,0.25)">';
+      h += '<span style="font-size:12px;color:#8a6a2a">↩ '+leftovers.length+' tâche'+(leftovers.length>1?'s':'')
+         + ' non terminée'+(leftovers.length>1?'s':'')+' hier</span>';
+      h += '<button onclick="reporterHier(\''+ydKey+'\',\''+dk+'\')" '
+         + 'style="border:none;background:#e0a454;color:#fff;border-radius:8px;padding:4px 10px;'
+         + 'font-size:11px;font-weight:700;cursor:pointer;font-family:\'DM Sans\',sans-serif">Reporter</button>';
+      h += '</div>';
+    }
+  }
+
+  /* Liste des tâches */
+  if (list.length === 0) {
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:14px;'
+       + 'color:#a0b4a0;padding:6px 0 10px">Aucune tâche — la page est libre ✨</div>';
+  }
+  for (var i=0; i<list.length; i++) {
+    var t = list[i];
+    var prio = PRIO[t.priority||'normal'];
+    h += '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;'
+       + 'border-bottom:1px solid rgba(0,0,0,0.04)">';
+    /* Checkbox */
+    h += '<div onclick="toggleTodoDay(\''+dk+'\',\''+t.id+'\')" '
+       + 'style="width:20px;height:20px;border-radius:6px;border:2px solid '+(t.done?'transparent':prio.color)+';'
+       + 'background:'+(t.done?prio.color:'transparent')+';cursor:pointer;flex-shrink:0;'
+       + 'display:flex;align-items:center;justify-content:center">'
+       + (t.done?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':'')
+       + '</div>';
+    /* Priorité dot */
+    h += '<div onclick="cyclePrioDay(\''+dk+'\',\''+t.id+'\')" title="Changer la priorité" '
+       + 'style="width:8px;height:8px;border-radius:50%;background:'+prio.color+';cursor:pointer;flex-shrink:0"></div>';
+    /* Texte */
+    h += '<div style="flex:1;font-size:14px;color:'+(t.done?'#aaa':'#1e2d1e')+';'
+       + (t.done?'text-decoration:line-through;':'')
+       + 'line-height:1.4'+(t.fromMonth?';font-style:italic':'')+'">'
+       + escH(t.text)
+       + (t.fromMonth?'<span style="font-size:10px;color:#8aaa8a;margin-left:4px">·mois</span>':'')
+       + '</div>';
+    /* Actions */
+    if (!t.done) {
+      if (!isSel || dk !== todayKey()) {
+        /* Envoyer à aujourd'hui (si c'est un autre jour) */
+        if (dk !== todayKey()) {
+          h += '<button onclick="sendMonthToDay(null,null);sendDayToToday(\''+dk+'\',\''+t.id+'\')" '
+             + 'style="border:none;background:none;font-size:11px;color:#8aaa8a;cursor:pointer;padding:0 2px;white-space:nowrap" title="Envoyer à aujourd\'hui">→ auj.</button>';
+        }
+      }
+      if (dk === todayKey() || isSel) {
+        h += '<button onclick="sendTomorrow(\''+dk+'\',\''+t.id+'\')" '
+           + 'style="border:none;background:none;font-size:11px;color:#8aaa8a;cursor:pointer;padding:0 2px;white-space:nowrap" title="Reporter au lendemain">→ dem.</button>';
+      }
+      if (!t.fromMonth) {
+        h += '<button onclick="sendToMonth(\''+dk+'\',\''+t.id+'\')" '
+           + 'style="border:none;background:none;font-size:11px;color:#8aaa8a;cursor:pointer;padding:0 2px;white-space:nowrap" title="Envoyer au mois">→ mois</button>';
+      }
+    }
+    h += '<button onclick="deleteTodoDay(\''+dk+'\',\''+t.id+'\')" '
+       + 'style="border:none;background:none;color:#ddd;cursor:pointer;font-size:18px;padding:0 2px;line-height:1">×</button>';
+    h += '</div>';
+  }
+
+  /* Saisie */
+  h += '<div style="display:flex;gap:8px;margin-top:10px">';
+  h += '<input id="todo-inp-'+dk+'" type="text" placeholder="Ajouter une tâche…" '
+     + 'onkeydown="if(event.key===\'Enter\')addTodoDay(\''+dk+'\')" '
+     + 'style="flex:1;font-size:14px;padding:9px 13px;border-radius:12px;border:1.5px solid rgba(0,0,0,0.08);'
+     + 'background:rgba(255,255,255,0.7);outline:none;font-family:\'DM Sans\',sans-serif">';
+  h += '<button onclick="addTodoDay(\''+dk+'\')" '
+     + 'style="width:38px;height:38px;border-radius:12px;border:none;background:var(--accent);'
+     + 'color:#fff;font-size:20px;cursor:pointer;flex-shrink:0;font-family:\'DM Sans\',sans-serif">+</button>';
+  h += '</div>';
+  return h;
+}
+
+/* Reporter les non-terminées d'hier vers aujourd'hui */
+function reporterHier(fromDk, toDk) {
+  var leftovers = (S.intentions[fromDk]||[]).filter(function(t){ return !t.done; });
+  if (!S.intentions[toDk]) S.intentions[toDk]=[];
+  for (var i=0; i<leftovers.length; i++) {
+    S.intentions[toDk].push({id:mkId(),text:leftovers[i].text,done:false,
+      priority:leftovers[i].priority||'normal'});
+  }
+  save();
+  refreshTodoDayEl(toDk);
+}
+
+/* Envoyer un jour sélectionné → aujourd'hui */
+function sendDayToToday(fromDk, id) {
+  var list = S.intentions[fromDk]||[];
+  var task = null;
+  for (var i=0; i<list.length; i++){ if(list[i].id===id){ task=list[i]; break; } }
+  if (!task) return;
+  var td = todayKey();
+  if (!S.intentions[td]) S.intentions[td]=[];
+  S.intentions[td].push({id:mkId(),text:task.text,done:false,priority:task.priority||'normal'});
+  S.intentions[fromDk] = list.filter(function(t){ return t.id!==id; });
+  save();
+  refreshTodoDayEl(fromDk);
+  refreshTodoDayEl(td);
+}
+
+/* ════════════════════════════════════════
+   BUILD HTML — to-do mensuelle (mk)
+════════════════════════════════════════ */
+function buildTodoMonthInner(mk) {
+  var list = S.monthTodos[mk]||[];
+  var done = 0;
+  for (var i=0; i<list.length; i++) if(list[i].done) done++;
+  var td = todayKey();
+  var h = '';
+
+  if (list.length === 0) {
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:14px;'
+       + 'color:#a0b4a0;padding:4px 0 8px">Aucune tâche ce mois-ci.</div>';
+  }
+  for (var i=0; i<list.length; i++) {
+    var t = list[i];
+    var prio = PRIO[t.priority||'normal'];
+    h += '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;'
+       + 'border-bottom:1px solid rgba(0,0,0,0.04)">';
+    h += '<div onclick="toggleTodoMonth(\''+mk+'\',\''+t.id+'\')" '
+       + 'style="width:20px;height:20px;border-radius:6px;border:2px solid '+(t.done?'transparent':prio.color)+';'
+       + 'background:'+(t.done?prio.color:'transparent')+';cursor:pointer;flex-shrink:0;'
+       + 'display:flex;align-items:center;justify-content:center">'
+       + (t.done?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':'')
+       + '</div>';
+    h += '<div onclick="cyclePrioMonth(\''+mk+'\',\''+t.id+'\')" title="Changer la priorité" '
+       + 'style="width:8px;height:8px;border-radius:50%;background:'+prio.color+';cursor:pointer;flex-shrink:0"></div>';
+    h += '<div style="flex:1;font-size:14px;color:'+(t.done?'#aaa':'#1e2d1e')+';'
+       + (t.done?'text-decoration:line-through;':'')+'line-height:1.4">'
+       + escH(t.text)+'</div>';
+    if (!t.done) {
+      h += '<button onclick="sendMonthToDay(\''+mk+'\',\''+t.id+'\',\''+td+'\')" '
+         + 'style="border:none;background:rgba(74,136,106,0.12);color:#4a886a;border-radius:8px;'
+         + 'font-size:11px;font-weight:600;cursor:pointer;padding:3px 8px;white-space:nowrap;'
+         + 'font-family:\'DM Sans\',sans-serif">→ auj.</button>';
+      if (calSel && calSel !== td) {
+        h += '<button onclick="sendMonthToDay(\''+mk+'\',\''+t.id+'\',\''+calSel+'\')" '
+           + 'style="border:none;background:rgba(0,0,0,0.05);color:#5a7a5a;border-radius:8px;'
+           + 'font-size:11px;font-weight:600;cursor:pointer;padding:3px 8px;white-space:nowrap;margin-left:4px;'
+           + 'font-family:\'DM Sans\',sans-serif">→ ce jour</button>';
+      }
+    }
+    h += '<button onclick="deleteTodoMonth(\''+mk+'\',\''+t.id+'\')" '
+       + 'style="border:none;background:none;color:#ddd;cursor:pointer;font-size:18px;padding:0 2px;line-height:1">×</button>';
+    h += '</div>';
+  }
+
+  h += '<div style="display:flex;gap:8px;margin-top:10px">';
+  h += '<input id="todo-inp-m-'+mk+'" type="text" placeholder="Ajouter au mois…" '
+     + 'onkeydown="if(event.key===\'Enter\')addTodoMonth(\''+mk+'\')" '
+     + 'style="flex:1;font-size:14px;padding:9px 13px;border-radius:12px;border:1.5px solid rgba(0,0,0,0.08);'
+     + 'background:rgba(255,255,255,0.7);outline:none;font-family:\'DM Sans\',sans-serif">';
+  h += '<button onclick="addTodoMonth(\''+mk+'\')" '
+     + 'style="width:38px;height:38px;border-radius:12px;border:none;background:var(--accent);'
+     + 'color:#fff;font-size:20px;cursor:pointer;flex-shrink:0;font-family:\'DM Sans\',sans-serif">+</button>';
+  h += '</div>';
+  return h;
+}
+
 
 function toggleRitual(dk, part, idx) {
   saveTextareas();
@@ -1638,6 +1930,17 @@ function renderMois() {
      + 'color:#8aaa8a;font-size:13px;font-family:\'DM Sans\',sans-serif;'
      + 'padding:10px;border-radius:14px">+ Ajouter un rendez-vous</button>';
 
+  /* To-do du jour sélectionné */
+  h += '<div style="margin-top:16px;border-top:1px solid rgba(0,0,0,0.06);padding-top:14px">';
+  var sdTodoList = S.intentions[calSel]||[];
+  var sdDone=0; for(var i=0;i<sdTodoList.length;i++) if(sdTodoList[i].done) sdDone++;
+  h += '<div class="row-sb" style="margin-bottom:8px">';
+  h += '<div class="lbl">TÂCHES DU JOUR</div>';
+  if (sdTodoList.length) h += '<span style="font-size:12px;color:'+th.accent+';font-weight:700">'+sdDone+'/'+sdTodoList.length+'</span>';
+  h += '</div>';
+  h += '<div id="todo-day-'+calSel+'">'+buildTodoDayInner(calSel)+'</div>';
+  h += '</div>';
+
   /* Zone de notes libres du jour */
   h += '<div style="margin-top:16px;border-top:1px solid rgba(0,0,0,0.06);padding-top:14px">';
   h += '<div class="lbl" style="margin-bottom:8px">NOTES DU JOUR</div>';
@@ -1686,6 +1989,21 @@ function renderMois() {
   } else {
     h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:14px;color:#a0b4a0">Aucun mal de tête ce mois-ci !</div>';
   }
+  h += '</div>';
+
+  /* ── TO-DO MENSUELLE ── */
+  var mk = y+'-'+pad2(m+1);
+  var mlist = S.monthTodos[mk]||[];
+  var mdone = 0;
+  for (var i=0; i<mlist.length; i++) if(mlist[i].done) mdone++;
+  h += '<div class="card span2">';
+  h += '<div class="row-sb" style="margin-bottom:10px">';
+  h += '<div><div class="lbl">TÂCHES DE '+MOIS_FR[m].toUpperCase()+'</div>';
+  h += '<div class="titre" style="font-size:22px">To-do du mois</div></div>';
+  if (mlist.length) h += '<div style="font-size:13px;font-weight:700;color:'+th.accent+'">'+mdone+'/'+mlist.length+'</div>';
+  h += '</div>';
+  if (mlist.length) { h += '<div class="pbar" style="margin-bottom:12px"><div class="pbar-fill" style="width:'+(mlist.length?Math.round(mdone/mlist.length*100):0)+'%;background:'+th.accent+'"></div></div>'; }
+  h += '<div id="todo-month-'+mk+'">'+buildTodoMonthInner(mk)+'</div>';
   h += '</div>';
 
   document.getElementById('pg-mois').innerHTML = h;
