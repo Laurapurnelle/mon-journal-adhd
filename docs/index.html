@@ -632,16 +632,52 @@ function save() {
 }
 
 function applyLoadedData(p) {
-  if (p.events)      S.events      = p.events;
-  if (p.intentions)  S.intentions  = p.intentions;
+  /* Firebase convertit parfois les tableaux en objets {0:..,1:..} → on normalise */
+  function toArr(v) {
+    if (!v) return [];
+    if (Array.isArray(v)) return v;
+    return Object.keys(v).sort(function(a,b){ return +a - +b; }).map(function(k){ return v[k]; });
+  }
+  function fixDayArrays(obj) {
+    if (!obj) return obj;
+    for (var k in obj) { if (Object.prototype.hasOwnProperty.call(obj, k)) obj[k] = toArr(obj[k]); }
+    return obj;
+  }
+
+  if (p.events) {
+    S.events = p.events;
+    fixDayArrays(S.events);
+  }
+  if (p.intentions) {
+    S.intentions = p.intentions;
+    fixDayArrays(S.intentions);
+  }
   if (p.ritualsDone) S.ritualsDone = p.ritualsDone;
-  if (p.health)      S.health      = p.health;
+  if (p.health) {
+    S.health = p.health;
+    for (var dk in S.health) {
+      if (S.health[dk]) S.health[dk].headaches = toArr(S.health[dk].headaches);
+    }
+  }
   if (p.braindump)   S.braindump   = p.braindump;
   if (p.calNotes)    S.calNotes    = p.calNotes;
-  if (p.budget)  { S.budget = p.budget; if (!S.budget.fixedPaid) S.budget.fixedPaid = {}; }
-  if (p.cuisine) S.cuisine = p.cuisine;
-  if (p.cycle)       S.cycle       = p.cycle;
-  if (p.settings)    S.settings    = Object.assign({}, S.settings, p.settings);
+  if (p.budget) {
+    S.budget = p.budget;
+    S.budget.envelopes    = toArr(S.budget.envelopes);
+    S.budget.fixed        = toArr(S.budget.fixed);
+    S.budget.transactions = toArr(S.budget.transactions);
+    if (!S.budget.fixedPaid) S.budget.fixedPaid = {};
+  }
+  if (p.cuisine) {
+    S.cuisine = p.cuisine;
+    S.cuisine.pantry = toArr(S.cuisine.pantry);
+  }
+  if (p.cycle)    S.cycle    = p.cycle;
+  if (p.settings) {
+    S.settings = Object.assign({}, S.settings, p.settings);
+    S.settings.ritualsM = toArr(S.settings.ritualsM);
+    S.settings.ritualsE = toArr(S.settings.ritualsE);
+  }
   /* Sauvegarde locale après sync Firebase */
   try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {}
 }
@@ -997,11 +1033,12 @@ function renderJour() {
       if (ev.endTime) h += '<div style="font-size:11px;color:#9aaa9a">'+escH(ev.endTime)+'</div>';
       h += '</div>';
       h += '<div class="ev-dot" style="background:'+(ev.color||EV_COLORS[0])+'"></div>';
-      h += '<div style="flex:1">';
+      h += '<div style="flex:1;cursor:pointer" onclick="openEditEvent(\''+dk+'\',\''+ev.id+'\')">';
       h += '<div style="font-size:15px;font-weight:500;color:#1e2d1e">'+escH(ev.title)+'</div>';
       if (ev.loc) h += '<div style="font-size:12px;color:#8aaa8a;margin-top:2px">⊙ '+escH(ev.loc)+'</div>';
       h += '</div>';
-      h += '<button onclick="deleteEvent(\''+dk+'\',\''+ev.id+'\')" style="border:none;background:none;color:#ccc;cursor:pointer;font-size:20px;padding:0;line-height:1">×</button>';
+      h += '<button onclick="openEditEvent(\''+dk+'\',\''+ev.id+'\')" style="border:none;background:none;color:#b0c8b0;cursor:pointer;font-size:15px;padding:0 4px;line-height:1" title="Modifier">✎</button>';
+      h += '<button onclick="deleteEvent(\''+dk+'\',\''+ev.id+'\')" style="border:none;background:none;color:#ccc;cursor:pointer;font-size:20px;padding:0;line-height:1" title="Supprimer">×</button>';
       h += '</div>';
     }
   }
@@ -1333,6 +1370,60 @@ function deleteEvent(dk, id) {
   else if (curPage === 'mois')  renderMois();
 }
 
+function openEditEvent(dk, id) {
+  var evs = S.events[dk] || [];
+  var ev = null;
+  for (var i=0; i<evs.length; i++) { if (evs[i].id === id) { ev = evs[i]; break; } }
+  if (!ev) return;
+  var h = '';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:22px;color:#1e2d1e;margin-bottom:20px">Modifier l\'événement</div>';
+  h += '<div class="fgroup"><label class="flbl">Titre</label><input id="ev-title" type="text" value="'+escH(ev.title)+'" placeholder="Rendez-vous…"></div>';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" class="fgroup">';
+  h += '<div><label class="flbl">Début</label><input type="time" id="ev-time" value="'+escH(ev.time)+'"></div>';
+  h += '<div><label class="flbl">Fin</label><input type="time" id="ev-end" value="'+escH(ev.endTime||'')+'"></div>';
+  h += '</div>';
+  h += '<div class="fgroup"><label class="flbl">Lieu (optionnel)</label><input id="ev-loc" type="text" value="'+escH(ev.loc||'')+'" placeholder="Café, bureau…"></div>';
+  h += '<div class="fgroup"><label class="flbl">Couleur</label><div style="display:flex;gap:8px;margin-top:6px">';
+  for (var i=0; i<EV_COLORS.length; i++) {
+    var sel = EV_COLORS[i] === (ev.color||EV_COLORS[0]);
+    h += '<div onclick="pickEvColor(\''+EV_COLORS[i]+'\',this)" style="width:26px;height:26px;border-radius:50%;background:'+EV_COLORS[i]+';cursor:pointer;border:3px solid '+(sel?'#1e3d1e':'transparent')+';transition:border .15s"></div>';
+  }
+  h += '</div></div>';
+  h += '<input type="hidden" id="ev-color" value="'+(ev.color||EV_COLORS[0])+'">';
+  h += '<input type="hidden" id="ev-date" value="'+dk+'">';
+  h += '<input type="hidden" id="ev-edit-id" value="'+id+'">';
+  h += '<div style="display:flex;gap:8px">';
+  h += '<button class="btn btn-ghost" onclick="closeModal()" style="flex:1">Annuler</button>';
+  h += '<button class="btn btn-ghost" onclick="deleteEvent(\''+dk+'\',\''+id+'\');closeModal()" style="flex:1;color:#e07070">Supprimer</button>';
+  h += '<button class="btn btn-primary" onclick="saveEditedEvent()" style="flex:2">Enregistrer</button>';
+  h += '</div>';
+  openModal(h);
+  setTimeout(function(){ var el=document.getElementById('ev-title'); if(el)el.focus(); }, 100);
+}
+
+function saveEditedEvent() {
+  var title = (document.getElementById('ev-title')||{}).value || '';
+  title = title.trim();
+  if (!title) { var el=document.getElementById('ev-title'); if(el)el.focus(); return; }
+  var dk = (document.getElementById('ev-date')||{}).value || todayKey();
+  var id = (document.getElementById('ev-edit-id')||{}).value || '';
+  if (!S.events[dk] || !id) return;
+  for (var i=0; i<S.events[dk].length; i++) {
+    if (S.events[dk][i].id === id) {
+      S.events[dk][i].title   = title;
+      S.events[dk][i].time    = (document.getElementById('ev-time')||{}).value || '';
+      S.events[dk][i].endTime = (document.getElementById('ev-end')||{}).value || '';
+      S.events[dk][i].loc     = ((document.getElementById('ev-loc')||{}).value || '').trim();
+      S.events[dk][i].color   = (document.getElementById('ev-color')||{}).value || EV_COLORS[0];
+      break;
+    }
+  }
+  save();
+  closeModal();
+  if (curPage === 'jour')      renderJour();
+  else if (curPage === 'mois') renderMois();
+}
+
 /* ── Cycle ── */
 function openCycleModal() {
   var h = '';
@@ -1529,9 +1620,12 @@ function renderMois() {
       if (ev.endTime) h += '<div style="font-size:11px;color:#9aaa9a">'+escH(ev.endTime)+'</div>';
       h += '</div>';
       h += '<div class="ev-dot" style="background:'+(ev.color||EV_COLORS[0])+'"></div>';
-      h += '<div style="flex:1"><div style="font-size:15px;font-weight:500;color:#1e2d1e">'+escH(ev.title)+'</div>';
+      h += '<div style="flex:1;cursor:pointer" onclick="openEditEvent(\''+calSel+'\',\''+ev.id+'\')">';
+      h += '<div style="font-size:15px;font-weight:500;color:#1e2d1e">'+escH(ev.title)+'</div>';
       if (ev.loc) h += '<div style="font-size:12px;color:#8aaa8a;margin-top:2px">⊙ '+escH(ev.loc)+'</div>';
       h += '</div>';
+      h += '<button onclick="openEditEvent(\''+calSel+'\',\''+ev.id+'\')" '
+         + 'style="border:none;background:none;color:#b0c8b0;cursor:pointer;font-size:15px;padding:0 4px;line-height:1" title="Modifier">✎</button>';
       h += '<button onclick="deleteEvent(\''+calSel+'\',\''+ev.id+'\')" '
          + 'style="border:none;background:none;color:#ddd;cursor:pointer;font-size:20px;padding:0">×</button>';
       h += '</div>';
