@@ -229,6 +229,62 @@ input:focus, textarea:focus, select:focus {
   #modal { align-items: center; }
   #modal-box { border-radius: 32px; }
 }
+
+/* ── PROFILS ── */
+#profile-screen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: linear-gradient(160deg, #e4f0e8 0%, #f0ede8 50%, #e8ecf5 100%);
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 40px 24px; font-family: 'DM Sans', sans-serif;
+}
+.profile-card {
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1.5px solid rgba(255,255,255,0.97);
+  border-radius: 28px; padding: 32px 28px;
+  text-align: center; cursor: pointer;
+  transition: transform 0.18s, box-shadow 0.18s;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.07);
+  min-width: 148px;
+}
+.profile-card:active { transform: scale(0.95); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+.profile-avatar {
+  width: 68px; height: 68px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 700; color: #fff;
+  margin: 0 auto 16px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+}
+.profile-name {
+  font-family: 'Playfair Display', serif; font-style: italic;
+  font-size: 23px; color: #1e2d1e; margin-bottom: 6px;
+}
+.profile-hint { font-size: 11px; color: #9aaa9a; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+.pin-dot {
+  width: 17px; height: 17px; border-radius: 50%;
+  border: 2px solid #b8c8b8;
+  transition: background 0.15s, border-color 0.15s;
+}
+.pin-pad { display: grid; grid-template-columns: repeat(3, 76px); gap: 14px; justify-content: center; }
+.pin-key {
+  width: 76px; height: 76px; border-radius: 50%;
+  border: none; cursor: pointer;
+  font-size: 26px; font-weight: 400;
+  font-family: 'DM Sans', sans-serif; color: #1e2d1e;
+  transition: transform 0.1s;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  display: flex; align-items: center; justify-content: center;
+}
+.pin-key:active { transform: scale(0.91); }
+@keyframes pinShake {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-10px); }
+  40% { transform: translateX(10px); }
+  60% { transform: translateX(-8px); }
+  80% { transform: translateX(5px); }
+}
 </style>
 <!-- Firebase SDK (compat) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -238,6 +294,8 @@ input:focus, textarea:focus, select:focus {
 
 <div id="bg"></div>
 <div id="bg-decor"></div>
+
+<div id="profile-screen"></div>
 
 <div id="app">
   <div id="pg-jour"    class="page active"></div>
@@ -697,28 +755,29 @@ function refreshCurrentPage() {
   else if (curPage === 'cuisine') renderCuisine();
 }
 
-function initFirebase() {
+var fbAppInited = false;
+function initFirebaseApp() {
   if (!FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey === 'REMPLACE') return;
+  try { firebase.initializeApp(FIREBASE_CONFIG); fbAppInited = true; }
+  catch(e) { console.warn('Firebase init:', e); }
+}
+
+function initFirebaseForProfile() {
+  if (!CURRENT_PROFILE || !fbAppInited) return;
+  if (dbRef) { try { dbRef.off(); } catch(e) {} dbRef = null; }
   try {
-    firebase.initializeApp(FIREBASE_CONFIG);
-    dbRef = firebase.database().ref('journal/' + FAMILY_KEY);
-    /* Chargement initial depuis Firebase */
+    dbRef = firebase.database().ref('journal/' + FAMILY_KEY + '/' + CURRENT_PROFILE);
     dbRef.once('value', function(snap) {
       var data = snap.val();
-      if (data) {
-        applyLoadedData(data);
-        refreshCurrentPage();
-      }
-      /* Écoute les mises à jour des autres appareils */
+      if (data) { applyLoadedData(data); refreshCurrentPage(); }
       dbRef.on('value', function(snap) {
         if (fbOwnSave) { fbOwnSave = false; return; }
-        var data = snap.val();
-        if (!data || data._dev === DEVICE_ID) return;
-        applyLoadedData(data);
-        refreshCurrentPage();
+        var d = snap.val();
+        if (!d || d._dev === DEVICE_ID) return;
+        applyLoadedData(d); refreshCurrentPage();
       });
     }, function(err) { console.warn('Firebase load:', err); });
-  } catch(e) { console.warn('Firebase init:', e); }
+  } catch(e) { console.warn('Firebase profile:', e); }
 }
 
 function load() {
@@ -2934,12 +2993,259 @@ function parseCoursesList() {
 }
 
 /* ════════════════════════════════════════
+   PROFILS
+════════════════════════════════════════ */
+var PROFILES_KEY = 'jcerise-profiles-v1';
+var PROFILES = {
+  laura:    { name: 'Laura',    pin: '', color: '#3a7a5a', initials: 'L', dataKey: 'jcerise-v2-laura' },
+  victoria: { name: 'Victoria', pin: '', color: '#7a5a9a', initials: 'V', dataKey: 'jcerise-v2-victoria' }
+};
+var CURRENT_PROFILE = null;
+var _pinBuffer    = '';
+var _pinConfirm   = '';
+var _pinPhase     = 'enter';
+var _loginProfile = null;
+
+function loadProfiles() {
+  try {
+    var raw = localStorage.getItem(PROFILES_KEY);
+    if (!raw) return;
+    var saved = JSON.parse(raw);
+    for (var k in saved) { if (PROFILES[k]) PROFILES[k].pin = saved[k].pin || ''; }
+  } catch(e) {}
+}
+
+function saveProfilesMeta() {
+  var data = {};
+  for (var k in PROFILES) data[k] = { pin: PROFILES[k].pin };
+  try { localStorage.setItem(PROFILES_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+function showProfileScreen() {
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('nav').style.display = 'none';
+  document.getElementById('fab').style.display = 'none';
+  var ps = document.getElementById('profile-screen');
+  ps.style.display = 'flex';
+  renderProfileSelect();
+}
+
+function renderProfileSelect() {
+  var h = '';
+  h += '<div style="text-align:center;margin-bottom:44px">';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:36px;color:#1e2d1e;margin-bottom:8px">Mon Journal</div>';
+  h += '<div style="font-size:12px;color:#8aaa8a;letter-spacing:0.12em;font-weight:700;text-transform:uppercase">Choisissez votre profil</div>';
+  h += '</div>';
+  h += '<div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap">';
+  for (var k in PROFILES) {
+    var p = PROFILES[k];
+    h += '<div onclick="startLogin(\''+k+'\')" class="profile-card">';
+    h += '<div class="profile-avatar" style="background:'+p.color+'">'+p.initials+'</div>';
+    h += '<div class="profile-name">'+p.name+'</div>';
+    h += '<div class="profile-hint">'+(p.pin ? 'Entrer le code' : 'Créer un code')+'</div>';
+    h += '</div>';
+  }
+  h += '</div>';
+  document.getElementById('profile-screen').innerHTML = h;
+}
+
+function startLogin(profileKey) {
+  _loginProfile = profileKey;
+  _pinBuffer    = '';
+  _pinConfirm   = '';
+  _pinPhase     = PROFILES[profileKey].pin ? 'enter' : 'create';
+  renderPinScreen();
+}
+
+function renderPinScreen() {
+  var p = PROFILES[_loginProfile];
+  var label = _pinPhase === 'create'  ? 'Crée ton code secret (4 chiffres)' :
+              _pinPhase === 'confirm' ? 'Confirme ton code' :
+                                       'Entre ton code';
+  var ps = document.getElementById('profile-screen');
+  ps.style.position = 'relative';
+  var h = '';
+  h += '<button onclick="renderProfileSelect()" style="position:absolute;top:24px;left:20px;background:none;border:none;font-size:15px;color:#8aaa8a;cursor:pointer;font-family:\'DM Sans\',sans-serif;padding:8px">← Retour</button>';
+  h += '<div style="text-align:center;margin-bottom:32px">';
+  h += '<div class="profile-avatar" style="background:'+p.color+';margin:0 auto 14px">'+p.initials+'</div>';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:26px;color:#1e2d1e;margin-bottom:6px">'+p.name+'</div>';
+  h += '<div style="font-size:12px;color:#8aaa8a;font-weight:600;letter-spacing:0.06em">'+label+'</div>';
+  h += '</div>';
+  h += '<div id="pin-dots" style="display:flex;gap:16px;justify-content:center;margin-bottom:12px">';
+  for (var i = 0; i < 4; i++) {
+    h += '<div class="pin-dot"></div>';
+  }
+  h += '</div>';
+  h += '<div id="pin-error" style="text-align:center;color:#c97575;font-size:14px;min-height:22px;margin-bottom:20px"></div>';
+  h += '<div class="pin-pad">';
+  var keys = ['1','2','3','4','5','6','7','8','9','','0','⌫'];
+  for (var j = 0; j < keys.length; j++) {
+    var k = keys[j];
+    if (k === '') {
+      h += '<div></div>';
+    } else if (k === '⌫') {
+      h += '<button class="pin-key" onclick="pinBack()" style="background:rgba(0,0,0,0.05);font-size:22px">⌫</button>';
+    } else {
+      h += '<button class="pin-key" onclick="pinDigit(\''+k+'\')" style="background:rgba(255,255,255,0.85)">'+k+'</button>';
+    }
+  }
+  h += '</div>';
+  ps.innerHTML = h;
+}
+
+function refreshPinDots() {
+  var el = document.getElementById('pin-dots');
+  if (!el) return;
+  var p = PROFILES[_loginProfile];
+  var h = '';
+  for (var i = 0; i < 4; i++) {
+    var filled = i < _pinBuffer.length;
+    h += '<div class="pin-dot" style="'+(filled ? 'background:'+p.color+';border-color:'+p.color : '')+'"></div>';
+  }
+  el.innerHTML = h;
+}
+
+function pinDigit(d) {
+  if (_pinBuffer.length >= 4) return;
+  _pinBuffer += d;
+  refreshPinDots();
+  if (_pinBuffer.length === 4) setTimeout(pinComplete, 130);
+}
+
+function pinBack() {
+  if (_pinBuffer.length > 0) { _pinBuffer = _pinBuffer.slice(0,-1); refreshPinDots(); }
+}
+
+function pinError(msg) {
+  var el = document.getElementById('pin-error');
+  if (el) el.textContent = msg;
+  var dots = document.getElementById('pin-dots');
+  if (dots) { dots.style.animation = 'pinShake 0.4s ease'; setTimeout(function(){ dots.style.animation = ''; }, 450); }
+  _pinBuffer = '';
+  setTimeout(refreshPinDots, 120);
+}
+
+function pinComplete() {
+  if (_pinPhase === 'create') {
+    _pinConfirm = _pinBuffer; _pinBuffer = ''; _pinPhase = 'confirm';
+    renderPinScreen();
+  } else if (_pinPhase === 'confirm') {
+    if (_pinBuffer === _pinConfirm) {
+      PROFILES[_loginProfile].pin = _pinBuffer;
+      saveProfilesMeta();
+      loginAs(_loginProfile);
+    } else {
+      pinError('Codes différents — réessaie');
+      _pinPhase = 'create'; _pinConfirm = '';
+      setTimeout(renderPinScreen, 700);
+    }
+  } else {
+    if (_pinBuffer === PROFILES[_loginProfile].pin) {
+      loginAs(_loginProfile);
+    } else {
+      pinError('Code incorrect');
+    }
+  }
+}
+
+function resetState() {
+  S.events = {}; S.intentions = {}; S.ritualsDone = {};
+  S.health = {}; S.braindump = {}; S.calNotes = {}; S.monthTodos = {};
+  S.budget = {
+    income: 2400,
+    envelopes: [
+      {id:'e1',name:'Courses',emoji:'1f9fa',color:'#f2ede8',budget:350},
+      {id:'e2',name:'Sorties',emoji:'1f377',color:'#fce8ee',budget:150},
+      {id:'e3',name:'Beauté', emoji:'1f484',color:'#fce0ea',budget:60},
+      {id:'e4',name:'Essence',emoji:'26fd', color:'#e8f4e8',budget:120},
+      {id:'e5',name:'Divers', emoji:'1f41b',color:'#e8eef8',budget:80}
+    ],
+    fixed: [
+      {id:'f1',name:'Loyer',               day:5, amount:780},
+      {id:'f2',name:'Électricité',         day:8, amount:62},
+      {id:'f3',name:'Internet',            day:12,amount:35},
+      {id:'f4',name:'Forfait mobile',      day:15,amount:19},
+      {id:'f5',name:'Assurance habitation',day:20,amount:28},
+      {id:'f6',name:'Abonnements vidéo',   day:25,amount:22}
+    ],
+    fixedPaid: {}, transactions: []
+  };
+  S.cuisine = { pantry: [
+    {id:'ci01',name:'Pâtes complètes',     placardId:'p1'},
+    {id:'ci02',name:'Riz basmati',         placardId:'p1'},
+    {id:'ci03',name:'Pois chiches',        placardId:'p1'},
+    {id:'ci04',name:'Tomates',             placardId:'p1'},
+    {id:'ci05',name:'Huile d\'olive',      placardId:'p1'},
+    {id:'ci06',name:'Chocolat noir',       placardId:'p2'},
+    {id:'ci07',name:'Miel',               placardId:'p2'},
+    {id:'ci08',name:'Flocons d\'avoine',  placardId:'p2'},
+    {id:'ci09',name:'Œufs',              placardId:'p3'},
+    {id:'ci10',name:'Yaourt grec',        placardId:'p3'},
+    {id:'ci11',name:'Citron',             placardId:'p3'},
+    {id:'ci12',name:'Épinards',           placardId:'p3'},
+    {id:'ci13',name:'Petits pois surgelés',placardId:'p4'}
+  ]};
+  S.cycle = {start:null,length:28};
+  S.settings = {city:'Inverness', ritualsM:DEF_RM.slice(), ritualsE:DEF_RE.slice()};
+}
+
+function loginAs(profileKey) {
+  CURRENT_PROFILE = profileKey;
+  try { sessionStorage.setItem('__profile__', profileKey); } catch(e) {}
+  KEY = PROFILES[profileKey].dataKey;
+  document.getElementById('profile-screen').style.display = 'none';
+  document.getElementById('app').style.display = '';
+  document.getElementById('nav').style.display = '';
+  document.getElementById('fab').style.display = '';
+  resetState();
+  load();
+  renderProfileButton();
+  applyTheme(new Date().getMonth());
+  goPage('jour');
+  initFirebaseForProfile();
+}
+
+function renderProfileButton() {
+  var old = document.getElementById('profile-btn-nav');
+  if (old) old.parentNode.removeChild(old);
+  if (!CURRENT_PROFILE) return;
+  var p = PROFILES[CURRENT_PROFILE];
+  var btn = document.createElement('button');
+  btn.id = 'profile-btn-nav';
+  btn.onclick = confirmLogout;
+  btn.title = 'Changer de profil';
+  btn.innerHTML = p.initials;
+  btn.style.cssText = 'position:absolute;right:14px;top:50%;transform:translateY(-50%);'
+    + 'width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;'
+    + 'background:'+p.color+';color:#fff;font-size:15px;font-weight:700;'
+    + 'font-family:\'DM Sans\',sans-serif;display:flex;align-items:center;justify-content:center;'
+    + 'box-shadow:0 2px 10px rgba(0,0,0,0.18);z-index:101';
+  document.getElementById('nav').appendChild(btn);
+}
+
+function confirmLogout() {
+  if (confirm('Changer de profil ?')) logoutProfile();
+}
+
+function logoutProfile() {
+  if (dbRef) { try { dbRef.off(); } catch(e) {} dbRef = null; }
+  CURRENT_PROFILE = null;
+  try { sessionStorage.removeItem('__profile__'); } catch(e) {}
+  showProfileScreen();
+}
+
+/* ════════════════════════════════════════
    INIT
 ════════════════════════════════════════ */
-load();                          /* localStorage → affichage immédiat  */
-applyTheme(new Date().getMonth());
-goPage('jour');
-initFirebase();                  /* Firebase → sync en arrière-plan    */
+loadProfiles();
+initFirebaseApp();
+var _savedProfile = null;
+try { _savedProfile = sessionStorage.getItem('__profile__'); } catch(e) {}
+if (_savedProfile && PROFILES[_savedProfile]) {
+  loginAs(_savedProfile);
+} else {
+  showProfileScreen();
+}
 
 /* Sauvegarde de secours si l'onglet est fermé brutalement */
 window.addEventListener('beforeunload', function() {
