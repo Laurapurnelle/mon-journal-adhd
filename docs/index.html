@@ -1186,7 +1186,10 @@ function renderJour() {
 
   /* ── CARTE 9 : RITUELS ── */
   h += '<div class="card span2">';
-  h += '<div class="lbl" style="margin-bottom:4px">RITUELS</div>';
+  h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">';
+  h += '<div class="lbl">RITUELS</div>';
+  h += '<button onclick="openEditRituels()" style="background:none;border:none;color:#8aaa8a;font-size:13px;cursor:pointer;padding:0;font-family:inherit">✎ modifier</button>';
+  h += '</div>';
   h += '<div class="titre" style="font-size:22px;margin-bottom:16px">Ancrer la journée</div>';
   h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">';
   /* Matin */
@@ -2778,6 +2781,61 @@ function saveIncome() {
   save();
   closeModal();
   renderBudget();
+}
+
+/* ════════════════════════════════════════
+   RITUELS — ÉDITION
+════════════════════════════════════════ */
+function buildRituelListHTML(arr, part) {
+  var s = '';
+  for (var i = 0; i < arr.length; i++) {
+    s += '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #e8f0e8">';
+    s += '<div style="flex:1;font-size:15px">'+escH(arr[i])+'</div>';
+    s += '<button onclick="deleteRituel(\''+part+'\','+i+')" style="background:none;border:none;color:#c97575;font-size:20px;cursor:pointer;padding:2px 8px;line-height:1">×</button>';
+    s += '</div>';
+  }
+  return s;
+}
+function openEditRituels() {
+  var rM = S.settings.ritualsM || DEF_RM;
+  var rE = S.settings.ritualsE || DEF_RE;
+  var h = '';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:22px;color:#1e2d1e;margin-bottom:20px">Modifier les rituels</div>';
+  h += '<div style="margin-bottom:20px">';
+  h += '<div style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:#8aaa8a;margin-bottom:10px">☀ MATIN</div>';
+  h += '<div id="rituel-list-m">'+buildRituelListHTML(rM,'m')+'</div>';
+  h += '<div style="display:flex;gap:8px;margin-top:10px">';
+  h += '<input id="rituel-input-m" type="text" placeholder="Ajouter un rituel matin…" style="flex:1;padding:8px 12px;border:1px solid #d0e4d0;border-radius:10px;font-size:14px" onkeydown="if(event.key===\'Enter\')addRituel(\'m\')">';
+  h += '<button onclick="addRituel(\'m\')" style="padding:8px 16px;background:#5a8a6a;color:#fff;border:none;border-radius:10px;font-size:18px;cursor:pointer;line-height:1">+</button>';
+  h += '</div>';
+  h += '</div>';
+  h += '<div style="margin-bottom:24px">';
+  h += '<div style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:#8aaa8a;margin-bottom:10px">☽ SOIR</div>';
+  h += '<div id="rituel-list-e">'+buildRituelListHTML(rE,'e')+'</div>';
+  h += '<div style="display:flex;gap:8px;margin-top:10px">';
+  h += '<input id="rituel-input-e" type="text" placeholder="Ajouter un rituel soir…" style="flex:1;padding:8px 12px;border:1px solid #d0e4d0;border-radius:10px;font-size:14px" onkeydown="if(event.key===\'Enter\')addRituel(\'e\')">';
+  h += '<button onclick="addRituel(\'e\')" style="padding:8px 16px;background:#5a8a6a;color:#fff;border:none;border-radius:10px;font-size:18px;cursor:pointer;line-height:1">+</button>';
+  h += '</div>';
+  h += '</div>';
+  h += '<button onclick="closeModal();renderJour()" style="width:100%;padding:12px;background:#5a8a6a;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer">Fermer</button>';
+  openModal(h);
+}
+function addRituel(part) {
+  var key = part === 'm' ? 'ritualsM' : 'ritualsE';
+  if (!S.settings[key]) S.settings[key] = [];
+  var inp = document.getElementById('rituel-input-' + part);
+  var val = inp ? inp.value.trim() : '';
+  if (!val) return;
+  S.settings[key].push(val);
+  save();
+  inp.value = '';
+  document.getElementById('rituel-list-' + part).innerHTML = buildRituelListHTML(S.settings[key], part);
+}
+function deleteRituel(part, idx) {
+  var key = part === 'm' ? 'ritualsM' : 'ritualsE';
+  S.settings[key].splice(idx, 1);
+  save();
+  document.getElementById('rituel-list-' + part).innerHTML = buildRituelListHTML(S.settings[key], part);
 }
 
 /* ════════════════════════════════════════
