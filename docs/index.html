@@ -684,8 +684,10 @@ function save() {
     if (fbTimer) clearTimeout(fbTimer);
     fbTimer = setTimeout(function() {
       fbOwnSave = true;
-      S._dev = DEVICE_ID; /* marque l'auteur */
-      dbRef.set(S).catch(function(e) { console.warn('Firebase save:', e); });
+      /* Copie propre : ne pas muter S avec _dev */
+      var payload = JSON.parse(JSON.stringify(S));
+      payload._dev = DEVICE_ID;
+      dbRef.set(payload).catch(function(e) { console.warn('Firebase save:', e); });
     }, 800);
   }
 }
@@ -767,22 +769,54 @@ function initFirebaseForProfile() {
   if (dbRef) { try { dbRef.off(); } catch(e) {} dbRef = null; }
   try {
     dbRef = firebase.database().ref('journal/' + FAMILY_KEY + '/' + CURRENT_PROFILE);
-    dbRef.once('value', function(snap) {
-      var data = snap.val();
-      if (data) { applyLoadedData(data); refreshCurrentPage(); }
+
+    function setupListener() {
       dbRef.on('value', function(snap) {
         if (fbOwnSave) { fbOwnSave = false; return; }
         var d = snap.val();
         if (!d || d._dev === DEVICE_ID) return;
-        applyLoadedData(d); refreshCurrentPage();
+        applyLoadedData(d);
+        refreshCurrentPage();
       });
-    }, function(err) { console.warn('Firebase load:', err); });
+    }
+
+    dbRef.once('value', function(snap) {
+      var data = snap.val();
+      if (data) {
+        /* Données trouvées sur ce chemin profil */
+        applyLoadedData(data);
+        refreshCurrentPage();
+        setupListener();
+      } else if (CURRENT_PROFILE === 'laura') {
+        /* Migration : chercher les données dans l'ancien chemin (avant profils) */
+        var oldRef = firebase.database().ref('journal/' + FAMILY_KEY);
+        oldRef.once('value', function(oldSnap) {
+          var oldData = oldSnap.val();
+          if (oldData) {
+            applyLoadedData(oldData);
+            refreshCurrentPage();
+            /* Copier vers le nouveau chemin */
+            var payload = JSON.parse(JSON.stringify(oldData));
+            payload._dev = DEVICE_ID;
+            dbRef.set(payload).catch(function(e) { console.warn('migrate fb:', e); });
+          }
+          setupListener();
+        }, function() { setupListener(); });
+      } else {
+        setupListener();
+      }
+    }, function(err) { console.warn('Firebase load:', err); setupListener(); });
   } catch(e) { console.warn('Firebase profile:', e); }
 }
 
 function load() {
   try {
     var raw = localStorage.getItem(KEY);
+    /* Migration : si pas de données pour ce profil, chercher l'ancien format */
+    if (!raw && CURRENT_PROFILE === 'laura') {
+      raw = localStorage.getItem('jcerise-v2');
+      if (raw) localStorage.setItem(KEY, raw); /* copier vers le nouveau format */
+    }
     if (!raw) return;
     applyLoadedData(JSON.parse(raw));
   } catch(e) { console.warn('load', e); }
@@ -3228,8 +3262,13 @@ function confirmLogout() {
 }
 
 function logoutProfile() {
+  /* Sauvegarder les textareas en cours avant de changer de profil */
+  saveTextareas();
+  /* Annuler tout timer Firebase en attente */
+  if (fbTimer) { clearTimeout(fbTimer); fbTimer = null; }
   if (dbRef) { try { dbRef.off(); } catch(e) {} dbRef = null; }
   CURRENT_PROFILE = null;
+  KEY = 'jcerise-v2'; /* reset à la valeur neutre */
   try { sessionStorage.removeItem('__profile__'); } catch(e) {}
   showProfileScreen();
 }
@@ -3249,6 +3288,7 @@ if (_savedProfile && PROFILES[_savedProfile]) {
 
 /* Sauvegarde de secours si l'onglet est fermé brutalement */
 window.addEventListener('beforeunload', function() {
+  if (!CURRENT_PROFILE) return; /* pas de profil actif, rien à sauver */
   var bd = document.getElementById('braindump-ta');
   if (bd) S.braindump[todayKey()] = bd.value;
   var cn = document.getElementById('cal-note-ta');
