@@ -285,6 +285,14 @@ input:focus, textarea:focus, select:focus {
   60% { transform: translateX(-8px); }
   80% { transform: translateX(5px); }
 }
+/* ── CALENDRIER HOVER ── */
+.cal-day { transition: transform 0.17s ease, box-shadow 0.17s ease; }
+.cal-day:not(.cal-today):hover {
+  transform: scale(1.07) translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
+  z-index: 2;
+}
+.cal-day:active { transform: scale(0.92) !important; transition-duration: 0.07s !important; }
 </style>
 <!-- Firebase SDK (compat) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -490,6 +498,22 @@ var CUISINE = [
    photo:'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80'},
   {title:'Bredele & chocolat chaud viennois',        desc:'Beurre, vanille, muscade — les sablés de Noël.',
    photo:'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=600&q=80'}
+];
+
+/* ── CITATIONS QUOTIDIENNES (3 par mois, rotation sur le jour du mois) ── */
+var DAILY_QUOTES = [
+/* Jan */ ['Chaque hiver porte en lui un printemps qui frémit.','La neige pose un silence doux sur le monde endormi.','Janvier est une page blanche — écris-la avec douceur.'],
+/* Fév */ ["L'amour est un murmure que la nature entend toujours.",'Février : les premiers bourgeons osent pointer sous la glace.','Le cœur, comme les crocus, pousse même sous la neige.'],
+/* Mar */ ['Le printemps est venu — même la branche la plus sèche ose un bourgeon.','Mars réveille la terre. Laisse-toi réveiller aussi.','Chaque matin de mars sent le possible.'],
+/* Avr */ ['Avril pluvieux, jardin pétillant de promesses.','La pluie d\'avril nourrit les rêves d\'été.','Les cerisiers fleurissent — même ce qui est éphémère est beau.'],
+/* Mai */ ['Que mai t\'apporte des matins clairs et la promesse douce du muguet.','Une douce brume matinale s\'attarde sur les feuilles encore fraîches.','Mai s\'étire doucement — chaque journée est un cadeau à ouvrir.'],
+/* Jun */ ['L\'été commence — le soleil ose enfin rester jusqu\'au soir.','Juin : les soirées s\'étirent comme une promesse tenue.','La lumière de juin est un poème que le ciel écrit chaque soir.'],
+/* Jul */ ['Juillet : le temps ralentit, les pieds dans l\'herbe chaude.','Un livre, une ombre, le chant des cigales — c\'est assez.','Juillet brûle doucement, et c\'est exactement ça dont on avait besoin.'],
+/* Aoû */ ['Août brûle doucement — même l\'ombre a une couleur de miel.','Les nuits d\'août gardent la chaleur du jour dans leurs plis.','Août est l\'heure de la plénitude — tout est au bord de mûrir.'],
+/* Sep */ ['Septembre : la lumière change d\'angle et tout devient doré.','L\'automne commence doucement, comme une grande respiration.','Septembre sent la rentrée et le miel mûr à la fois.'],
+/* Oct */ ['Octobre jonche les chemins de feuilles rousses et de silence.','Le feu de la forêt en automne vaut tous les musées.','Octobre : le temps de ramasser ce qui compte vraiment.'],
+/* Nov */ ['Novembre est l\'heure du silence avant la neige.','La lumière grise de novembre a sa propre beauté — cherche-la.','Novembre invite au dedans. C\'est aussi une chance.'],
+/* Déc */ ['Décembre est là — allume une bougie et laisse le temps ralentir.','Les étoiles de décembre brillent plus fort dans le froid.','Après la nuit la plus longue, la lumière revient — toujours.']
 ];
 
 var PHASES = [
@@ -847,6 +871,31 @@ function hexRgba(hex, a) {
   return 'rgba('+r+','+g+','+b+','+a+')';
 }
 
+function getDailyRec() {
+  var now = new Date();
+  var hour = now.getHours();
+  var dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+  var cat;
+  if (hour < 10)      cat = 'PETIT DÉJEUNER';
+  else if (hour < 16) cat = 'DÉJEUNER';
+  else if (hour < 18) cat = 'SNACK';
+  else                cat = 'DÎNER';
+  var pool = [];
+  for (var i = 0; i < REC_LIST.length; i++) {
+    if (REC_LIST[i].cat === cat) pool.push(REC_LIST[i]);
+  }
+  if (!pool.length) { for (var i = 0; i < REC_LIST.length; i++) pool.push(REC_LIST[i]); }
+  var r = pool[dayOfYear % pool.length];
+  return {
+    id:    r.id,
+    title: r.title,
+    photo: r.photo || '',
+    cat:   cat,
+    time:  r.time,
+    desc:  r.ing ? r.ing.slice(0, 3).join(' · ') : ''
+  };
+}
+
 function getCycleDay() {
   if (!S.cycle.start) return null;
   var diff = Math.floor((Date.now() - new Date(S.cycle.start+'T00:00:00').getTime()) / 86400000);
@@ -984,6 +1033,8 @@ function applyTheme(m) {
 function goPage(name) {
   saveTextareas();
   curPage = name;
+  /* Mémoriser la page active pour la restaurer au refresh */
+  try { if (CURRENT_PROFILE) sessionStorage.setItem('__page__' + CURRENT_PROFILE, name); } catch(e) {}
   var themeM = (name === 'mois') ? calM : new Date().getMonth();
   applyTheme(themeM);
   var th = THEMES[themeM];
@@ -1041,7 +1092,7 @@ function renderJour() {
   var m    = now.getMonth();
   var th   = THEMES[m];
   var met  = METEO[m];
-  var rec  = CUISINE[m];
+  var rec  = getDailyRec();
   var dk   = todayKey();
 
   var evs   = (S.events[dk]      || []).slice().sort(function(a,b){ return (a.time||'').localeCompare(b.time||''); });
@@ -1100,7 +1151,9 @@ function renderJour() {
   h += '</div>';
   /* citation */
   h += '<div style="background:'+hexToRgba(th.accent,0.07)+';border-radius:18px;padding:14px 16px;margin-bottom:14px;border-left:3px solid '+hexToRgba(th.accent,0.32)+'">';
-  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:15px;line-height:1.6;color:#2d3d2d">« '+escH(th.quote)+' »</div>';
+  var qPool = DAILY_QUOTES[m] || [th.quote];
+  var todayQuote = qPool[(now.getDate() - 1) % qPool.length];
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:15px;line-height:1.6;color:#2d3d2d">« '+escH(todayQuote)+' »</div>';
   h += '<div style="font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:'+th.accent+';margin-top:7px;opacity:0.75">'+escH(th.quoteSub)+'</div>';
   h += '</div>';
   /* rituels progress */
@@ -1240,13 +1293,13 @@ function renderJour() {
   h += '</div>';
 
   /* ── CARTE 7 : CUISINE ── */
-  h += '<div class="card" style="padding:0;overflow:hidden">';
+  h += '<div class="card" onclick="openRecipeModal(\''+rec.id+'\')" style="padding:0;overflow:hidden;cursor:pointer">';
   h += '<img src="'+rec.photo+'" alt="" style="width:100%;height:150px;object-fit:cover;display:block" onerror="this.style.display=\'none\'">';
   h += '<div style="padding:16px 18px">';
-  h += '<div class="lbl" style="margin-bottom:4px">CUISINE EXPRESS</div>';
+  h += '<div class="lbl" style="margin-bottom:4px">'+escH(rec.cat)+' · '+rec.time+' MIN</div>';
   h += '<div class="titre" style="font-size:20px;margin-bottom:6px">'+escH(rec.title)+'</div>';
   h += '<div style="font-size:13px;color:#7a9a7a;line-height:1.5">'+escH(rec.desc)+'</div>';
-  h += '<div onclick="goPage(\'cuisine\')" style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:700;color:'+th.accent+';margin-top:12px;cursor:pointer">Voir les recettes <span>→</span></div>';
+  h += '<div onclick="event.stopPropagation();goPage(\'cuisine\')" style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:700;color:'+th.accent+';margin-top:12px;cursor:pointer">Voir toutes les recettes <span>→</span></div>';
   h += '</div>';
   h += '</div>';
 
@@ -1923,7 +1976,7 @@ function renderMois() {
 
     /* Style de la case */
     var cs = 'aspect-ratio:1;border-radius:16px;cursor:pointer;position:relative;'
-           + 'overflow:hidden;display:flex;flex-direction:column;transition:transform .15s;';
+           + 'overflow:hidden;display:flex;flex-direction:column;';
     if (isToday) {
       cs += 'background:rgba(255,255,255,0.62);'
           + 'border:2px solid '+th.accent+';'
@@ -1938,7 +1991,8 @@ function renderMois() {
           + 'box-shadow:0 1px 4px rgba(0,0,0,0.03);';
     }
 
-    h += '<div style="'+cs+'" onclick="selMoisDay(\''+dk2+'\')">';
+    var dayClass = 'cal-day' + (isToday ? ' cal-today' : '');
+    h += '<div class="'+dayClass+'" style="'+cs+'" onclick="selMoisDay(\''+dk2+'\')">';
 
     if (isToday) {
       /* Cercle vert centré avec animation pulse */
@@ -3235,7 +3289,11 @@ function loginAs(profileKey) {
   load();
   renderProfileButton();
   applyTheme(new Date().getMonth());
-  goPage('jour');
+  /* Restaurer la page où l'utilisateur était avant le refresh */
+  var _savedPage = null;
+  try { _savedPage = sessionStorage.getItem('__page__' + profileKey); } catch(e) {}
+  var _validPages = ['jour', 'mois', 'budget', 'cuisine'];
+  goPage((_savedPage && _validPages.indexOf(_savedPage) >= 0) ? _savedPage : 'jour');
   initFirebaseForProfile();
 }
 
