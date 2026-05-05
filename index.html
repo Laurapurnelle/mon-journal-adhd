@@ -751,7 +751,19 @@ function applyLoadedData(p) {
     S.budget.envelopes    = toArr(S.budget.envelopes);
     S.budget.fixed        = toArr(S.budget.fixed);
     S.budget.transactions = toArr(S.budget.transactions);
-    if (!S.budget.fixedPaid) S.budget.fixedPaid = {};
+    /* Normalise fixedPaid : Firebase transforme les clés "2026-05/f1" en objets
+       imbriqués {2026-05: {f1: true}}. On aplatit et on passe au séparateur "_". */
+    var rawFP = S.budget.fixedPaid || {};
+    var flatFP = {};
+    for (var fpk in rawFP) {
+      var fpv = rawFP[fpk];
+      if (fpv && typeof fpv === 'object') {
+        for (var sub in fpv) { flatFP[fpk + '_' + sub] = fpv[sub]; }
+      } else {
+        flatFP[fpk.replace('/', '_')] = fpv;
+      }
+    }
+    S.budget.fixedPaid = flatFP;
   }
   if (p.cuisine) {
     S.cuisine = p.cuisine;
@@ -918,7 +930,7 @@ function getFixedTotal() {
   return t;
 }
 function isFixedPaid(id) {
-  return !!(S.budget.fixedPaid && S.budget.fixedPaid[budgetMonthKey()+'/'+id]);
+  return !!(S.budget.fixedPaid && S.budget.fixedPaid[budgetMonthKey()+'_'+id]);
 }
 function getFixedPaidCount() {
   var n = 0;
@@ -927,7 +939,7 @@ function getFixedPaidCount() {
 }
 function toggleFixedPaid(id) {
   if (!S.budget.fixedPaid) S.budget.fixedPaid = {};
-  var k = budgetMonthKey()+'/'+id;
+  var k = budgetMonthKey()+'_'+id;
   S.budget.fixedPaid[k] = !S.budget.fixedPaid[k];
   save();
   renderBudget();
@@ -1574,7 +1586,7 @@ function buildTodoDayInner(dk) {
     var yest = dayAfter(dk); /* reuse dayAfter backwards */
     var yd = new Date(dk+'T12:00:00'); yd.setDate(yd.getDate()-1);
     var ydKey = yd.getFullYear()+'-'+pad2(yd.getMonth()+1)+'-'+pad2(yd.getDate());
-    var leftovers = (S.intentions[ydKey]||[]).filter(function(t){ return !t.done; });
+    var leftovers = (S.intentions[ydKey]||[]).filter(function(t){ return !t.done && !t.reported; });
     if (leftovers.length) {
       h += '<div style="display:flex;align-items:center;justify-content:space-between;'
          + 'background:rgba(224,164,84,0.12);border-radius:12px;padding:8px 12px;margin-bottom:10px;'
@@ -1653,11 +1665,13 @@ function buildTodoDayInner(dk) {
 
 /* Reporter les non-terminées d'hier vers aujourd'hui */
 function reporterHier(fromDk, toDk) {
-  var leftovers = (S.intentions[fromDk]||[]).filter(function(t){ return !t.done; });
-  if (!S.intentions[toDk]) S.intentions[toDk]=[];
-  for (var i=0; i<leftovers.length; i++) {
-    S.intentions[toDk].push({id:mkId(),text:leftovers[i].text,done:false,
+  var src = S.intentions[fromDk] || [];
+  var leftovers = src.filter(function(t){ return !t.done && !t.reported; });
+  if (!S.intentions[toDk]) S.intentions[toDk] = [];
+  for (var i = 0; i < leftovers.length; i++) {
+    S.intentions[toDk].push({id:mkId(), text:leftovers[i].text, done:false,
       priority:leftovers[i].priority||'normal'});
+    leftovers[i].reported = true; /* marque comme déjà reportée → masque le bandeau */
   }
   save();
   refreshTodoDayEl(toDk);
@@ -1995,38 +2009,37 @@ function renderMois() {
     h += '<div class="'+dayClass+'" style="'+cs+'" onclick="selMoisDay(\''+dk2+'\')">';
 
     if (isToday) {
-      /* Cercle vert centré avec animation pulse */
-      h += '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">';
-      h += '<div class="today-pulse" style="width:36px;height:36px;border-radius:50%;background:'+th.accent+';'
-         + 'display:flex;align-items:center;justify-content:center;'
-         + 'color:#fff;font-size:15px;font-weight:700;font-family:\'DM Sans\',sans-serif">';
-      h += d+'</div></div>';
+      /* Numéro accent + pastille pulse (top-right) */
+      h += '<div style="font-size:14px;font-weight:700;color:'+th.accent+';'
+         + 'padding:5px 0 0 6px;line-height:1;position:relative;z-index:1">'+d+'</div>';
+      h += '<div class="today-pulse" style="position:absolute;top:5px;right:5px;'
+         + 'width:7px;height:7px;border-radius:50%;background:'+th.accent+'"></div>';
     } else {
       /* Numéro haut-gauche */
       h += '<div style="font-size:13px;font-weight:500;color:#1e2d1e;'
          + 'padding:5px 0 0 6px;line-height:1;position:relative;z-index:1">'+d+'</div>';
+    }
 
-      /* Sticker centré */
-      if (stkCp) {
-        h += '<div style="position:absolute;inset:0;display:flex;align-items:center;'
-           + 'justify-content:center;pointer-events:none">';
-        h += '<img src="'+CDN+stkCp+'.svg" alt="" style="width:36px;height:36px;'
-           + 'object-fit:contain;opacity:0.9" onerror="this.style.display=\'none\'">';
-        h += '</div>';
-      }
+    /* Sticker centré (today + autres) */
+    if (stkCp) {
+      h += '<div style="position:absolute;inset:0;display:flex;align-items:center;'
+         + 'justify-content:center;pointer-events:none">';
+      h += '<img src="'+CDN+stkCp+'.svg" alt="" style="width:34px;height:34px;'
+         + 'object-fit:contain;opacity:0.9" onerror="this.style.display=\'none\'">';
+      h += '</div>';
+    }
 
-      /* Pill événement (bas de case) */
-      if (dayEvs.length > 0) {
-        var ev0 = dayEvs[0];
-        var titleShort = (ev0.title||'').slice(0,7);
-        h += '<div style="position:absolute;bottom:3px;left:3px;right:3px;'
-           + 'font-size:9px;font-weight:600;color:rgba(20,45,20,0.9);'
-           + 'padding:2px 4px;border-radius:6px;line-height:1.4;'
-           + 'background:'+hexRgba(ev0.color||EV_COLORS[0], 0.18)+';'
-           + 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:2">';
-        h += escH(ev0.time)+' '+escH(titleShort)+'…';
-        h += '</div>';
-      }
+    /* Pill événement bas de case (today + autres) */
+    if (dayEvs.length > 0) {
+      var ev0 = dayEvs[0];
+      var titleShort = (ev0.title||'').slice(0,7);
+      h += '<div style="position:absolute;bottom:3px;left:3px;right:3px;'
+         + 'font-size:9px;font-weight:600;color:rgba(20,45,20,0.9);'
+         + 'padding:2px 4px;border-radius:6px;line-height:1.4;'
+         + 'background:'+hexRgba(ev0.color||EV_COLORS[0], 0.18)+';'
+         + 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:2">';
+      h += escH(ev0.time)+' '+escH(titleShort)+'…';
+      h += '</div>';
     }
 
     h += '</div>'; /* end case */
