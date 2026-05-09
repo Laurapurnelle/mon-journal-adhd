@@ -293,6 +293,51 @@ input:focus, textarea:focus, select:focus {
   z-index: 2;
 }
 .cal-day:active { transform: scale(0.92) !important; transition-duration: 0.07s !important; }
+
+/* ── MICRO-ANIMATIONS COCHAGE ── */
+@keyframes checkPop {
+  0%   { transform: scale(0.4); opacity: 0.6; }
+  60%  { transform: scale(1.25); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes confettiFall {
+  0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+.int-chk.done  { animation: checkPop 0.38s cubic-bezier(0.34,1.56,0.64,1); }
+.rit-chk.done  { animation: checkPop 0.38s cubic-bezier(0.34,1.56,0.64,1); }
+.confetti-dot  {
+  position: absolute; width: 9px; height: 9px; border-radius: 3px;
+  animation: confettiFall 1.6s ease-in forwards;
+}
+
+/* ── DARK MODE ── */
+body.dark { background: #0a100a; color: #d8ecd8; }
+body.dark #profile-screen { background: linear-gradient(160deg,#071009,#080f18,#0d0718) !important; }
+body.dark .card {
+  background: rgba(18,28,18,0.82) !important;
+  border-color: rgba(255,255,255,0.07) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45) !important;
+}
+body.dark .mini-row { background: rgba(255,255,255,0.05) !important; border-color: rgba(255,255,255,0.06) !important; }
+body.dark #nav  { background: rgba(10,18,10,0.95) !important; border-color: rgba(255,255,255,0.08) !important; }
+body.dark #modal-box { background: #111c11 !important; }
+body.dark .titre { color: #d8ecd8 !important; }
+body.dark #clock-display { color: #d8ecd8 !important; }
+body.dark .lbl   { color: #5a8a6a !important; }
+body.dark textarea, body.dark input[type=text], body.dark input[type=number], body.dark input[type=time] {
+  background: rgba(255,255,255,0.06) !important;
+  color: #d8ecd8 !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+body.dark .ntab:not(.active) { color: #5a7a5a !important; }
+body.dark .int-txt  { color: #c8dcc8 !important; }
+body.dark .rit-txt  { color: #c8dcc8 !important; }
+body.dark .ev-row   { border-color: rgba(255,255,255,0.06) !important; }
+body.dark .pbar     { background: rgba(255,255,255,0.08) !important; }
+body.dark .profile-card { background: rgba(18,28,18,0.9) !important; border-color: rgba(255,255,255,0.08) !important; }
+body.dark .profile-name { color: #d8ecd8 !important; }
+body.dark #dark-btn-nav { background: rgba(255,255,255,0.08) !important; color: #9aaa9a !important; }
 </style>
 <!-- Firebase SDK (compat) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -1227,38 +1272,6 @@ function renderJour() {
   h += '<div id="todo-day-'+dk+'">'+buildTodoDayInner(dk)+'</div>';
   h += '</div>';
 
-  /* ── CARTE 4 : BUDGET MINI ── */
-  var fixedTot4 = getFixedTotal();
-  var varSpent4 = 0;
-  for (var i=0; i<S.budget.envelopes.length; i++) varSpent4 += getEnvSpent(S.budget.envelopes[i].id);
-  var income4 = S.budget.income || 2400;
-  var rav4 = Math.max(0, income4 - fixedTot4 - varSpent4);
-  h += '<div class="card span2">';
-  h += '<div class="lbl" style="margin-bottom:4px">BUDGET · '+MOIS_FR[m].toUpperCase()+'</div>';
-  h += '<div class="titre" style="font-size:24px;margin-bottom:6px">Reste à vivre</div>';
-  h += '<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px">';
-  h += '<div style="font-size:44px;font-weight:600;letter-spacing:-2px;color:#1e2d1e;line-height:1">'+fmtE(rav4)+'</div>';
-  h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#8aaa8a">CE MOIS-CI</div>';
-  h += '</div>';
-  h += '<div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">';
-  h += '<div style="background:rgba(106,154,224,0.14);border-radius:99px;padding:5px 11px;font-size:10px;font-weight:700;letter-spacing:0.08em;color:#3a5a9a">FIXES '+fmtE(fixedTot4)+'</div>';
-  h += '<div style="background:rgba(106,192,160,0.15);border-radius:99px;padding:5px 11px;font-size:10px;font-weight:700;letter-spacing:0.08em;color:#1e6a4a">VARIABLES '+fmtE(varSpent4)+'</div>';
-  h += '</div>';
-  h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.14em;color:#8aaa8a;margin-bottom:8px">DÉPENSES VARIABLES</div>';
-  for (var i=0; i<S.budget.envelopes.length; i++) {
-    var e = S.budget.envelopes[i];
-    var es = getEnvSpent(e.id);
-    var ep = e.budget ? Math.min(100, Math.round(es/e.budget*100)) : 0;
-    h += '<div class="mini-row">';
-    h += '<div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#5a7a5a;margin-bottom:6px">';
-    h += '<span>'+escH(e.name)+'</span><span>'+fmtE(es)+' / '+fmtE(e.budget)+'</span>';
-    h += '</div>';
-    h += '<div class="pbar"><div class="pbar-fill" style="width:'+ep+'%;background:'+(e.color||th.accent)+'"></div></div>';
-    h += '</div>';
-  }
-  h += '<div onclick="goPage(\'budget\')" style="text-align:center;margin-top:8px;font-size:13px;font-weight:600;color:'+th.accent+';cursor:pointer">Voir le détail ↗</div>';
-  h += '</div>';
-
   /* ── CARTE 5 : SANTÉ ── */
   var hds = (hlth.headaches || []);
   h += '<div class="card">';
@@ -1295,7 +1308,10 @@ function renderJour() {
   h += '<div class="card">';
   h += '<div class="row-sb" style="margin-bottom:8px">';
   h += '<div style="display:flex;align-items:center;gap:6px"><span style="font-size:14px">📝</span><span class="lbl">BRAIN DUMP</span></div>';
+  h += '<div style="display:flex;align-items:center;gap:8px">';
   h += '<span style="font-size:11px;color:#9aaa9a;font-style:italic">Auto-sauvegardé</span>';
+  h += '<button onclick="openBrainDumpConvert()" style="background:none;border:1px solid rgba(0,0,0,0.12);border-radius:8px;padding:3px 8px;font-size:12px;cursor:pointer;color:#7a9a7a;font-family:\'DM Sans\',sans-serif">📤 Convertir</button>';
+  h += '</div>';
   h += '</div>';
   h += '<textarea id="braindump-ta" placeholder="Dépose ici tout ce qui encombre ton esprit…" '
      + 'oninput="saveBraindump(\''+dk+'\',this.value);this.style.height=\'auto\';this.style.height=this.scrollHeight+\'px\'" '
@@ -1581,6 +1597,22 @@ function buildTodoDayInner(dk) {
   for (var i=0; i<list.length; i++) if(list[i].done) done++;
   var h = '';
 
+  /* Bannière bienveillante si maux de tête aujourd'hui */
+  if (isToday) {
+    var hlthToday = S.health[dk] || {};
+    var hdsToday  = hlthToday.headaches || [];
+    if (hdsToday.length > 0) {
+      h += '<div style="display:flex;align-items:flex-start;gap:10px;'
+         + 'background:rgba(130,100,200,0.10);border-radius:14px;padding:10px 14px;margin-bottom:10px;'
+         + 'border:1px solid rgba(130,100,200,0.22)">';
+      h += '<span style="font-size:18px;flex-shrink:0">💙</span>';
+      h += '<div><div style="font-size:13px;font-weight:700;color:#6050a0;margin-bottom:2px">Prends soin de toi</div>';
+      h += '<div style="font-size:12px;color:#7a6ab0;line-height:1.5">Tu as un mal de tête aujourd\'hui. '
+         + 'Pense à reporter les tâches non urgentes — ta santé d\'abord.</div></div>';
+      h += '</div>';
+    }
+  }
+
   /* Reporter depuis hier */
   if (isToday) {
     var yest = dayAfter(dk); /* reuse dayAfter backwards */
@@ -1756,9 +1788,16 @@ function toggleRitual(dk, part, idx) {
   saveTextareas();
   if (!S.ritualsDone[dk]) S.ritualsDone[dk] = {m:[], e:[]};
   var arr = S.ritualsDone[dk][part] || [];
+  var wasOn = !!arr[idx];
   arr[idx] = !arr[idx];
   S.ritualsDone[dk][part] = arr;
   save();
+  if (!wasOn) {
+    var rituals = part === 'm' ? (S.settings.ritualsM || DEF_RM) : (S.settings.ritualsE || DEF_RE);
+    var allDone = true;
+    for (var i = 0; i < rituals.length; i++) { if (!arr[i]) { allDone = false; break; } }
+    if (allDone) setTimeout(fireRitualConfetti, 180);
+  }
   renderJour();
 }
 
@@ -3301,6 +3340,7 @@ function loginAs(profileKey) {
   resetState();
   load();
   renderProfileButton();
+  renderDarkToggle();
   applyTheme(new Date().getMonth());
   /* Restaurer la page où l'utilisateur était avant le refresh */
   var _savedPage = null;
@@ -3345,8 +3385,121 @@ function logoutProfile() {
 }
 
 /* ════════════════════════════════════════
+   DARK MODE
+════════════════════════════════════════ */
+function toggleDarkMode() {
+  var isDark = document.body.classList.toggle('dark');
+  try { localStorage.setItem('dark-mode', isDark ? '1' : '0'); } catch(e) {}
+  renderDarkToggle();
+}
+function renderDarkToggle() {
+  var old = document.getElementById('dark-btn-nav');
+  if (old) old.parentNode.removeChild(old);
+  var isDark = document.body.classList.contains('dark');
+  var btn = document.createElement('button');
+  btn.id = 'dark-btn-nav';
+  btn.onclick = toggleDarkMode;
+  btn.title = isDark ? 'Mode clair' : 'Mode sombre';
+  btn.textContent = isDark ? '☀' : '🌙';
+  btn.style.cssText = 'position:absolute;left:14px;top:50%;transform:translateY(-50%);'
+    + 'width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;'
+    + 'background:rgba(0,0,0,0.06);color:#5a7a5a;font-size:18px;'
+    + 'display:flex;align-items:center;justify-content:center;z-index:101';
+  document.getElementById('nav').appendChild(btn);
+}
+
+/* ── Confettis rituels ── */
+function fireRitualConfetti() {
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9998;overflow:hidden';
+  var colors = ['#e07070','#e0a454','#8aba8a','#7a9aca','#c070a0','#f0c040'];
+  for (var i = 0; i < 24; i++) {
+    var dot = document.createElement('div');
+    dot.className = 'confetti-dot';
+    dot.style.left = (Math.random()*100)+'%';
+    dot.style.top  = '-10px';
+    dot.style.background = colors[Math.floor(Math.random()*colors.length)];
+    dot.style.width  = (7+Math.random()*7)+'px';
+    dot.style.height = (7+Math.random()*7)+'px';
+    dot.style.animationDuration = (1.2+Math.random()*0.8)+'s';
+    dot.style.animationDelay    = (Math.random()*0.4)+'s';
+    wrap.appendChild(dot);
+  }
+  document.body.appendChild(wrap);
+  setTimeout(function() { if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }, 2200);
+}
+
+/* ════════════════════════════════════════
+   BRAIN DUMP — CONVERSION
+════════════════════════════════════════ */
+var _bdConvertLines = [];
+function openBrainDumpConvert() {
+  var bd = document.getElementById('braindump-ta');
+  var dk = todayKey();
+  var text = bd ? bd.value : (S.braindump[dk] || '');
+  _bdConvertLines = [];
+  var raw = text.split('\n');
+  for (var i = 0; i < raw.length; i++) {
+    var l = raw[i].trim();
+    if (l) _bdConvertLines.push(l);
+  }
+  if (!_bdConvertLines.length) return;
+  renderBdConvertModal();
+}
+function renderBdConvertModal() {
+  if (!_bdConvertLines.length) { closeModal(); return; }
+  var h = '';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:22px;color:#1e2d1e;margin-bottom:20px">Convertir des notes</div>';
+  for (var i = 0; i < _bdConvertLines.length; i++) {
+    h += '<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #e8f0e8">';
+    h += '<div style="flex:1;font-size:14px;color:#2d3d2d">'+escH(_bdConvertLines[i])+'</div>';
+    h += '<button onclick="bdLineToTodo('+i+')" style="flex-shrink:0;padding:4px 10px;background:#4a8a6a;color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:\'DM Sans\',sans-serif">→ T\xe2che</button>';
+    h += '<button onclick="bdLineToCourses('+i+')" style="flex-shrink:0;padding:4px 10px;background:#6a7aaa;color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:\'DM Sans\',sans-serif">→ Courses</button>';
+    h += '</div>';
+  }
+  h += '<button onclick="closeModal()" style="width:100%;margin-top:16px;padding:12px;background:#5a8a6a;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif">Fermer</button>';
+  openModal(h);
+}
+function _bdRemoveLine(idx) {
+  var dk = todayKey();
+  var bd = document.getElementById('braindump-ta');
+  var text = bd ? bd.value : (S.braindump[dk] || '');
+  var target = _bdConvertLines[idx];
+  var lines = text.split('\n');
+  var removed = false;
+  var newLines = [];
+  for (var i = 0; i < lines.length; i++) {
+    if (!removed && lines[i].trim() === target) { removed = true; continue; }
+    newLines.push(lines[i]);
+  }
+  var newText = newLines.join('\n').trim();
+  S.braindump[dk] = newText;
+  if (bd) { bd.value = newText; bd.style.height = 'auto'; bd.style.height = bd.scrollHeight+'px'; }
+  save();
+  _bdConvertLines.splice(idx, 1);
+  renderBdConvertModal();
+}
+function bdLineToTodo(idx) {
+  var text = _bdConvertLines[idx];
+  var dk = todayKey();
+  if (!S.intentions[dk]) S.intentions[dk] = [];
+  S.intentions[dk].push({id:mkId(), text:text, done:false, priority:'normal'});
+  _bdRemoveLine(idx);
+}
+function bdLineToCourses(idx) {
+  var text = _bdConvertLines[idx];
+  var pId = (PLACARDS && PLACARDS.length > 0) ? PLACARDS[0].id : 'p1';
+  S.cuisine.pantry.push({id:mkId(), name:text, placardId:pId});
+  _bdRemoveLine(idx);
+}
+
+/* ════════════════════════════════════════
    INIT
 ════════════════════════════════════════ */
+/* Restaurer dark mode avant tout affichage */
+(function() {
+  try { if (localStorage.getItem('dark-mode') === '1') document.body.classList.add('dark'); } catch(e) {}
+}());
 loadProfiles();
 initFirebaseApp();
 var _savedProfile = null;
