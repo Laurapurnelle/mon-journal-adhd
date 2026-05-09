@@ -5,3 +5,3522 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
 <title>Mon Journal</title>
 <meta name="theme-color" content="#2a5c3a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;1,400;1,600&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Caveat:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+/* ── RESET ── */
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; -webkit-tap-highlight-color: transparent; }
+body { height: 100%; font-family: 'DM Sans', sans-serif; overflow: hidden;
+       color: #1e2d1e; -webkit-font-smoothing: antialiased; }
+
+/* ── CSS VARIABLES ── */
+:root {
+  --accent:      #1e5c3a;
+  --accent-dim:  rgba(30,92,58,0.12);
+  --accent-glow: rgba(30,92,58,0.28);
+  --glass-bg:    rgba(255,255,255,0.65);
+  --glass-blur:  blur(28px) saturate(180%);
+  --glass-bd:    rgba(255,255,255,0.88);
+  --r-card:  28px;
+  --r-inner: 18px;
+  --shadow-card: 0 8px 32px rgba(0,0,0,0.07), 0 1.5px 0 rgba(255,255,255,0.92) inset;
+}
+
+/* ── FOND ── */
+#bg       { position: fixed; inset: 0; z-index: -2; transition: background 1.4s ease; }
+#bg-decor { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+
+/* ── APP ── */
+#app { position: fixed; top: 0; left: 0; right: 0; bottom: 72px;
+       overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+.page { display: none; padding: 16px 16px 52px; max-width: 520px; margin: 0 auto; }
+.page.active { display: block; animation: pgFade .3s ease both; }
+
+@keyframes pgFade {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── CARTES ── */
+.card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1.5px solid var(--glass-bd);
+  border-radius: var(--r-card);
+  padding: 22px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow .22s, transform .18s;
+}
+.mini-row {
+  background: rgba(255,255,255,0.84);
+  border-radius: var(--r-inner);
+  padding: 12px 16px; margin-bottom: 8px;
+  border: 1px solid rgba(255,255,255,0.92);
+}
+
+/* ── TYPO ── */
+.lbl   { font-size: 10px; font-weight: 700; letter-spacing: 0.16em;
+          text-transform: uppercase; color: #8aaa8a; }
+.titre { font-family: 'Playfair Display', serif; font-style: italic;
+          font-size: 26px; font-weight: 400; color: #1e2d1e; line-height: 1.2; }
+
+/* ── NAV ── */
+#nav {
+  position: fixed; bottom: 0; left: 0; right: 0; height: 72px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border-top: 1px solid rgba(255,255,255,0.6);
+  box-shadow: 0 -4px 28px rgba(0,0,0,0.06);
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  padding: 0 8px; padding-bottom: env(safe-area-inset-bottom); z-index: 100;
+}
+.nav-logo { display: none; }
+.ntab {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 9px 16px; border-radius: 20px; cursor: pointer;
+  color: #9aaa9a; font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
+  transition: background .22s, color .22s, transform .15s;
+  border: none; background: none; font-family: 'DM Sans', sans-serif;
+}
+.ntab svg { width: 22px; height: 22px; stroke: currentColor; fill: none;
+             stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ntab.active { color: #fff; }
+.ntab:not(.active):active { transform: scale(0.93); }
+
+/* ── FAB ── */
+#fab {
+  position: fixed; bottom: 88px; right: 20px;
+  width: 54px; height: 54px; border-radius: 18px;
+  background: var(--accent); color: #fff; font-size: 26px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border: none;
+  box-shadow: 0 6px 22px var(--accent-glow), 0 2px 8px rgba(0,0,0,0.14);
+  transition: transform .2s, box-shadow .2s; z-index: 50;
+}
+#fab:active { transform: scale(0.92); box-shadow: 0 3px 12px var(--accent-glow); }
+
+/* ── MODAL ── */
+#modal {
+  position: fixed; inset: 0; z-index: 200; display: none; align-items: flex-end;
+  background: rgba(0,0,0,0.3); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+#modal.open { display: flex; }
+#modal-box {
+  width: 100%; max-width: 520px; margin: 0 auto;
+  background: rgba(255,255,255,0.97);
+  border-radius: 32px 32px 0 0;
+  padding: 14px 22px 52px; max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 -8px 48px rgba(0,0,0,0.12);
+}
+#modal-handle { width: 44px; height: 5px; background: rgba(0,0,0,0.1);
+                border-radius: 99px; margin: 0 auto 22px; }
+
+/* ── FORMS ── */
+.flbl { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+        text-transform: uppercase; color: #7a9a7a; margin-bottom: 6px; }
+.fgroup { margin-bottom: 16px; }
+input, textarea, select {
+  font-family: 'DM Sans', sans-serif; font-size: 15px;
+  border: 1.5px solid rgba(0,0,0,0.09); border-radius: 16px;
+  padding: 12px 16px; width: 100%; color: #1e2d1e;
+  background: rgba(255,255,255,0.82); outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+/* ── BOUTONS ── */
+.btn { display: inline-flex; align-items: center; justify-content: center;
+       padding: 12px 24px; border-radius: 99px; font-family: 'DM Sans', sans-serif;
+       font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all .2s; }
+.btn-primary { background: var(--accent); color: #fff; box-shadow: 0 4px 14px var(--accent-glow); }
+.btn-primary:active { transform: scale(.97); }
+.btn-ghost   { background: rgba(0,0,0,0.06); color: #1e2d1e; }
+.btn-sm      { padding: 8px 18px; font-size: 13px; }
+.btn-icon    { padding: 0; width: 36px; height: 36px; border-radius: 99px;
+               font-size: 18px; background: rgba(0,0,0,0.05); color: #5a7a5a; }
+
+/* ── PBAR ── */
+.pbar      { height: 6px; background: rgba(0,0,0,0.07); border-radius: 99px; overflow: hidden; }
+.pbar-fill { height: 100%; border-radius: 99px; transition: width .8s cubic-bezier(.4,0,.2,1); }
+
+/* ── INTENTIONS ── */
+.int-row { display: flex; align-items: center; gap: 12px; padding: 9px 0; cursor: pointer; user-select: none; }
+.int-row + .int-row { border-top: 1px solid rgba(0,0,0,0.04); }
+.int-chk {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 2px solid #c0d4c0; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; transition: all .25s;
+}
+.int-chk.done { background: var(--accent); border-color: var(--accent); }
+.int-txt      { font-size: 15px; color: #1e2d1e; flex: 1; line-height: 1.4; }
+.int-txt.done { text-decoration: line-through; color: #aac0aa; }
+
+/* ── RITUELS ── */
+.rit-row { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; cursor: pointer; user-select: none; }
+.rit-chk {
+  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+  border: 2px solid #c0d4c0;
+  display: flex; align-items: center; justify-content: center; transition: all .25s; margin-top: 1px;
+}
+.rit-chk.done { background: var(--accent); border-color: var(--accent); }
+.rit-txt      { font-size: 13px; color: #2d3d2d; flex: 1; line-height: 1.4; }
+.rit-txt.done { text-decoration: line-through; color: #aac0aa; }
+
+/* ── AGENDA ── */
+.ev-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; }
+.ev-row + .ev-row { border-top: 1px solid rgba(0,0,0,0.05); }
+.ev-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+
+/* ── ANIMATIONS ── */
+@keyframes botanFloat {
+  0%,100% { transform: translateY(0) rotate(var(--rot,0deg)) scale(var(--sc,1)); }
+  50%      { transform: translateY(-12px) rotate(var(--rot,0deg)) scale(var(--sc,1)); }
+}
+@keyframes pulseRing {
+  0%   { box-shadow: 0 0 0 0 var(--accent-glow); }
+  70%  { box-shadow: 0 0 0 10px rgba(0,0,0,0); }
+  100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+}
+.today-pulse { animation: pulseRing 2.8s ease infinite; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.14); border-radius: 99px; }
+
+/* ── UTILS ── */
+.row-sb { display: flex; align-items: center; justify-content: space-between; }
+.sep    { height: 1px; background: rgba(0,0,0,0.06); margin: 8px 0; }
+
+/* ── RESPONSIVE DESKTOP ── */
+@media (min-width: 768px) {
+  #nav {
+    position: fixed; top: 0; left: 0; bottom: 0; height: 100%;
+    width: 200px; flex-direction: column; justify-content: flex-start;
+    gap: 4px; padding: 0 12px 24px;
+    border-top: none; border-right: 1px solid rgba(0,0,0,0.07); box-shadow: none;
+  }
+  .nav-logo {
+    display: flex; flex-direction: column; align-items: flex-start;
+    padding: 28px 8px 20px; width: 100%; gap: 3px;
+  }
+  .nav-logo-name { font-family: 'Playfair Display',serif; font-style: italic;
+                   font-size: 21px; color: #1e2d1e; line-height: 1.1; }
+  .nav-logo-sub  { font-size: 9px; font-weight: 700; letter-spacing: 0.18em;
+                   text-transform: uppercase; color: #aac0aa; }
+  .nav-divider   { width: 100%; height: 1px; background: rgba(0,0,0,0.06); margin: 8px 0 12px; }
+  .ntab { width: 100%; flex-direction: row; gap: 11px; padding: 12px 16px;
+           border-radius: 18px; font-size: 13px; justify-content: flex-start; }
+  .ntab svg { flex-shrink: 0; }
+  #app  { left: 200px; bottom: 0; right: 0; }
+  .page { display: none; }
+  .page.active { display: grid; grid-template-columns: 1fr 1fr; max-width: none;
+           gap: 16px; align-items: start; padding: 24px 24px 52px; grid-auto-flow: dense; }
+  .page.active > div:not(.card) { grid-column: 1 / -1; }
+  .span2 { grid-column: 1 / -1; }
+  #fab { bottom: 28px; right: 28px; }
+  #modal { align-items: center; }
+  #modal-box { border-radius: 32px; }
+}
+
+/* ── PROFILS ── */
+#profile-screen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: linear-gradient(160deg, #e4f0e8 0%, #f0ede8 50%, #e8ecf5 100%);
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 40px 24px; font-family: 'DM Sans', sans-serif;
+}
+.profile-card {
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1.5px solid rgba(255,255,255,0.97);
+  border-radius: 28px; padding: 32px 28px;
+  text-align: center; cursor: pointer;
+  transition: transform 0.18s, box-shadow 0.18s;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.07);
+  min-width: 148px;
+}
+.profile-card:active { transform: scale(0.95); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+.profile-avatar {
+  width: 68px; height: 68px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 700; color: #fff;
+  margin: 0 auto 16px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+}
+.profile-name {
+  font-family: 'Playfair Display', serif; font-style: italic;
+  font-size: 23px; color: #1e2d1e; margin-bottom: 6px;
+}
+.profile-hint { font-size: 11px; color: #9aaa9a; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+.pin-dot {
+  width: 17px; height: 17px; border-radius: 50%;
+  border: 2px solid #b8c8b8;
+  transition: background 0.15s, border-color 0.15s;
+}
+.pin-pad { display: grid; grid-template-columns: repeat(3, 76px); gap: 14px; justify-content: center; }
+.pin-key {
+  width: 76px; height: 76px; border-radius: 50%;
+  border: none; cursor: pointer;
+  font-size: 26px; font-weight: 400;
+  font-family: 'DM Sans', sans-serif; color: #1e2d1e;
+  transition: transform 0.1s;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  display: flex; align-items: center; justify-content: center;
+}
+.pin-key:active { transform: scale(0.91); }
+@keyframes pinShake {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-10px); }
+  40% { transform: translateX(10px); }
+  60% { transform: translateX(-8px); }
+  80% { transform: translateX(5px); }
+}
+/* ── CALENDRIER HOVER ── */
+.cal-day { transition: transform 0.17s ease, box-shadow 0.17s ease; }
+.cal-day:not(.cal-today):hover {
+  transform: scale(1.07) translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15) !important;
+  z-index: 2;
+}
+.cal-day:active { transform: scale(0.92) !important; transition-duration: 0.07s !important; }
+
+/* ── MICRO-ANIMATIONS COCHAGE ── */
+@keyframes checkPop {
+  0%   { transform: scale(0.4); opacity: 0.6; }
+  60%  { transform: scale(1.25); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes confettiFall {
+  0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+.int-chk.done  { animation: checkPop 0.38s cubic-bezier(0.34,1.56,0.64,1); }
+.rit-chk.done  { animation: checkPop 0.38s cubic-bezier(0.34,1.56,0.64,1); }
+.confetti-dot  {
+  position: absolute; width: 9px; height: 9px; border-radius: 3px;
+  animation: confettiFall 1.6s ease-in forwards;
+}
+
+/* ── DARK MODE ── */
+body.dark { background: #0a100a; color: #d8ecd8; }
+body.dark #profile-screen { background: linear-gradient(160deg,#071009,#080f18,#0d0718) !important; }
+body.dark .card {
+  background: rgba(18,28,18,0.82) !important;
+  border-color: rgba(255,255,255,0.07) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45) !important;
+}
+body.dark .mini-row { background: rgba(255,255,255,0.05) !important; border-color: rgba(255,255,255,0.06) !important; }
+body.dark #nav  { background: rgba(10,18,10,0.95) !important; border-color: rgba(255,255,255,0.08) !important; }
+body.dark #modal-box { background: #111c11 !important; }
+body.dark .titre { color: #d8ecd8 !important; }
+body.dark #clock-display { color: #d8ecd8 !important; }
+body.dark .lbl   { color: #5a8a6a !important; }
+body.dark textarea, body.dark input[type=text], body.dark input[type=number], body.dark input[type=time] {
+  background: rgba(255,255,255,0.06) !important;
+  color: #d8ecd8 !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+body.dark .ntab:not(.active) { color: #5a7a5a !important; }
+body.dark .int-txt  { color: #c8dcc8 !important; }
+body.dark .rit-txt  { color: #c8dcc8 !important; }
+body.dark .ev-row   { border-color: rgba(255,255,255,0.06) !important; }
+body.dark .pbar     { background: rgba(255,255,255,0.08) !important; }
+body.dark .profile-card { background: rgba(18,28,18,0.9) !important; border-color: rgba(255,255,255,0.08) !important; }
+body.dark .profile-name { color: #d8ecd8 !important; }
+body.dark #dark-btn-nav { background: rgba(255,255,255,0.08) !important; color: #9aaa9a !important; }
+</style>
+<!-- Firebase SDK (compat) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+</head>
+<body>
+
+<div id="bg"></div>
+<div id="bg-decor"></div>
+
+<div id="profile-screen"></div>
+
+<div id="app">
+  <div id="pg-jour"    class="page active"></div>
+  <div id="pg-mois"    class="page"></div>
+  <div id="pg-budget"  class="page"></div>
+  <div id="pg-cuisine" class="page"></div>
+</div>
+
+<nav id="nav">
+  <div class="nav-logo">
+    <div class="nav-logo-name">Mon Journal</div>
+    <div class="nav-logo-sub">Personnel · ADHD</div>
+    <div class="nav-divider"></div>
+  </div>
+  <button class="ntab active" id="tab-jour" onclick="goPage('jour')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+    Jour
+  </button>
+  <button class="ntab" id="tab-mois" onclick="goPage('mois')">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Mois
+  </button>
+  <button class="ntab" id="tab-budget" onclick="goPage('budget')">
+    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93V18c0-.55-.45-1-1-1s-1 .45-1 1v1.93C7.06 19.44 4.56 16.94 4.07 14H6c.55 0 1-.45 1-1s-.45-1-1-1H4.07C4.56 8.06 7.06 5.56 10 5.07V7c0 .55.45 1 1 1s1-.45 1-1V5.07C16.94 5.56 19.44 8.06 19.93 11H18c-.55 0-1 .45-1 1s.45 1 1 1h1.93c-.49 2.94-2.99 5.44-5.93 5.93z"/></svg>
+    Budget
+  </button>
+  <button class="ntab" id="tab-cuisine" onclick="goPage('cuisine')">
+    <svg viewBox="0 0 24 24"><path d="M18 6a4 4 0 0 0-8 0 4 4 0 0 0-4 4v1h16v-1a4 4 0 0 0-4-4z"/><rect x="2" y="13" width="20" height="2" rx="1"/><path d="M4 17l1 4h14l1-4"/></svg>
+    Cuisine
+  </button>
+</nav>
+
+<button id="fab" onclick="fabAction()">+</button>
+
+<div id="modal">
+  <div id="modal-box">
+    <div id="modal-handle"></div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ════════════════════════════════════════
+   FIREBASE CONFIG
+   → Remplace les valeurs ci-dessous par
+     celles de ta console Firebase
+════════════════════════════════════════ */
+var FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyAI3fdnt_Te3mJRNM7_jMxKE6MukpA83nQ",
+  authDomain:        "mon-journal-laura.firebaseapp.com",
+  databaseURL:       "https://mon-journal-laura-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:         "mon-journal-laura",
+  storageBucket:     "mon-journal-laura.firebasestorage.app",
+  messagingSenderId: "1090742303804",
+  appId:             "1:1090742303804:web:8cbe435e3eec787b4c5739"
+};
+/* Clé de ta famille : tous les appareils
+   qui ont la même clé partagent les données */
+var FAMILY_KEY = "famille-laura";
+
+/* ════════════════════════════════════════
+   THÈMES MENSUELS
+════════════════════════════════════════ */
+/* ════════════════════════════════════════
+   IMAGES CALENDRIER MENSUELLES
+════════════════════════════════════════ */
+var CAL_IMG = [
+  'https://raw.githubusercontent.com/Laurapurnelle/mon-journal-adhd/main/images/Janvier.PNG',
+  'https://raw.githubusercontent.com/Laurapurnelle/mon-journal-adhd/main/images/Fe%CC%81vrier.PNG',
+  'https://raw.githubusercontent.com/Laurapurnelle/mon-journal-adhd/main/images/Mars.PNG',
+  'https://raw.githubusercontent.com/Laurapurnelle/mon-journal-adhd/main/images/Avril.PNG',
+  'https://raw.githubusercontent.com/Laurapurnelle/mon-journal-adhd/main/images/Mai.PNG',
+  'https://raw.githubusercontent.com/Laurapurnelle/mon-journal-adhd/main/images/Juin.PNG',
+  'https://raw.githubusercontent.com/Laurapurnelle/mon-journal-adhd/main/images/Juillet.PNG',
+  'https://raw.githubusercontent.com/Laurapurnelle/mon-journal-adhd/main/images/Aou%CC%82t%20.PNG',
+  'https://raw.githubusercontent.com/Laurapurnelle/mon-journal-adhd/main/images/Septembre.PNG',
+  'https://raw.githubusercontent.com/Laurapurnelle/mon-journal-adhd/main/images/Octobre.PNG',
+  'https://raw.githubusercontent.com/Laurapurnelle/mon-journal-adhd/main/images/Novembre.PNG',
+  'https://raw.githubusercontent.com/Laurapurnelle/mon-journal-adhd/main/images/De%CC%81cembre.PNG'
+];
+
+
+var THEMES = [
+/* 0 Jan – Hiver & glace */
+{bg:'linear-gradient(150deg,#ddeaf5,#f2f0f8)',accent:'#2e6898',
+ mesh:[['rgba(145,190,228,0.60)','16%','26%'],['rgba(180,210,240,0.42)','82%','62%'],['rgba(195,218,248,0.32)','50%','8%']],
+ blobL:'rgba(145,190,228,0.44)',blobR:'rgba(180,210,240,0.30)',
+ quote:'Chaque hiver porte en lui un printemps qui frémit.',quoteSub:'Janvier · Hiver'},
+/* 1 Fév – Roses & amour */
+{bg:'linear-gradient(150deg,#f5dde8,#fdf3f0)',accent:'#c04468',
+ mesh:[['rgba(228,155,188,0.58)','15%','28%'],['rgba(248,182,208,0.42)','82%','60%'],['rgba(238,168,198,0.30)','50%','8%']],
+ blobL:'rgba(228,155,188,0.40)',blobR:'rgba(248,182,208,0.28)',
+ quote:"L'amour est un murmure que la nature entend toujours.",quoteSub:'Février · Saint-Valentin'},
+/* 2 Mar – Printemps & jonquilles */
+{bg:'linear-gradient(150deg,#e0f5da,#f8fde8)',accent:'#4a8820',
+ mesh:[['rgba(138,208,105,0.55)','14%','30%'],['rgba(162,228,130,0.40)','80%','58%'],['rgba(182,235,148,0.30)','52%','8%']],
+ blobL:'rgba(138,208,105,0.38)',blobR:'rgba(162,228,130,0.28)',
+ quote:'Le printemps est venu — même la branche la plus sèche ose un bourgeon.',quoteSub:'Mars · Printemps'},
+/* 3 Avr – Cerisier en fleur */
+{bg:'linear-gradient(150deg,#f5e2ee,#fdf5f8)',accent:'#c05878',
+ mesh:[['rgba(218,148,185,0.55)','14%','26%'],['rgba(238,172,205,0.40)','82%','60%'],['rgba(228,160,198,0.28)','50%','8%']],
+ blobL:'rgba(218,148,185,0.38)',blobR:'rgba(238,172,205,0.28)',
+ quote:'Avril pluvieux, jardin pétillant de promesses.',quoteSub:'Avril · Cerisier'},
+/* 4 Mai – Muguet & fraîcheur */
+{bg:'linear-gradient(150deg,#d8f0e4,#f0fdf6)',accent:'#1e7048',
+ mesh:[['rgba(108,198,158,0.58)','12%','28%'],['rgba(135,218,178,0.42)','84%','58%'],['rgba(120,208,168,0.32)','52%','8%']],
+ blobL:'rgba(108,198,158,0.40)',blobR:'rgba(135,218,178,0.28)',
+ quote:"Que mai t'apporte des matins clairs et la promesse douce du muguet.",quoteSub:'Mai · Muguet'},
+/* 5 Juin – Lavande & soleil */
+{bg:'linear-gradient(150deg,#eae0f5,#f8f5ff)',accent:'#7840b8',
+ mesh:[['rgba(188,148,228,0.55)','14%','28%'],['rgba(208,172,248,0.40)','80%','62%'],['rgba(198,160,238,0.28)','50%','8%']],
+ blobL:'rgba(188,148,228,0.38)',blobR:'rgba(208,172,248,0.28)',
+ quote:"L'été commence — le soleil ose enfin rester jusqu'au soir.",quoteSub:'Juin · Lavande'},
+/* 6 Juil – Tropical & chaleur */
+{bg:'linear-gradient(150deg,#e0f0d8,#fff8e8)',accent:'#b84010',
+ mesh:[['rgba(108,188,88,0.52)','12%','28%'],['rgba(238,158,88,0.38)','82%','60%'],['rgba(175,215,120,0.30)','50%','8%']],
+ blobL:'rgba(108,188,88,0.35)',blobR:'rgba(238,158,88,0.28)',
+ quote:"Juillet : le temps ralentit, les pieds dans l'herbe chaude.",quoteSub:'Juillet · Tropical'},
+/* 7 Août – Tournesols & or */
+{bg:'linear-gradient(150deg,#fef5d0,#fffae8)',accent:'#c87800',
+ mesh:[['rgba(228,188,60,0.58)','14%','26%'],['rgba(248,215,95,0.42)','80%','62%'],['rgba(238,200,78,0.30)','50%','8%']],
+ blobL:'rgba(228,188,60,0.38)',blobR:'rgba(248,215,95,0.28)',
+ quote:"Août brûle doucement — même l'ombre a une couleur de miel.",quoteSub:'Août · Tournesols'},
+/* 8 Sep – Automne doré */
+{bg:'linear-gradient(150deg,#f5e8d0,#fdf5e8)',accent:'#a05018',
+ mesh:[['rgba(218,155,78,0.58)','14%','28%'],['rgba(238,178,108,0.42)','82%','58%'],['rgba(228,165,92,0.30)','52%','8%']],
+ blobL:'rgba(218,155,78,0.40)',blobR:'rgba(238,178,108,0.28)',
+ quote:"Septembre : la lumière change d'angle et tout devient doré.",quoteSub:'Septembre · Automne'},
+/* 9 Oct – Halloween & citrouille */
+{bg:'linear-gradient(150deg,#f0d8b8,#fde8cc)',accent:'#d03800',
+ mesh:[['rgba(218,105,28,0.60)','12%','24%'],['rgba(148,48,128,0.32)','80%','60%'],['rgba(235,130,50,0.40)','50%','6%']],
+ blobL:'rgba(218,105,28,0.42)',blobR:'rgba(148,48,128,0.25)',
+ quote:'Octobre jonche les chemins de feuilles rousses et de silence.',quoteSub:'Octobre · Halloween'},
+/* 10 Nov – Branches nues & brume */
+{bg:'linear-gradient(150deg,#ece8e0,#f8f5f0)',accent:'#8a5520',
+ mesh:[['rgba(168,138,98,0.50)','14%','28%'],['rgba(188,158,118,0.36)','80%','60%'],['rgba(178,148,108,0.26)','52%','8%']],
+ blobL:'rgba(168,138,98,0.35)',blobR:'rgba(188,158,118,0.26)',
+ quote:"Novembre est l'heure du silence avant la neige.",quoteSub:'Novembre · Automne tardif'},
+/* 11 Déc – Houx, neige & Noël */
+{bg:'linear-gradient(150deg,#d8eee0,#f5fdf8)',accent:'#b81820',
+ mesh:[['rgba(42,120,65,0.55)','14%','28%'],['rgba(188,28,38,0.30)','80%','60%'],['rgba(68,155,92,0.38)','50%','8%']],
+ blobL:'rgba(42,120,65,0.38)',blobR:'rgba(188,28,38,0.22)',
+ quote:'Décembre est là — allume une bougie et laisse le temps ralentir.',quoteSub:'Décembre · Noël'}
+];;
+
+/* ════════════════════════════════════════
+   DONNÉES STATIQUES
+════════════════════════════════════════ */
+var MOIS_FR   = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+var JOURS_FR  = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+var JOURS_LONG= ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+
+var METEO = [
+  {ic:'❄️',t:3, h:6, l:-1,lever:'08:10',vent:'Bise 18 km/h',   desc:"Ciel gris, brume froide en plaine."},
+  {ic:'🌦️',t:7, h:10,l:3, lever:'07:40',vent:'Brise 10 km/h',  desc:"Le ciel hésite entre pluie et lumière."},
+  {ic:'🌸',t:12,h:16,l:7, lever:'07:05',vent:'Brise 8 km/h',   desc:"L'air sent la terre fraîche et les premières fleurs."},
+  {ic:'🌦️',t:15,h:19,l:10,lever:'06:35',vent:'Vent 12 km/h',   desc:"Averses et éclaircies, lumière vive."},
+  {ic:'☀️', t:18,h:22,l:12,lever:'06:14',vent:'Brise 8 km/h',   desc:"Une douce brume matinale s'attarde sur les feuilles encore fraîches."},
+  {ic:'🌤️',t:23,h:27,l:17,lever:'05:52',vent:'Brise 6 km/h',   desc:"L'été s'installe, l'air vibre doucement."},
+  {ic:'☀️', t:27,h:31,l:21,lever:'05:55',vent:'Brise 4 km/h',   desc:"Ciel bleu profond, chaleur estivale éclatante."},
+  {ic:'🌻',t:26,h:30,l:19,lever:'06:22',vent:'Brise 7 km/h',   desc:"Chaleur persistante, lumière dorée de fin d'été."},
+  {ic:'🍂',t:19,h:23,l:13,lever:'07:00',vent:'Brise 10 km/h',  desc:"L'air se rafraîchit, les premières feuilles tombent."},
+  {ic:'🌧️',t:13,h:16,l:8, lever:'07:40',vent:'Vent 15 km/h',   desc:"Ciel lourd, averses fréquentes."},
+  {ic:'🌫️',t:7, h:10,l:3, lever:'08:12',vent:'Bise 12 km/h',   desc:"Brume tenace, lumière feutrée."},
+  {ic:'❄️',t:2, h:5, l:-2,lever:'08:40',vent:'Bise 16 km/h',   desc:"Froid vif, peut-être quelques flocons."}
+];
+
+var CUISINE = [
+  {title:'Velouté de courge & lait de coco',        desc:'Gingembre, muscade, une pointe de curry — doux et réconfortant.',
+   photo:'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80'},
+  {title:'Riz au lait de rose & cardamome',          desc:'Pétales cristallisés, une note florale sucrée pour se gâter.',
+   photo:'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=600&q=80'},
+  {title:'Salade de jeunes pousses & agrumes',       desc:'Fenouil rasé, orange sanguine, sumac — fraîcheur immédiate.',
+   photo:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80'},
+  {title:'Soupe de petits pois & menthe',            desc:"Crème d'avocat, fèves fraîches — léger et printanier.",
+   photo:'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80'},
+  {title:'Œuf poché, asperges & labneh à l\'aneth', desc:'Un déjeuner printanier, prêt en quinze minutes — citron, poivre concassé.',
+   photo:'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=600&q=80'},
+  {title:'Gaspacho de tomates rôties & basilic',    desc:"Tomates confites, huile d'olive fruitée — dîner sans feu.",
+   photo:'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&q=80'},
+  {title:'Salade de pastèque, feta & menthe',        desc:'Sirop de citron vert, fleur de sel — cinq minutes.',
+   photo:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80'},
+  {title:'Bruschetta de figues & ricotta',           desc:'Miel, noix torréfiées, thym frais — aperitivo estival.',
+   photo:'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600&q=80'},
+  {title:'Risotto potimarron & sauge brûlée',        desc:'Parmesan, beurre noisette — le comfort food de saison.',
+   photo:'https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?w=600&q=80'},
+  {title:'Crème de châtaignes & lardons fumés',     desc:'Crème fraîche, noisettes torréfiées — automne dans un bol.',
+   photo:'https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?w=600&q=80'},
+  {title:'Soupe de lentilles corail & citron',       desc:'Cumin, coriandre, harissa douce — réconfortante et rapide.',
+   photo:'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80'},
+  {title:'Bredele & chocolat chaud viennois',        desc:'Beurre, vanille, muscade — les sablés de Noël.',
+   photo:'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=600&q=80'}
+];
+
+/* ── CITATIONS QUOTIDIENNES (3 par mois, rotation sur le jour du mois) ── */
+var DAILY_QUOTES = [
+/* Jan */ ['Chaque hiver porte en lui un printemps qui frémit.','La neige pose un silence doux sur le monde endormi.','Janvier est une page blanche — écris-la avec douceur.'],
+/* Fév */ ["L'amour est un murmure que la nature entend toujours.",'Février : les premiers bourgeons osent pointer sous la glace.','Le cœur, comme les crocus, pousse même sous la neige.'],
+/* Mar */ ['Le printemps est venu — même la branche la plus sèche ose un bourgeon.','Mars réveille la terre. Laisse-toi réveiller aussi.','Chaque matin de mars sent le possible.'],
+/* Avr */ ['Avril pluvieux, jardin pétillant de promesses.','La pluie d\'avril nourrit les rêves d\'été.','Les cerisiers fleurissent — même ce qui est éphémère est beau.'],
+/* Mai */ ['Que mai t\'apporte des matins clairs et la promesse douce du muguet.','Une douce brume matinale s\'attarde sur les feuilles encore fraîches.','Mai s\'étire doucement — chaque journée est un cadeau à ouvrir.'],
+/* Jun */ ['L\'été commence — le soleil ose enfin rester jusqu\'au soir.','Juin : les soirées s\'étirent comme une promesse tenue.','La lumière de juin est un poème que le ciel écrit chaque soir.'],
+/* Jul */ ['Juillet : le temps ralentit, les pieds dans l\'herbe chaude.','Un livre, une ombre, le chant des cigales — c\'est assez.','Juillet brûle doucement, et c\'est exactement ça dont on avait besoin.'],
+/* Aoû */ ['Août brûle doucement — même l\'ombre a une couleur de miel.','Les nuits d\'août gardent la chaleur du jour dans leurs plis.','Août est l\'heure de la plénitude — tout est au bord de mûrir.'],
+/* Sep */ ['Septembre : la lumière change d\'angle et tout devient doré.','L\'automne commence doucement, comme une grande respiration.','Septembre sent la rentrée et le miel mûr à la fois.'],
+/* Oct */ ['Octobre jonche les chemins de feuilles rousses et de silence.','Le feu de la forêt en automne vaut tous les musées.','Octobre : le temps de ramasser ce qui compte vraiment.'],
+/* Nov */ ['Novembre est l\'heure du silence avant la neige.','La lumière grise de novembre a sa propre beauté — cherche-la.','Novembre invite au dedans. C\'est aussi une chance.'],
+/* Déc */ ['Décembre est là — allume une bougie et laisse le temps ralentir.','Les étoiles de décembre brillent plus fort dans le froid.','Après la nuit la plus longue, la lumière revient — toujours.']
+];
+
+var PHASES = [
+  {name:'Menstruelle',  desc:'Repos, douceur, introspection.',                                              from:1,  to:6},
+  {name:'Folliculaire', desc:"L'énergie monte. Idéal pour planifier et démarrer de nouveaux projets.",     from:7,  to:13},
+  {name:'Ovulatoire',   desc:'Pic d\'énergie et de clarté. Moment idéal pour communiquer et créer.',       from:14, to:18},
+  {name:'Lutéale',      desc:'Recentrage progressif. Écouter ses besoins, ralentir en fin de phase.',      from:19, to:28}
+];
+
+var EV_COLORS = ['#4a8a6a','#e07080','#6a80e0','#e0a06a','#a06ae0','#6ac0d0'];
+
+var DEF_RM = ['Boire un grand verre d\'eau','10 min d\'étirements','Lecture / journal — 15 min','Préparer une intention'];
+var DEF_RE = ['Tisane sans écran','Ranger l\'atelier','Préparer les affaires du lendemain','Gratitude — 3 choses'];
+
+/* Stickers botaniques calendrier — 1 emoji TWemoji par jour étoilé, par mois */
+var CAL_STICKERS = [
+  /* Jan */ {days:[5,12,20,28], emojis:['2603','2744','1f332','2603']},
+  /* Fév */ {days:[7,14,21,28], emojis:['1f337','1f339','1f33c','1f338']},
+  /* Mar */ {days:[8,15,21,30], emojis:['1f331','1f340','1f33f','1f338']},
+  /* Avr */ {days:[5,12,20,28], emojis:['1f337','1f33c','1fab7','1f338']},
+  /* Mai */ {days:[1,8,15,25],  emojis:['1fab7','1f33c','1f338','1f339']},
+  /* Jun */ {days:[5,13,21,28], emojis:['1f33b','1f338','1f33c','1f33b']},
+  /* Jul */ {days:[4,12,22,30], emojis:['1f334','1f331','1f33b','1fab4']},
+  /* Aoû */ {days:[6,14,22,30], emojis:['1f33b','1f33e','1f340','1f33b']},
+  /* Sep */ {days:[8,16,24,30], emojis:['1f342','1f341','1fab9','1f343']},
+  /* Oct */ {days:[5,13,22,31], emojis:['1f342','1f344','1f341','1f342']},
+  /* Nov */ {days:[7,15,22,29], emojis:['1f343','1f341','1f344','1fab9']},
+  /* Déc */ {days:[6,13,24,31], emojis:['1f332','26c4','2744','2b50']}
+];
+
+/* Placards cuisine */
+var PLACARDS = [
+  {id:'p1',name:'Salé',    desc:'Pâtes, riz, conserves, épices',     color:'#f0ede8',emoji:'1fad9'},
+  {id:'p2',name:'Sucré',   desc:'Chocolat, miel, biscuits, farines', color:'#fce8ee',emoji:'1f36b'},
+  {id:'p3',name:'Frais',   desc:'Légumes, laitages, herbes',          color:'#e8f4e8',emoji:'1f96c'},
+  {id:'p4',name:'Surgelé', desc:'Pois, glaces, plats',                color:'#e8eef8',emoji:'1f9ca'}
+];
+
+/* Recettes cuisine */
+var REC_LIST = [
+  {id:'r01',cat:'PETIT DÉJEUNER',time:5,
+   photo:'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=600&q=80',
+   title:'Yaourt, miel & flocons grillés',ing:['yaourt','miel','flocons d\'avoine'],
+   steps:['Faire griller les flocons à sec dans une poêle 2 min jusqu\'à légère coloration.','Verser le yaourt dans un bol.','Napper de miel et parsemer des flocons grillés. Servir aussitôt.']},
+  {id:'r02',cat:'DÉJEUNER',time:15,
+   photo:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80',
+   title:'Pâtes citron & épinards',ing:['pâtes','épinards','citron','huile d\'olive'],
+   steps:['Cuire les pâtes al dente. Réserver une louche d\'eau de cuisson.','Sauter les épinards 2 min à l\'huile d\'olive avec sel et poivre.','Égoutter les pâtes, mélanger avec les épinards, zeste et jus de citron. Ajuster avec l\'eau de cuisson.']},
+  {id:'r03',cat:'DÉJEUNER',time:15,
+   photo:'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80',
+   title:'Bowl petits pois & yaourt',ing:['petits pois','yaourt','citron','huile d\'olive'],
+   steps:['Cuire les petits pois 3 min à l\'eau bouillante. Égoutter et laisser tiédir.','Fouetter le yaourt avec le jus de citron et l\'huile d\'olive. Assaisonner.','Verser le yaourt dans un bol, ajouter les petits pois, un filet d\'huile et le zeste de citron.']},
+  {id:'r04',cat:'DESSERT',time:10,
+   photo:'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=600&q=80',
+   title:'Mousse chocolat-yaourt',ing:['chocolat','yaourt'],
+   steps:['Faire fondre le chocolat au bain-marie. Laisser tiédir 2 min.','Incorporer le yaourt en fouettant vivement pour obtenir une texture aérée.','Verser dans des verrines et réfrigérer au moins 30 min.']},
+  {id:'r05',cat:'DÉJEUNER',time:20,
+   photo:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80',
+   title:'Riz aux pois chiches & tomates',ing:['riz','pois chiches','tomates','huile d\'olive','oignon'],
+   steps:['Faire revenir l\'oignon émincé à l\'huile d\'olive 3 min jusqu\'à translucidité.','Ajouter les tomates concassées et les pois chiches égouttés. Cuire 5 min à feu moyen.','Incorporer le riz cuit, mélanger, rectifier l\'assaisonnement et servir.']},
+  {id:'r06',cat:'SNACK',time:10,
+   photo:'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&q=80',
+   title:'Houmous express',ing:['pois chiches','citron','huile d\'olive','ail'],
+   steps:['Égoutter les pois chiches. Garder 3 cs du liquide de conserve.','Mixer avec l\'ail, le jus de citron, l\'huile d\'olive et le liquide jusqu\'à consistance crémeuse.','Assaisonner, verser dans un bol, arroser d\'huile d\'olive et d\'un trait de citron.']},
+  {id:'r07',cat:'PETIT DÉJEUNER',time:10,
+   photo:'https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?w=600&q=80',
+   title:'Porridge miel & banane',ing:['flocons d\'avoine','miel','banane','lait'],
+   steps:['Porter le lait à frémissement dans une casserole.','Ajouter les flocons et cuire 3 min en remuant jusqu\'à consistance épaisse.','Verser dans un bol, garnir de rondelles de banane et napper de miel.']},
+  {id:'r08',cat:'PETIT DÉJEUNER',time:5,
+   photo:'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=600&q=80',
+   title:'Toast chocolat-banane',ing:['pain','chocolat','banane'],
+   steps:['Faire griller le pain jusqu\'à légère dorure.','Faire fondre le chocolat 30 sec au micro-ondes, remuer.','Étaler le chocolat fondu sur le toast, garnir de rondelles de banane.']},
+  {id:'r09',cat:'PETIT DÉJEUNER',time:10,
+   photo:'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=600&q=80',
+   title:'Œufs brouillés aux épinards',ing:['œufs','épinards','beurre'],
+   steps:['Battre les œufs avec sel et poivre.','Faire fondre le beurre à feu doux, ajouter les épinards 1 min.','Verser les œufs et remuer doucement jusqu\'à prise crémeuse. Retirer du feu légèrement avant la fin.']},
+  {id:'r10',cat:'DÉJEUNER',time:20,
+   photo:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80',
+   title:'Salade riz & pois chiches',ing:['riz','pois chiches','citron','huile d\'olive'],
+   steps:['Cuire le riz selon les indications. Laisser refroidir complètement.','Égoutter et rincer les pois chiches.','Mélanger riz, pois chiches, jus de citron et huile d\'olive. Assaisonner généreusement.']},
+  {id:'r11',cat:'DÎNER',time:25,
+   photo:'https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?w=600&q=80',
+   title:'Gratin de pâtes & épinards',ing:['pâtes','épinards','crème','fromage'],
+   steps:['Cuire les pâtes al dente. Sauter les épinards 2 min avec un peu d\'ail.','Mélanger pâtes, épinards et crème dans un plat à gratin. Assaisonner.','Parsemer de fromage râpé et enfourner 15 min à 200°C jusqu\'à gratinage.']},
+  {id:'r12',cat:'DESSERT',time:15,
+   photo:'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=600&q=80',
+   title:'Cookies chocolat & flocons',ing:['chocolat','flocons d\'avoine','miel','beurre'],
+   steps:['Préchauffer le four à 180°C. Faire fondre le beurre.','Mélanger flocons, chocolat concassé, miel et beurre fondu jusqu\'à pâte homogène.','Former des boules, aplatir sur une plaque. Enfourner 10-12 min. Laisser refroidir.']},
+  {id:'r13',cat:'SNACK',time:5,
+   photo:'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=600&q=80',
+   title:'Tartines miel & graines',ing:['pain','miel','graines'],
+   steps:['Faire griller les tranches de pain.','Napper généreusement de miel.','Parsemer de graines mixtes (tournesol, courge, sésame). Croquer immédiatement.']},
+  {id:'r14',cat:'DÎNER',time:20,
+   photo:'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&q=80',
+   title:'Riz sauté aux légumes',ing:['riz','carottes','oignon','huile d\'olive'],
+   steps:['Cuire le riz. Émincer l\'oignon et couper les carottes en julienne fine.','Faire revenir l\'oignon 2 min à l\'huile d\'olive. Ajouter les carottes, cuire 5 min à feu vif.','Incorporer le riz cuit, sauter 2 min. Assaisonner, servir bien chaud.']},
+  {id:'r15',cat:'PETIT DÉJEUNER',time:5,
+   photo:'https://images.unsplash.com/photo-1547592180-85f173990554?w=600&q=80',
+   title:'Smoothie banane-yaourt',ing:['banane','yaourt','miel'],
+   steps:['Couper la banane en morceaux (peut être surgelée pour plus d\'onctuosité).','Mixer banane, yaourt et miel jusqu\'à consistance lisse.','Verser dans un verre et servir immédiatement.']},
+  {id:'r16',cat:'DÎNER',time:30,
+   photo:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80',
+   title:'Pâtes aux tomates confites',ing:['pâtes','tomates','ail','huile d\'olive'],
+   steps:['Couper les tomates en deux. Les disposer sur une plaque avec l\'ail écrasé et l\'huile d\'olive. Enfourner 20 min à 180°C.','Cuire les pâtes al dente pendant ce temps.','Mélanger les pâtes égouttées avec les tomates confites et leur jus. Assaisonner.']},
+  {id:'r17',cat:'DESSERT',time:20,
+   photo:'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=600&q=80',
+   title:'Crumble pomme & flocons',ing:['pommes','flocons d\'avoine','miel','beurre'],
+   steps:['Préchauffer le four à 180°C. Éplucher et couper les pommes en dés.','Mélanger flocons, miel et beurre fondu jusqu\'à texture sableuse.','Disposer les pommes dans un plat, couvrir du crumble. Enfourner 18 min.']},
+  {id:'r18',cat:'SNACK',time:5,
+   photo:'https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=600&q=80',
+   title:'Chocolat chaud & flocons',ing:['chocolat','flocons d\'avoine','lait'],
+   steps:['Chauffer le lait dans une casserole à feu doux.','Ajouter le chocolat cassé en morceaux et remuer jusqu\'à fonte complète.','Verser dans une tasse, garnir d\'une pincée de flocons et d\'un carré de chocolat.']},
+  {id:'r19',cat:'DÉJEUNER',time:15,
+   photo:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80',
+   title:'Taboulé pois chiches & citron',ing:['pois chiches','citron','tomates','huile d\'olive'],
+   steps:['Égoutter les pois chiches. Couper les tomates en petits dés.','Mélanger pois chiches, tomates, jus de citron et huile d\'olive.','Laisser mariner 5 min, assaisonner, parsemer de persil frais si dispo.']},
+  {id:'r20',cat:'DÎNER',time:25,
+   photo:'https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?w=600&q=80',
+   title:'Riz & petits pois sautés',ing:['riz','petits pois','oignon','huile d\'olive'],
+   steps:['Cuire le riz. Décongeler les petits pois.','Faire revenir l\'oignon émincé à l\'huile d\'olive 2 min.','Ajouter le riz et les petits pois, sauter 3 min à feu vif. Assaisonner et servir.']}
+];
+
+/* ════════════════════════════════════════
+   ÉTAT & PERSISTANCE
+════════════════════════════════════════ */
+var KEY = 'jcerise-v2';
+var S = {
+  events:      {},
+  intentions:  {},
+  ritualsDone: {},
+  health:      {},
+  braindump:   {},
+  calNotes:    {},
+  budget: {
+    income: 2400,
+    envelopes: [
+      {id:'e1',name:'Courses', emoji:'1f9fa',color:'#f2ede8',budget:350},
+      {id:'e2',name:'Sorties', emoji:'1f377',color:'#fce8ee',budget:150},
+      {id:'e3',name:'Beauté',  emoji:'1f484',color:'#fce0ea',budget:60},
+      {id:'e4',name:'Essence', emoji:'26fd', color:'#e8f4e8',budget:120},
+      {id:'e5',name:'Divers',  emoji:'1f41b',color:'#e8eef8',budget:80}
+    ],
+    fixed: [
+      {id:'f1',name:'Loyer',                day:5,  amount:780},
+      {id:'f2',name:'Électricité',          day:8,  amount:62},
+      {id:'f3',name:'Internet',             day:12, amount:35},
+      {id:'f4',name:'Forfait mobile',       day:15, amount:19},
+      {id:'f5',name:'Assurance habitation', day:20, amount:28},
+      {id:'f6',name:'Abonnements vidéo',    day:25, amount:22}
+    ],
+    fixedPaid: {},
+    transactions: []
+  },
+  cuisine: {
+    pantry: [
+      {id:'ci01',name:'Pâtes complètes',     placardId:'p1'},
+      {id:'ci02',name:'Riz basmati',          placardId:'p1'},
+      {id:'ci03',name:'Pois chiches',         placardId:'p1'},
+      {id:'ci04',name:'Tomates',              placardId:'p1'},
+      {id:'ci05',name:'Huile d\'olive',       placardId:'p1'},
+      {id:'ci06',name:'Chocolat noir',        placardId:'p2'},
+      {id:'ci07',name:'Miel',                 placardId:'p2'},
+      {id:'ci08',name:'Flocons d\'avoine',    placardId:'p2'},
+      {id:'ci09',name:'Œufs',                placardId:'p3'},
+      {id:'ci10',name:'Yaourt grec',          placardId:'p3'},
+      {id:'ci11',name:'Citron',               placardId:'p3'},
+      {id:'ci12',name:'Épinards',             placardId:'p3'},
+      {id:'ci13',name:'Petits pois surgelés', placardId:'p4'}
+    ]
+  },
+  cycle:    {start:null, length:28},
+  monthTodos: {},
+  settings: {city:'Inverness', ritualsM:DEF_RM.slice(), ritualsE:DEF_RE.slice()}
+};
+
+/* ── ID unique par appareil pour éviter les boucles de sync ── */
+var DEVICE_ID = (function() {
+  var id = localStorage.getItem('__device_id__');
+  if (!id) { id = 'dev_' + Math.random().toString(36).slice(2,10); localStorage.setItem('__device_id__', id); }
+  return id;
+}());
+
+var dbRef    = null;
+var fbTimer  = null;
+var fbOwnSave = false; /* true quand c'est NOUS qui venons de sauvegarder */
+
+function save() {
+  /* 1. Sauvegarde locale immédiate */
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {}
+  /* 2. Sauvegarde Firebase (debouncée 800 ms) */
+  if (dbRef) {
+    if (fbTimer) clearTimeout(fbTimer);
+    fbTimer = setTimeout(function() {
+      fbOwnSave = true;
+      /* Copie propre : ne pas muter S avec _dev */
+      var payload = JSON.parse(JSON.stringify(S));
+      payload._dev = DEVICE_ID;
+      dbRef.set(payload).catch(function(e) { console.warn('Firebase save:', e); });
+    }, 800);
+  }
+}
+
+function applyLoadedData(p) {
+  /* Firebase convertit parfois les tableaux en objets {0:..,1:..} → on normalise */
+  function toArr(v) {
+    if (!v) return [];
+    if (Array.isArray(v)) return v;
+    return Object.keys(v).sort(function(a,b){ return +a - +b; }).map(function(k){ return v[k]; });
+  }
+  function fixDayArrays(obj) {
+    if (!obj) return obj;
+    for (var k in obj) { if (Object.prototype.hasOwnProperty.call(obj, k)) obj[k] = toArr(obj[k]); }
+    return obj;
+  }
+
+  if (p.events) {
+    S.events = p.events;
+    fixDayArrays(S.events);
+  }
+  if (p.intentions) {
+    S.intentions = p.intentions;
+    fixDayArrays(S.intentions);
+  }
+  if (p.ritualsDone) S.ritualsDone = p.ritualsDone;
+  if (p.health) {
+    S.health = p.health;
+    for (var dk in S.health) {
+      if (S.health[dk]) S.health[dk].headaches = toArr(S.health[dk].headaches);
+    }
+  }
+  if (p.braindump)   S.braindump   = p.braindump;
+  if (p.calNotes)    S.calNotes    = p.calNotes;
+  if (p.budget) {
+    S.budget = p.budget;
+    S.budget.envelopes    = toArr(S.budget.envelopes);
+    S.budget.fixed        = toArr(S.budget.fixed);
+    S.budget.transactions = toArr(S.budget.transactions);
+    /* Normalise fixedPaid : Firebase transforme les clés "2026-05/f1" en objets
+       imbriqués {2026-05: {f1: true}}. On aplatit et on passe au séparateur "_". */
+    var rawFP = S.budget.fixedPaid || {};
+    var flatFP = {};
+    for (var fpk in rawFP) {
+      var fpv = rawFP[fpk];
+      if (fpv && typeof fpv === 'object') {
+        for (var sub in fpv) { flatFP[fpk + '_' + sub] = fpv[sub]; }
+      } else {
+        flatFP[fpk.replace('/', '_')] = fpv;
+      }
+    }
+    S.budget.fixedPaid = flatFP;
+  }
+  if (p.cuisine) {
+    S.cuisine = p.cuisine;
+    S.cuisine.pantry = toArr(S.cuisine.pantry);
+  }
+  if (p.monthTodos) {
+    S.monthTodos = p.monthTodos;
+    for (var mk in S.monthTodos) { S.monthTodos[mk] = toArr(S.monthTodos[mk]); }
+  }
+  if (p.cycle)    S.cycle    = p.cycle;
+  if (p.settings) {
+    S.settings = Object.assign({}, S.settings, p.settings);
+    S.settings.ritualsM = toArr(S.settings.ritualsM);
+    S.settings.ritualsE = toArr(S.settings.ritualsE);
+  }
+  /* Sauvegarde locale après sync Firebase */
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {}
+}
+
+function refreshCurrentPage() {
+  /* Ne pas re-rendre si l'utilisateur est en train de taper */
+  var active = document.activeElement;
+  if (active && (active.tagName === 'TEXTAREA' || active.tagName === 'INPUT')) return;
+  if (curPage === 'jour')    renderJour();
+  else if (curPage === 'mois')    renderMois();
+  else if (curPage === 'budget')  renderBudget();
+  else if (curPage === 'cuisine') renderCuisine();
+}
+
+var fbAppInited = false;
+function initFirebaseApp() {
+  if (!FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey === 'REMPLACE') return;
+  try { firebase.initializeApp(FIREBASE_CONFIG); fbAppInited = true; }
+  catch(e) { console.warn('Firebase init:', e); }
+}
+
+function initFirebaseForProfile() {
+  if (!CURRENT_PROFILE || !fbAppInited) return;
+  if (dbRef) { try { dbRef.off(); } catch(e) {} dbRef = null; }
+  try {
+    dbRef = firebase.database().ref('journal/' + FAMILY_KEY + '/' + CURRENT_PROFILE);
+
+    function setupListener() {
+      dbRef.on('value', function(snap) {
+        if (fbOwnSave) { fbOwnSave = false; return; }
+        var d = snap.val();
+        if (!d || d._dev === DEVICE_ID) return;
+        applyLoadedData(d);
+        refreshCurrentPage();
+      });
+    }
+
+    dbRef.once('value', function(snap) {
+      var data = snap.val();
+      if (data) {
+        /* Données trouvées sur ce chemin profil */
+        applyLoadedData(data);
+        refreshCurrentPage();
+        setupListener();
+      } else if (CURRENT_PROFILE === 'laura') {
+        /* Migration : chercher les données dans l'ancien chemin (avant profils) */
+        var oldRef = firebase.database().ref('journal/' + FAMILY_KEY);
+        oldRef.once('value', function(oldSnap) {
+          var oldData = oldSnap.val();
+          if (oldData) {
+            applyLoadedData(oldData);
+            refreshCurrentPage();
+            /* Copier vers le nouveau chemin */
+            var payload = JSON.parse(JSON.stringify(oldData));
+            payload._dev = DEVICE_ID;
+            dbRef.set(payload).catch(function(e) { console.warn('migrate fb:', e); });
+          }
+          setupListener();
+        }, function() { setupListener(); });
+      } else {
+        setupListener();
+      }
+    }, function(err) { console.warn('Firebase load:', err); setupListener(); });
+  } catch(e) { console.warn('Firebase profile:', e); }
+}
+
+function load() {
+  try {
+    var raw = localStorage.getItem(KEY);
+    /* Migration : si pas de données pour ce profil, chercher l'ancien format */
+    if (!raw && CURRENT_PROFILE === 'laura') {
+      raw = localStorage.getItem('jcerise-v2');
+      if (raw) localStorage.setItem(KEY, raw); /* copier vers le nouveau format */
+    }
+    if (!raw) return;
+    applyLoadedData(JSON.parse(raw));
+  } catch(e) { console.warn('load', e); }
+}
+
+/* ════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════ */
+function pad2(n)    { return String(n).padStart(2,'0'); }
+function mkId()     { return Math.random().toString(36).slice(2,9); }
+function todayKey() { var d=new Date(); return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+function escH(s)    { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtE(n)    { return Math.round(n)+' €'; }
+function fmtEuroCents(n) {
+  var neg = n < 0;
+  var s = Math.abs(n).toFixed(2);
+  var parts = s.split('.');
+  var int = parts[0], intFmt = '';
+  for (var i = 0; i < int.length; i++) {
+    if (i > 0 && (int.length - i) % 3 === 0) intFmt += ' ';
+    intFmt += int[i];
+  }
+  return (neg ? '−' : '') + intFmt + ',' + parts[1] + ' €';
+}
+function hexRgba(hex, a) {
+  if (!hex || hex.length < 7) return 'rgba(74,138,106,'+a+')';
+  var r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return 'rgba('+r+','+g+','+b+','+a+')';
+}
+
+function getDailyRec() {
+  var now = new Date();
+  var hour = now.getHours();
+  var dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+  var cat;
+  if (hour < 10)      cat = 'PETIT DÉJEUNER';
+  else if (hour < 16) cat = 'DÉJEUNER';
+  else if (hour < 18) cat = 'SNACK';
+  else                cat = 'DÎNER';
+  var pool = [];
+  for (var i = 0; i < REC_LIST.length; i++) {
+    if (REC_LIST[i].cat === cat) pool.push(REC_LIST[i]);
+  }
+  if (!pool.length) { for (var i = 0; i < REC_LIST.length; i++) pool.push(REC_LIST[i]); }
+  var r = pool[dayOfYear % pool.length];
+  return {
+    id:    r.id,
+    title: r.title,
+    photo: r.photo || '',
+    cat:   cat,
+    time:  r.time,
+    desc:  r.ing ? r.ing.slice(0, 3).join(' · ') : ''
+  };
+}
+
+function getCycleDay() {
+  if (!S.cycle.start) return null;
+  var diff = Math.floor((Date.now() - new Date(S.cycle.start+'T00:00:00').getTime()) / 86400000);
+  var d = (diff % S.cycle.length) + 1;
+  return d < 1 ? 1 : d;
+}
+function getCyclePhase(day) {
+  for (var i = 0; i < PHASES.length; i++) {
+    if (day >= PHASES[i].from && day <= PHASES[i].to) return PHASES[i];
+  }
+  return PHASES[PHASES.length-1];
+}
+function budgetMonthKey() {
+  var now = new Date();
+  return now.getFullYear() + '-' + pad2(now.getMonth()+1);
+}
+function getFixedTotal() {
+  var t = 0;
+  for (var i = 0; i < S.budget.fixed.length; i++) t += S.budget.fixed[i].amount || 0;
+  return t;
+}
+function isFixedPaid(id) {
+  return !!(S.budget.fixedPaid && S.budget.fixedPaid[budgetMonthKey()+'_'+id]);
+}
+function getFixedPaidCount() {
+  var n = 0;
+  for (var i = 0; i < S.budget.fixed.length; i++) { if (isFixedPaid(S.budget.fixed[i].id)) n++; }
+  return n;
+}
+function toggleFixedPaid(id) {
+  if (!S.budget.fixedPaid) S.budget.fixedPaid = {};
+  var k = budgetMonthKey()+'_'+id;
+  S.budget.fixedPaid[k] = !S.budget.fixedPaid[k];
+  save();
+  renderBudget();
+}
+function getEnvSpent(id) {
+  var ym = new Date().getFullYear()+'-'+pad2(new Date().getMonth()+1);
+  var t = 0;
+  for (var i = 0; i < S.budget.transactions.length; i++) {
+    var tx = S.budget.transactions[i];
+    if (tx.envId === id && tx.date && tx.date.indexOf(ym) === 0) t += tx.amount||0;
+  }
+  return t;
+}
+function getFixedSpent(id) {
+  var ym = new Date().getFullYear()+'-'+pad2(new Date().getMonth()+1);
+  var t = 0;
+  for (var i = 0; i < S.budget.transactions.length; i++) {
+    var tx = S.budget.transactions[i];
+    if (tx.fixedId === id && tx.date && tx.date.indexOf(ym) === 0) t += tx.amount||0;
+  }
+  return t;
+}
+function getTotalSpent() {
+  var v = 0;
+  for (var i = 0; i < S.budget.envelopes.length; i++) v += getEnvSpent(S.budget.envelopes[i].id);
+  return {vr:v, fx:getFixedTotal()};
+}
+
+/* Sauvegarder les textareas avant tout re-render */
+function saveTextareas() {
+  var dk = todayKey();
+  var bd = document.getElementById('braindump-ta');
+  if (bd) S.braindump[dk] = bd.value;
+  var cn = document.getElementById('cal-note-ta');
+  if (cn && calSel) S.calNotes[calSel] = cn.value;
+  save();
+}
+
+/* Icône SVG check (blanc) */
+function svgCheck() {
+  return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+}
+
+/* ════════════════════════════════════════
+   THÈME
+════════════════════════════════════════ */
+var curPage = 'jour';
+var clockTick = null;
+var calM   = new Date().getMonth();
+var calY   = new Date().getFullYear();
+var calSel = null;
+var cuisineFilter = 'Tout';
+
+function hexToRgba(hex, a) {
+  var r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  return 'rgba('+r+','+g+','+b+','+a+')';
+}
+
+function applyTheme(m) {
+  var th  = THEMES[m];
+  var root = document.documentElement;
+
+  /* CSS variables */
+  root.style.setProperty('--accent',      th.accent);
+  root.style.setProperty('--accent-dim',  hexToRgba(th.accent, 0.12));
+  root.style.setProperty('--accent-glow', hexToRgba(th.accent, 0.28));
+
+  /* Nav : fond blanc opaque, seule la bordure prend une teinte saisonnière légère */
+  var nav = document.getElementById('nav');
+  if (nav) {
+    nav.style.background  = 'rgba(255,255,255,0.96)';
+    nav.style.borderColor = th.blobL.replace(/[\d.]+\)$/, '0.35)');
+  }
+
+  /* Mesh gradient background */
+  var mesh = th.mesh;
+  var bgStr = '';
+  for (var i=0; i<mesh.length; i++) {
+    bgStr += 'radial-gradient(ellipse at '+mesh[i][1]+' '+mesh[i][2]+', '+mesh[i][0]+' 0%, transparent 65%), ';
+  }
+  bgStr += th.bg;
+  document.getElementById('bg').style.background = bgStr;
+
+  /* Decorations */
+  var decor = '';
+  var img = CAL_IMG[m];
+
+  /* Image du mois en fond plein (sans masque) – légère */
+  decor += '<img src="'+img+'" alt="" style="'
+         + 'position:absolute;inset:0;width:100%;height:100%;'
+         + 'object-fit:cover;opacity:0.20;pointer-events:none">';
+
+  /* Blur blobs couleur */
+  decor += '<div style="position:absolute;bottom:-100px;left:-120px;width:420px;height:420px;border-radius:50%;background:'+th.blobL+';filter:blur(70px)"></div>';
+  decor += '<div style="position:absolute;top:8%;right:-100px;width:340px;height:340px;border-radius:50%;background:'+th.blobR+';filter:blur(58px)"></div>';
+  decor += '<div style="position:absolute;top:48%;left:20%;width:200px;height:200px;border-radius:50%;background:'+th.blobL.replace('0.4','0.18').replace('0.42','0.18')+';filter:blur(48px)"></div>';
+
+  document.getElementById('bg-decor').innerHTML = decor;
+}
+/* ════════════════════════════════════════
+   NAVIGATION
+════════════════════════════════════════ */
+function goPage(name) {
+  saveTextareas();
+  curPage = name;
+  /* Mémoriser la page active pour la restaurer au refresh */
+  try { if (CURRENT_PROFILE) sessionStorage.setItem('__page__' + CURRENT_PROFILE, name); } catch(e) {}
+  var themeM = (name === 'mois') ? calM : new Date().getMonth();
+  applyTheme(themeM);
+  var th = THEMES[themeM];
+  ['jour','mois','budget','cuisine'].forEach(function(p) {
+    var pg  = document.getElementById('pg-'+p);
+    var tab = document.getElementById('tab-'+p);
+    if (pg)  pg.className = 'page'+(p===name?' active':'');
+    if (tab) {
+      tab.className        = 'ntab'+(p===name?' active':'');
+      tab.style.background = (p===name ? th.accent : '');
+      tab.style.color      = (p===name ? '#fff' : '');
+    }
+  });
+  document.getElementById('app').scrollTop = 0;
+  if (name==='jour')    renderJour();
+  if (name==='mois')    renderMois();
+  if (name==='budget')  renderBudget();
+  if (name==='cuisine') renderCuisine();
+}
+
+/* ════════════════════════════════════════
+   MODAL
+════════════════════════════════════════ */
+function openModal(html) {
+  document.getElementById('modal-body').innerHTML = html;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+/* ════════════════════════════════════════
+   FAB
+════════════════════════════════════════ */
+function fabAction() {
+  if (curPage === 'budget') {
+    if (S.budget.envelopes.length > 0) openAddTransaction(S.budget.envelopes[0].id);
+  } else if (curPage === 'cuisine') {
+    openCuisineFABMenu();
+  } else {
+    openAddEvent(todayKey());
+  }
+}
+
+/* ════════════════════════════════════════
+   RENDER JOUR
+════════════════════════════════════════ */
+function renderJour() {
+  if (clockTick) { clearInterval(clockTick); clockTick = null; }
+
+  var now  = new Date();
+  var m    = now.getMonth();
+  var th   = THEMES[m];
+  var met  = METEO[m];
+  var rec  = getDailyRec();
+  var dk   = todayKey();
+
+  var evs   = (S.events[dk]      || []).slice().sort(function(a,b){ return (a.time||'').localeCompare(b.time||''); });
+  var ints  = S.intentions[dk]   || [];
+  var rDone = S.ritualsDone[dk]  || {m:[], e:[]};
+  var hlth  = S.health[dk]       || {headaches:[]};
+  var bd    = S.braindump[dk]    || '';
+
+  var rM = S.settings.ritualsM || DEF_RM;
+  var rE = S.settings.ritualsE || DEF_RE;
+
+  /* Progression rituels */
+  var rTotal = rM.length + rE.length, rDoneN = 0;
+  for (var i=0; i<rM.length; i++) if (rDone.m && rDone.m[i]) rDoneN++;
+  for (var i=0; i<rE.length; i++) if (rDone.e && rDone.e[i]) rDoneN++;
+  var rPct = rTotal ? Math.round(rDoneN/rTotal*100) : 0;
+
+  /* Compteur intentions */
+  var intDone = 0;
+  for (var i=0; i<ints.length; i++) if (ints[i].done) intDone++;
+
+  /* Horloge */
+  var hh = pad2(now.getHours()), mm = pad2(now.getMinutes());
+  var jourStr = JOURS_LONG[now.getDay()].toUpperCase()+' '+now.getDate()+' '+MOIS_FR[m].toUpperCase();
+
+  /* Cycle */
+  var cycleDay = getCycleDay();
+  var phase    = cycleDay ? getCyclePhase(cycleDay) : null;
+
+  var h = '';
+
+  /* ── CARTE 1 : HÉRO ── */
+  h += '<div class="card span2" style="margin-top:8px;padding:0;overflow:hidden;position:relative">';
+  h += '<div style="height:4px;background:linear-gradient(90deg,'+th.accent+' 0%,'+hexToRgba(th.accent,0.25)+' 100%)"></div>';
+  h += '<div style="padding:22px 24px 20px">';
+  /* date pill */
+  h += '<div style="display:inline-flex;align-items:center;gap:6px;background:'+hexToRgba(th.accent,0.08)+';border-radius:99px;padding:4px 13px;margin-bottom:16px">';
+  h += '<div style="width:6px;height:6px;border-radius:50%;background:'+th.accent+'"></div>';
+  h += '<span style="font-size:10px;font-weight:700;letter-spacing:0.12em;color:'+th.accent+'">'+jourStr+'</span>';
+  h += '</div>';
+  /* horloge + météo */
+  h += '<div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:14px">';
+  h += '<div>';
+  h += '<div id="clock-display" style="font-size:72px;font-weight:300;letter-spacing:-4px;line-height:1;color:#1e2d1e;font-family:\'DM Sans\',sans-serif">'+hh+':'+mm+'</div>';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:13px;color:#7a9a7a;margin-top:6px;line-height:1.4;max-width:220px">'+escH(met.desc)+'</div>';
+  h += '</div>';
+  h += '<div style="text-align:right;flex-shrink:0;padding-left:16px">';
+  h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.14em;color:#8aaa8a;margin-bottom:4px">'+escH(S.settings.city).toUpperCase()+'</div>';
+  h += '<div style="display:flex;align-items:center;gap:5px;justify-content:flex-end;margin-bottom:3px">';
+  h += '<span style="font-size:24px">'+met.ic+'</span>';
+  h += '<span style="font-size:38px;font-weight:600;color:#1e2d1e;letter-spacing:-2px;line-height:1">'+met.t+'°</span>';
+  h += '</div>';
+  h += '<div style="font-size:11px;color:#9aaa9a">H : '+met.h+'° · L : '+met.l+'°</div>';
+  h += '<div style="font-size:11px;color:#9aaa9a;margin-top:2px">↑ '+met.lever+' · '+met.vent+'</div>';
+  h += '</div>';
+  h += '</div>';
+  /* citation */
+  h += '<div style="background:'+hexToRgba(th.accent,0.07)+';border-radius:18px;padding:14px 16px;margin-bottom:14px;border-left:3px solid '+hexToRgba(th.accent,0.32)+'">';
+  var qPool = DAILY_QUOTES[m] || [th.quote];
+  var todayQuote = qPool[(now.getDate() - 1) % qPool.length];
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:15px;line-height:1.6;color:#2d3d2d">« '+escH(todayQuote)+' »</div>';
+  h += '<div style="font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:'+th.accent+';margin-top:7px;opacity:0.75">'+escH(th.quoteSub)+'</div>';
+  h += '</div>';
+  /* rituels progress */
+  h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
+  h += '<span style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#8aaa8a">RITUELS DU JOUR</span>';
+  h += '<span style="font-size:13px;font-weight:700;color:'+th.accent+'">'+rPct+'%</span>';
+  h += '</div>';
+  h += '<div class="pbar"><div class="pbar-fill" style="width:'+rPct+'%;background:'+th.accent+'"></div></div>';
+  h += '</div>';
+  h += '</div>';
+  /* ── CARTE 2 : AGENDA ── */
+  h += '<div class="card">';
+  h += '<div class="row-sb" style="margin-bottom:14px">';
+  h += '<div style="display:flex;align-items:center;gap:8px">';
+  h += '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8aaa8a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+  h += '<span class="lbl">AGENDA DU JOUR</span>';
+  h += '</div>';
+  h += '<span style="font-size:12px;color:#8aaa8a">'+evs.length+' événement'+(evs.length!==1?'s':'')+'</span>';
+  h += '</div>';
+  if (evs.length === 0) {
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:15px;color:#a0b4a0;padding:4px 0">Aucun événement — une page douce qui t\'attend.</div>';
+  } else {
+    for (var i=0; i<evs.length; i++) {
+      var ev = evs[i];
+      h += '<div class="ev-row">';
+      h += '<div style="min-width:48px">';
+      h += '<div style="font-size:14px;font-weight:700;color:#2d4d2d">'+escH(ev.time)+'</div>';
+      if (ev.endTime) h += '<div style="font-size:11px;color:#9aaa9a">'+escH(ev.endTime)+'</div>';
+      h += '</div>';
+      h += '<div class="ev-dot" style="background:'+(ev.color||EV_COLORS[0])+'"></div>';
+      h += '<div style="flex:1;cursor:pointer" onclick="openEditEvent(\''+dk+'\',\''+ev.id+'\')">';
+      h += '<div style="font-size:15px;font-weight:500;color:#1e2d1e">'+escH(ev.title)+'</div>';
+      if (ev.loc) h += '<div style="font-size:12px;color:#8aaa8a;margin-top:2px">⊙ '+escH(ev.loc)+'</div>';
+      h += '</div>';
+      h += '<button onclick="openEditEvent(\''+dk+'\',\''+ev.id+'\')" style="border:none;background:none;color:#b0c8b0;cursor:pointer;font-size:15px;padding:0 4px;line-height:1" title="Modifier">✎</button>';
+      h += '<button onclick="deleteEvent(\''+dk+'\',\''+ev.id+'\')" style="border:none;background:none;color:#ccc;cursor:pointer;font-size:20px;padding:0;line-height:1" title="Supprimer">×</button>';
+      h += '</div>';
+    }
+  }
+  h += '<button onclick="openAddEvent(\''+dk+'\')" style="display:flex;align-items:center;gap:6px;width:100%;margin-top:10px;border:none;background:none;cursor:pointer;color:#8aaa8a;font-size:13px;font-family:\'DM Sans\',sans-serif;padding:4px 0">+ Ajouter un événement</button>';
+  h += '</div>';
+
+  /* ── CARTE 3 : TO-DO JOURNALIÈRE ── */
+  var todoDone = 0;
+  for (var i=0; i<ints.length; i++) if(ints[i].done) todoDone++;
+  var todoPct = ints.length ? Math.round(todoDone/ints.length*100) : 0;
+  h += '<div class="card">';
+  h += '<div class="row-sb" style="margin-bottom:10px">';
+  h += '<div><div class="lbl">TÂCHES DU JOUR</div>';
+  h += '<div class="titre" style="font-size:22px">To-do</div></div>';
+  if (ints.length) {
+    h += '<div style="text-align:right">';
+    h += '<div style="font-size:13px;font-weight:700;color:'+th.accent+'">'+todoDone+'/'+ints.length+'</div>';
+    h += '<div style="font-size:10px;color:#9aaa9a">'+todoPct+'%</div>';
+    h += '</div>';
+  }
+  h += '</div>';
+  if (ints.length) { h += '<div class="pbar" style="margin-bottom:12px"><div class="pbar-fill" style="width:'+todoPct+'%;background:'+th.accent+'"></div></div>'; }
+  h += '<div id="todo-day-'+dk+'">'+buildTodoDayInner(dk)+'</div>';
+  h += '</div>';
+
+  /* ── CARTE 5 : SANTÉ ── */
+  var hds = (hlth.headaches || []);
+  h += '<div class="card">';
+  h += '<div class="row-sb" style="margin-bottom:12px">';
+  h += '<div><div class="lbl">SANTÉ DU JOUR</div>';
+  h += '<div class="titre" style="font-size:22px">Maux de tête</div></div>';
+  h += '<span style="font-size:26px;opacity:0.65">🧠</span>';
+  h += '</div>';
+  if (hds.length === 0) {
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:14px;color:#a0b4a0;padding:4px 0 10px">Aucun mal de tête aujourd\'hui — c\'est bon signe !</div>';
+  } else {
+    for (var i=0; i<hds.length; i++) {
+      var hd = hds[i];
+      h += '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;'+(i>0?'border-top:1px solid rgba(0,0,0,0.05)':'')+'">';
+      h += '<div style="width:32px;height:32px;border-radius:50%;background:rgba(220,90,80,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px">🧠</div>';
+      h += '<div style="flex:1">';
+      h += '<div style="font-size:14px;font-weight:600;color:#2d1e1e">'+(hd.med==='Aucun'?'Sans médicament':escH(hd.med))+'</div>';
+      h += '<div style="font-size:11px;color:#9aaa9a">'+escH(hd.time)+'</div>';
+      h += '</div>';
+      h += '<button onclick="removeHeadache(\''+dk+'\',\''+hd.id+'\')" style="border:none;background:none;color:#ddd;cursor:pointer;font-size:20px;padding:0;line-height:1">×</button>';
+      h += '</div>';
+    }
+  }
+  if (hds.length < 4) {
+    h += '<button onclick="openAddHeadache(\''+dk+'\')" ';
+    h += 'style="display:flex;align-items:center;gap:6px;width:100%;margin-top:8px;border:1.5px dashed rgba(220,90,80,0.3);';
+    h += 'background:rgba(220,90,80,0.04);cursor:pointer;color:#c05050;font-size:13px;';
+    h += 'font-family:\'DM Sans\',sans-serif;padding:9px 14px;border-radius:14px;font-weight:600">';
+    h += '+ Ajouter un mal de tête ('+hds.length+'/4)</button>';
+  }
+  h += '</div>';
+
+  /* ── CARTE 6 : BRAIN DUMP ── */
+  h += '<div class="card">';
+  h += '<div class="row-sb" style="margin-bottom:8px">';
+  h += '<div style="display:flex;align-items:center;gap:6px"><span style="font-size:14px">📝</span><span class="lbl">BRAIN DUMP</span></div>';
+  h += '<div style="display:flex;align-items:center;gap:8px">';
+  h += '<span style="font-size:11px;color:#9aaa9a;font-style:italic">Auto-sauvegardé</span>';
+  h += '<button onclick="openBrainDumpConvert()" style="background:none;border:1px solid rgba(0,0,0,0.12);border-radius:8px;padding:3px 8px;font-size:12px;cursor:pointer;color:#7a9a7a;font-family:\'DM Sans\',sans-serif">📤 Convertir</button>';
+  h += '</div>';
+  h += '</div>';
+  h += '<textarea id="braindump-ta" placeholder="Dépose ici tout ce qui encombre ton esprit…" '
+     + 'oninput="saveBraindump(\''+dk+'\',this.value);this.style.height=\'auto\';this.style.height=this.scrollHeight+\'px\'" '
+     + 'style="width:100%;border:none;background:transparent;font-family:\'Caveat\',cursive;'
+     + 'font-size:17px;color:#2d3d2d;resize:none;outline:none;min-height:72px;line-height:1.5;display:block">'
+     + escH(bd)+'</textarea>';
+  h += '</div>';
+
+  /* ── CARTE 7 : CUISINE ── */
+  h += '<div class="card" onclick="openRecipeModal(\''+rec.id+'\')" style="padding:0;overflow:hidden;cursor:pointer">';
+  h += '<img src="'+rec.photo+'" alt="" style="width:100%;height:150px;object-fit:cover;display:block" onerror="this.style.display=\'none\'">';
+  h += '<div style="padding:16px 18px">';
+  h += '<div class="lbl" style="margin-bottom:4px">'+escH(rec.cat)+' · '+rec.time+' MIN</div>';
+  h += '<div class="titre" style="font-size:20px;margin-bottom:6px">'+escH(rec.title)+'</div>';
+  h += '<div style="font-size:13px;color:#7a9a7a;line-height:1.5">'+escH(rec.desc)+'</div>';
+  h += '<div onclick="event.stopPropagation();goPage(\'cuisine\')" style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:700;color:'+th.accent+';margin-top:12px;cursor:pointer">Voir toutes les recettes <span>→</span></div>';
+  h += '</div>';
+  h += '</div>';
+
+  /* ── CARTE 8 : BIO-RYTHME ── */
+  if (cycleDay) {
+    var r = 58, circ = 2*Math.PI*r;
+    var offset = circ * (1 - cycleDay/S.cycle.length);
+    h += '<div class="card">';
+    h += '<div class="row-sb" style="margin-bottom:8px">';
+    h += '<div><div class="lbl">BIO-RYTHME</div>';
+    h += '<div class="titre" style="font-size:22px">'+(phase?phase.name:'')+'</div></div>';
+    h += '<button onclick="openCycleModal()" class="btn-icon" style="border:none;font-family:\'DM Sans\',sans-serif;cursor:pointer">⚙</button>';
+    h += '</div>';
+    h += '<svg width="160" height="160" viewBox="0 0 160 160" style="display:block;margin:8px auto">';
+    h += '<circle cx="80" cy="80" r="'+r+'" fill="none" stroke="rgba(0,0,0,0.07)" stroke-width="10"/>';
+    h += '<circle cx="80" cy="80" r="'+r+'" fill="none" stroke="'+th.accent+'" stroke-width="10" stroke-linecap="round"'
+       + ' stroke-dasharray="'+circ.toFixed(1)+'" stroke-dashoffset="'+offset.toFixed(1)+'" transform="rotate(-90 80 80)"/>';
+    h += '<text x="80" y="68" text-anchor="middle" font-size="14" fill="#9aaa9a">◇</text>';
+    h += '<text x="80" y="96" text-anchor="middle" font-size="34" font-weight="600" fill="#1e2d1e" font-family="DM Sans,sans-serif">'+cycleDay+'</text>';
+    h += '<text x="80" y="114" text-anchor="middle" font-size="9" fill="#9aaa9a" letter-spacing="2">JOUR DU CYCLE</text>';
+    h += '</svg>';
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:14px;color:#5a7a5a;text-align:center;line-height:1.6;margin-top:4px">'+(phase?escH(phase.desc):'')+'</div>';
+    h += '</div>';
+  } else {
+    h += '<div class="card" onclick="openCycleModal()" style="cursor:pointer">';
+    h += '<div class="lbl" style="margin-bottom:6px">BIO-RYTHME</div>';
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:15px;color:#8aaa8a">Configure ton cycle pour suivre ton énergie naturelle →</div>';
+    h += '</div>';
+  }
+
+  /* ── CARTE 9 : RITUELS ── */
+  h += '<div class="card span2">';
+  h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">';
+  h += '<div class="lbl">RITUELS</div>';
+  h += '<button onclick="openEditRituels()" style="background:none;border:none;color:#8aaa8a;font-size:13px;cursor:pointer;padding:0;font-family:inherit">✎ modifier</button>';
+  h += '</div>';
+  h += '<div class="titre" style="font-size:22px;margin-bottom:16px">Ancrer la journée</div>';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">';
+  /* Matin */
+  h += '<div>';
+  h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#8aaa8a;margin-bottom:10px">☀ MATIN</div>';
+  for (var i=0; i<rM.length; i++) {
+    var done = rDone.m && rDone.m[i];
+    h += '<div class="rit-row" onclick="toggleRitual(\''+dk+'\',\'m\','+i+')">';
+    h += '<div class="rit-chk'+(done?' done':'')+'">'+( done ? svgCheck() : '')+'</div>';
+    h += '<div class="rit-txt'+(done?' done':'')+'">'+escH(rM[i])+'</div>';
+    h += '</div>';
+  }
+  h += '</div>';
+  /* Soir */
+  h += '<div>';
+  h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#8aaa8a;margin-bottom:10px">☽ SOIR</div>';
+  for (var i=0; i<rE.length; i++) {
+    var done = rDone.e && rDone.e[i];
+    h += '<div class="rit-row" onclick="toggleRitual(\''+dk+'\',\'e\','+i+')">';
+    h += '<div class="rit-chk'+(done?' done':'')+'">'+( done ? svgCheck() : '')+'</div>';
+    h += '<div class="rit-txt'+(done?' done':'')+'">'+escH(rE[i])+'</div>';
+    h += '</div>';
+  }
+  h += '</div>';
+  h += '</div>';
+  h += '</div>';
+
+  document.getElementById('pg-jour').innerHTML = h;
+
+  /* Horloge live */
+  clockTick = setInterval(function() {
+    var n = new Date();
+    var el = document.getElementById('clock-display');
+    if (el) el.textContent = pad2(n.getHours())+':'+pad2(n.getMinutes());
+  }, 15000);
+}
+
+/* ════════════════════════════════════════
+   INTERACTIONS JOUR
+════════════════════════════════════════ */
+function openAddHeadache(dk) {
+  var meds = ['Excedrin','Paracétamol','Ibuprofène','Autre','Aucun'];
+  var mb = '';
+  mb += '<div class="lbl" style="margin-bottom:6px">NOUVEAU MAL DE TÊTE</div>';
+  mb += '<div class="titre" style="font-size:22px;margin-bottom:16px">Quel médicament ?</div>';
+  for (var i=0; i<meds.length; i++) {
+    var med = meds[i];
+    mb += '<button onclick="saveHeadache(\''+dk+'\',\''+med+'\')" ';
+    mb += 'style="display:block;width:100%;text-align:left;padding:14px 18px;margin-bottom:8px;';
+    mb += 'border:1.5px solid rgba(0,0,0,0.08);border-radius:16px;background:rgba(255,255,255,0.72);';
+    mb += 'font-size:15px;font-family:\'DM Sans\',sans-serif;cursor:pointer;color:#1e2d1e;font-weight:500">';
+    mb += escH(med)+'</button>';
+  }
+  mb += '<button onclick="closeModal()" style="display:block;width:100%;margin-top:4px;padding:12px;border:none;background:none;color:#9aaa9a;font-size:14px;font-family:\'DM Sans\',sans-serif;cursor:pointer">Annuler</button>';
+  openModal(mb);
+}
+
+function saveHeadache(dk, med) {
+  if (!S.health[dk]) S.health[dk] = {headaches:[]};
+  if (!S.health[dk].headaches) S.health[dk].headaches = [];
+  var now = new Date();
+  var t = pad2(now.getHours())+':'+pad2(now.getMinutes());
+  S.health[dk].headaches.push({id:mkId(), time:t, med:med});
+  save();
+  closeModal();
+  renderJour();
+}
+
+function removeHeadache(dk, id) {
+  if (!S.health[dk] || !S.health[dk].headaches) return;
+  S.health[dk].headaches = S.health[dk].headaches.filter(function(h){ return h.id !== id; });
+  save();
+  renderJour();
+}
+
+function saveBraindump(dk, val) {
+  S.braindump[dk] = val;
+  save();
+}
+
+function saveCalNote(dk, val) {
+  S.calNotes[dk] = val;
+  save();
+}
+
+/* ════════════════════════════════════════
+   TO-DO — helpers & interactions
+════════════════════════════════════════ */
+var PRIO = {
+  high:   {color:'#e07070', next:'normal', label:'🔴'},
+  normal: {color:'#e0a454', next:'low',    label:'🟡'},
+  low:    {color:'#8aba8a', next:'high',   label:'🟢'}
+};
+
+function dayAfter(dk) {
+  var d = new Date(dk+'T12:00:00');
+  d.setDate(d.getDate()+1);
+  return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
+}
+function moisKey() { return calY+'-'+pad2(calM+1); }
+function nowMoisKey() { var n=new Date(); return n.getFullYear()+'-'+pad2(n.getMonth()+1); }
+
+/* ── Refresh partiel de la liste todo d'un jour ── */
+function refreshTodoDayEl(dk) {
+  var el = document.getElementById('todo-day-'+dk);
+  if (el) el.innerHTML = buildTodoDayInner(dk);
+}
+function refreshTodoMonthEl(mk) {
+  var el = document.getElementById('todo-month-'+mk);
+  if (el) el.innerHTML = buildTodoMonthInner(mk);
+}
+
+/* ── CRUD journalier ── */
+function addTodoDay(dk) {
+  var inp = document.getElementById('todo-inp-'+dk);
+  if (!inp) return;
+  var txt = inp.value.trim();
+  if (!txt) return;
+  if (!S.intentions[dk]) S.intentions[dk] = [];
+  S.intentions[dk].push({id:mkId(),text:txt,done:false,priority:'normal'});
+  inp.value = '';
+  save();
+  refreshTodoDayEl(dk);
+}
+function toggleTodoDay(dk, id) {
+  var list = S.intentions[dk];
+  if (!list) return;
+  for (var i=0; i<list.length; i++) { if (list[i].id===id){ list[i].done=!list[i].done; break; } }
+  save();
+  refreshTodoDayEl(dk);
+}
+function deleteTodoDay(dk, id) {
+  if (!S.intentions[dk]) return;
+  S.intentions[dk] = S.intentions[dk].filter(function(t){ return t.id!==id; });
+  save();
+  refreshTodoDayEl(dk);
+}
+function cyclePrioDay(dk, id) {
+  var list = S.intentions[dk];
+  if (!list) return;
+  for (var i=0; i<list.length; i++) {
+    if (list[i].id===id){ list[i].priority = PRIO[list[i].priority||'normal'].next; break; }
+  }
+  save();
+  refreshTodoDayEl(dk);
+}
+/* Envoyer au lendemain */
+function sendTomorrow(dk, id) {
+  var list = S.intentions[dk]||[];
+  var task = null;
+  for (var i=0; i<list.length; i++){ if(list[i].id===id){ task=list[i]; break; } }
+  if (!task) return;
+  var tom = dayAfter(dk);
+  if (!S.intentions[tom]) S.intentions[tom]=[];
+  S.intentions[tom].push({id:mkId(),text:task.text,done:false,priority:task.priority||'normal'});
+  S.intentions[dk] = list.filter(function(t){ return t.id!==id; });
+  save();
+  refreshTodoDayEl(dk);
+}
+/* Envoyer à la liste du mois */
+function sendToMonth(dk, id) {
+  var list = S.intentions[dk]||[];
+  var task = null;
+  for (var i=0; i<list.length; i++){ if(list[i].id===id){ task=list[i]; break; } }
+  if (!task) return;
+  var mk = nowMoisKey();
+  if (!S.monthTodos[mk]) S.monthTodos[mk]=[];
+  S.monthTodos[mk].push({id:mkId(),text:task.text,done:false,priority:task.priority||'normal'});
+  S.intentions[dk] = list.filter(function(t){ return t.id!==id; });
+  save();
+  refreshTodoDayEl(dk);
+  refreshTodoMonthEl(mk);
+}
+
+/* ── CRUD mensuel ── */
+function addTodoMonth(mk) {
+  var inp = document.getElementById('todo-inp-m-'+mk);
+  if (!inp) return;
+  var txt = inp.value.trim();
+  if (!txt) return;
+  if (!S.monthTodos[mk]) S.monthTodos[mk]=[];
+  S.monthTodos[mk].push({id:mkId(),text:txt,done:false,priority:'normal'});
+  inp.value = '';
+  save();
+  refreshTodoMonthEl(mk);
+}
+function toggleTodoMonth(mk, id) {
+  var list = S.monthTodos[mk];
+  if (!list) return;
+  for (var i=0; i<list.length; i++){ if(list[i].id===id){ list[i].done=!list[i].done; break; } }
+  save();
+  refreshTodoMonthEl(mk);
+}
+function deleteTodoMonth(mk, id) {
+  if (!S.monthTodos[mk]) return;
+  S.monthTodos[mk] = S.monthTodos[mk].filter(function(t){ return t.id!==id; });
+  save();
+  refreshTodoMonthEl(mk);
+}
+function cyclePrioMonth(mk, id) {
+  var list = S.monthTodos[mk];
+  if (!list) return;
+  for (var i=0; i<list.length; i++){
+    if(list[i].id===id){ list[i].priority=PRIO[list[i].priority||'normal'].next; break; }
+  }
+  save();
+  refreshTodoMonthEl(mk);
+}
+/* Envoyer vers un jour */
+function sendMonthToDay(mk, id, toDk) {
+  var list = S.monthTodos[mk]||[];
+  var task = null;
+  for (var i=0; i<list.length; i++){ if(list[i].id===id){ task=list[i]; break; } }
+  if (!task) return;
+  if (!S.intentions[toDk]) S.intentions[toDk]=[];
+  S.intentions[toDk].push({id:mkId(),text:task.text,done:false,priority:task.priority||'normal',fromMonth:mk});
+  save();
+  refreshTodoDayEl(toDk);
+  refreshTodoMonthEl(mk);
+}
+
+/* ════════════════════════════════════════
+   BUILD HTML — to-do journalier (dk)
+════════════════════════════════════════ */
+function buildTodoDayInner(dk) {
+  var list = (S.intentions[dk]||[]);
+  var isToday = (dk === todayKey());
+  var isSel   = (curPage === 'mois');
+  var tom     = dayAfter(dk);
+  var done    = 0;
+  for (var i=0; i<list.length; i++) if(list[i].done) done++;
+  var h = '';
+
+  /* Bannière bienveillante si maux de tête aujourd'hui */
+  if (isToday) {
+    var hlthToday = S.health[dk] || {};
+    var hdsToday  = hlthToday.headaches || [];
+    if (hdsToday.length > 0) {
+      h += '<div style="display:flex;align-items:flex-start;gap:10px;'
+         + 'background:rgba(130,100,200,0.10);border-radius:14px;padding:10px 14px;margin-bottom:10px;'
+         + 'border:1px solid rgba(130,100,200,0.22)">';
+      h += '<span style="font-size:18px;flex-shrink:0">💙</span>';
+      h += '<div><div style="font-size:13px;font-weight:700;color:#6050a0;margin-bottom:2px">Prends soin de toi</div>';
+      h += '<div style="font-size:12px;color:#7a6ab0;line-height:1.5">Tu as un mal de tête aujourd\'hui. '
+         + 'Pense à reporter les tâches non urgentes — ta santé d\'abord.</div></div>';
+      h += '</div>';
+    }
+  }
+
+  /* Reporter depuis hier */
+  if (isToday) {
+    var yest = dayAfter(dk); /* reuse dayAfter backwards */
+    var yd = new Date(dk+'T12:00:00'); yd.setDate(yd.getDate()-1);
+    var ydKey = yd.getFullYear()+'-'+pad2(yd.getMonth()+1)+'-'+pad2(yd.getDate());
+    var leftovers = (S.intentions[ydKey]||[]).filter(function(t){ return !t.done && !t.reported; });
+    if (leftovers.length) {
+      h += '<div style="display:flex;align-items:center;justify-content:space-between;'
+         + 'background:rgba(224,164,84,0.12);border-radius:12px;padding:8px 12px;margin-bottom:10px;'
+         + 'border:1px solid rgba(224,164,84,0.25)">';
+      h += '<span style="font-size:12px;color:#8a6a2a">↩ '+leftovers.length+' tâche'+(leftovers.length>1?'s':'')
+         + ' non terminée'+(leftovers.length>1?'s':'')+' hier</span>';
+      h += '<button onclick="reporterHier(\''+ydKey+'\',\''+dk+'\')" '
+         + 'style="border:none;background:#e0a454;color:#fff;border-radius:8px;padding:4px 10px;'
+         + 'font-size:11px;font-weight:700;cursor:pointer;font-family:\'DM Sans\',sans-serif">Reporter</button>';
+      h += '</div>';
+    }
+  }
+
+  /* Liste des tâches */
+  if (list.length === 0) {
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:14px;'
+       + 'color:#a0b4a0;padding:6px 0 10px">Aucune tâche — la page est libre ✨</div>';
+  }
+  for (var i=0; i<list.length; i++) {
+    var t = list[i];
+    var prio = PRIO[t.priority||'normal'];
+    h += '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;'
+       + 'border-bottom:1px solid rgba(0,0,0,0.04)">';
+    /* Checkbox */
+    h += '<div onclick="toggleTodoDay(\''+dk+'\',\''+t.id+'\')" '
+       + 'style="width:20px;height:20px;border-radius:6px;border:2px solid '+(t.done?'transparent':prio.color)+';'
+       + 'background:'+(t.done?prio.color:'transparent')+';cursor:pointer;flex-shrink:0;'
+       + 'display:flex;align-items:center;justify-content:center">'
+       + (t.done?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':'')
+       + '</div>';
+    /* Priorité dot */
+    h += '<div onclick="cyclePrioDay(\''+dk+'\',\''+t.id+'\')" title="Changer la priorité" '
+       + 'style="width:8px;height:8px;border-radius:50%;background:'+prio.color+';cursor:pointer;flex-shrink:0"></div>';
+    /* Texte */
+    h += '<div style="flex:1;font-size:14px;color:'+(t.done?'#aaa':'#1e2d1e')+';'
+       + (t.done?'text-decoration:line-through;':'')
+       + 'line-height:1.4'+(t.fromMonth?';font-style:italic':'')+'">'
+       + escH(t.text)
+       + (t.fromMonth?'<span style="font-size:10px;color:#8aaa8a;margin-left:4px">·mois</span>':'')
+       + '</div>';
+    /* Actions */
+    if (!t.done) {
+      if (!isSel || dk !== todayKey()) {
+        /* Envoyer à aujourd'hui (si c'est un autre jour) */
+        if (dk !== todayKey()) {
+          h += '<button onclick="sendDayToToday(\''+dk+'\',\''+t.id+'\')" '
+             + 'style="border:none;background:none;font-size:11px;color:#8aaa8a;cursor:pointer;padding:0 2px;white-space:nowrap" title="Envoyer à aujourd\'hui">→ auj.</button>';
+        }
+      }
+      if (dk === todayKey() || isSel) {
+        h += '<button onclick="sendTomorrow(\''+dk+'\',\''+t.id+'\')" '
+           + 'style="border:none;background:none;font-size:11px;color:#8aaa8a;cursor:pointer;padding:0 2px;white-space:nowrap" title="Reporter au lendemain">→ dem.</button>';
+      }
+      if (!t.fromMonth) {
+        h += '<button onclick="sendToMonth(\''+dk+'\',\''+t.id+'\')" '
+           + 'style="border:none;background:none;font-size:11px;color:#8aaa8a;cursor:pointer;padding:0 2px;white-space:nowrap" title="Envoyer au mois">→ mois</button>';
+      }
+    }
+    h += '<button onclick="deleteTodoDay(\''+dk+'\',\''+t.id+'\')" '
+       + 'style="border:none;background:none;color:#ddd;cursor:pointer;font-size:18px;padding:0 2px;line-height:1">×</button>';
+    h += '</div>';
+  }
+
+  /* Saisie */
+  h += '<div style="display:flex;gap:8px;margin-top:10px">';
+  h += '<input id="todo-inp-'+dk+'" type="text" placeholder="Ajouter une tâche…" '
+     + 'onkeydown="if(event.key===\'Enter\')addTodoDay(\''+dk+'\')" '
+     + 'style="flex:1;font-size:14px;padding:9px 13px;border-radius:12px;border:1.5px solid rgba(0,0,0,0.08);'
+     + 'background:rgba(255,255,255,0.7);outline:none;font-family:\'DM Sans\',sans-serif">';
+  h += '<button onclick="addTodoDay(\''+dk+'\')" '
+     + 'style="width:38px;height:38px;border-radius:12px;border:none;background:var(--accent);'
+     + 'color:#fff;font-size:20px;cursor:pointer;flex-shrink:0;font-family:\'DM Sans\',sans-serif">+</button>';
+  h += '</div>';
+  return h;
+}
+
+/* Reporter les non-terminées d'hier vers aujourd'hui */
+function reporterHier(fromDk, toDk) {
+  var src = S.intentions[fromDk] || [];
+  var leftovers = src.filter(function(t){ return !t.done && !t.reported; });
+  if (!S.intentions[toDk]) S.intentions[toDk] = [];
+  for (var i = 0; i < leftovers.length; i++) {
+    S.intentions[toDk].push({id:mkId(), text:leftovers[i].text, done:false,
+      priority:leftovers[i].priority||'normal'});
+    leftovers[i].reported = true; /* marque comme déjà reportée → masque le bandeau */
+  }
+  save();
+  refreshTodoDayEl(toDk);
+}
+
+/* Envoyer un jour sélectionné → aujourd'hui */
+function sendDayToToday(fromDk, id) {
+  var list = S.intentions[fromDk]||[];
+  var task = null;
+  for (var i=0; i<list.length; i++){ if(list[i].id===id){ task=list[i]; break; } }
+  if (!task) return;
+  var td = todayKey();
+  if (!S.intentions[td]) S.intentions[td]=[];
+  S.intentions[td].push({id:mkId(),text:task.text,done:false,priority:task.priority||'normal'});
+  S.intentions[fromDk] = list.filter(function(t){ return t.id!==id; });
+  save();
+  refreshTodoDayEl(fromDk);
+  refreshTodoDayEl(td);
+}
+
+/* ════════════════════════════════════════
+   BUILD HTML — to-do mensuelle (mk)
+════════════════════════════════════════ */
+function buildTodoMonthInner(mk) {
+  var list = S.monthTodos[mk]||[];
+  var done = 0;
+  for (var i=0; i<list.length; i++) if(list[i].done) done++;
+  var td = todayKey();
+  var h = '';
+
+  if (list.length === 0) {
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:14px;'
+       + 'color:#a0b4a0;padding:4px 0 8px">Aucune tâche ce mois-ci.</div>';
+  }
+  for (var i=0; i<list.length; i++) {
+    var t = list[i];
+    var prio = PRIO[t.priority||'normal'];
+    h += '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;'
+       + 'border-bottom:1px solid rgba(0,0,0,0.04)">';
+    h += '<div onclick="toggleTodoMonth(\''+mk+'\',\''+t.id+'\')" '
+       + 'style="width:20px;height:20px;border-radius:6px;border:2px solid '+(t.done?'transparent':prio.color)+';'
+       + 'background:'+(t.done?prio.color:'transparent')+';cursor:pointer;flex-shrink:0;'
+       + 'display:flex;align-items:center;justify-content:center">'
+       + (t.done?'<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':'')
+       + '</div>';
+    h += '<div onclick="cyclePrioMonth(\''+mk+'\',\''+t.id+'\')" title="Changer la priorité" '
+       + 'style="width:8px;height:8px;border-radius:50%;background:'+prio.color+';cursor:pointer;flex-shrink:0"></div>';
+    h += '<div style="flex:1;font-size:14px;color:'+(t.done?'#aaa':'#1e2d1e')+';'
+       + (t.done?'text-decoration:line-through;':'')+'line-height:1.4">'
+       + escH(t.text)+'</div>';
+    if (!t.done) {
+      h += '<button onclick="sendMonthToDay(\''+mk+'\',\''+t.id+'\',\''+td+'\')" '
+         + 'style="border:none;background:rgba(74,136,106,0.12);color:#4a886a;border-radius:8px;'
+         + 'font-size:11px;font-weight:600;cursor:pointer;padding:3px 8px;white-space:nowrap;'
+         + 'font-family:\'DM Sans\',sans-serif">→ auj.</button>';
+      if (calSel && calSel !== td) {
+        h += '<button onclick="sendMonthToDay(\''+mk+'\',\''+t.id+'\',\''+calSel+'\')" '
+           + 'style="border:none;background:rgba(0,0,0,0.05);color:#5a7a5a;border-radius:8px;'
+           + 'font-size:11px;font-weight:600;cursor:pointer;padding:3px 8px;white-space:nowrap;margin-left:4px;'
+           + 'font-family:\'DM Sans\',sans-serif">→ ce jour</button>';
+      }
+    }
+    h += '<button onclick="deleteTodoMonth(\''+mk+'\',\''+t.id+'\')" '
+       + 'style="border:none;background:none;color:#ddd;cursor:pointer;font-size:18px;padding:0 2px;line-height:1">×</button>';
+    h += '</div>';
+  }
+
+  h += '<div style="display:flex;gap:8px;margin-top:10px">';
+  h += '<input id="todo-inp-m-'+mk+'" type="text" placeholder="Ajouter au mois…" '
+     + 'onkeydown="if(event.key===\'Enter\')addTodoMonth(\''+mk+'\')" '
+     + 'style="flex:1;font-size:14px;padding:9px 13px;border-radius:12px;border:1.5px solid rgba(0,0,0,0.08);'
+     + 'background:rgba(255,255,255,0.7);outline:none;font-family:\'DM Sans\',sans-serif">';
+  h += '<button onclick="addTodoMonth(\''+mk+'\')" '
+     + 'style="width:38px;height:38px;border-radius:12px;border:none;background:var(--accent);'
+     + 'color:#fff;font-size:20px;cursor:pointer;flex-shrink:0;font-family:\'DM Sans\',sans-serif">+</button>';
+  h += '</div>';
+  return h;
+}
+
+
+function toggleRitual(dk, part, idx) {
+  saveTextareas();
+  if (!S.ritualsDone[dk]) S.ritualsDone[dk] = {m:[], e:[]};
+  var arr = S.ritualsDone[dk][part] || [];
+  var wasOn = !!arr[idx];
+  arr[idx] = !arr[idx];
+  S.ritualsDone[dk][part] = arr;
+  save();
+  if (!wasOn) {
+    var rituals = part === 'm' ? (S.settings.ritualsM || DEF_RM) : (S.settings.ritualsE || DEF_RE);
+    var allDone = true;
+    for (var i = 0; i < rituals.length; i++) { if (!arr[i]) { allDone = false; break; } }
+    if (allDone) setTimeout(fireRitualConfetti, 180);
+  }
+  renderJour();
+}
+
+/* ── Ajouter un événement ── */
+function openAddEvent(dk) {
+  var th = THEMES[new Date().getMonth()];
+  var selColor = EV_COLORS[0];
+  var h = '';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:22px;color:#1e2d1e;margin-bottom:20px">Nouvel événement</div>';
+  h += '<div class="fgroup"><label class="flbl">Titre</label><input id="ev-title" type="text" placeholder="Stand-up, rendez-vous…"></div>';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" class="fgroup">';
+  h += '<div><label class="flbl">Début</label><input type="time" id="ev-time" value="09:00"></div>';
+  h += '<div><label class="flbl">Fin</label><input type="time" id="ev-end" value="10:00"></div>';
+  h += '</div>';
+  h += '<div class="fgroup"><label class="flbl">Lieu (optionnel)</label><input id="ev-loc" type="text" placeholder="Café, bureau…"></div>';
+  h += '<div class="fgroup"><label class="flbl">Couleur</label><div style="display:flex;gap:8px;margin-top:6px">';
+  for (var i=0; i<EV_COLORS.length; i++) {
+    h += '<div onclick="pickEvColor(\''+EV_COLORS[i]+'\',this)" style="width:26px;height:26px;border-radius:50%;background:'+EV_COLORS[i]+';cursor:pointer;border:3px solid '+(i===0?'#1e3d1e':'transparent')+';transition:border .15s"></div>';
+  }
+  h += '</div></div>';
+  h += '<input type="hidden" id="ev-color" value="'+EV_COLORS[0]+'">';
+  h += '<input type="hidden" id="ev-date" value="'+dk+'">';
+  h += '<div style="display:flex;gap:10px">';
+  h += '<button class="btn btn-ghost" onclick="closeModal()" style="flex:1">Annuler</button>';
+  h += '<button class="btn btn-primary" onclick="saveEvent()" style="flex:2">Enregistrer</button>';
+  h += '</div>';
+  openModal(h);
+  setTimeout(function(){ var el=document.getElementById('ev-title'); if(el)el.focus(); }, 100);
+}
+
+function pickEvColor(c, el) {
+  document.getElementById('ev-color').value = c;
+  var dots = el.parentNode.querySelectorAll('div');
+  for (var i=0; i<dots.length; i++) dots[i].style.borderColor = 'transparent';
+  el.style.borderColor = '#1e3d1e';
+}
+
+function saveEvent() {
+  var title = (document.getElementById('ev-title')||{}).value || '';
+  title = title.trim();
+  if (!title) { var el=document.getElementById('ev-title'); if(el)el.focus(); return; }
+  var dk = (document.getElementById('ev-date')||{}).value || todayKey();
+  if (!S.events[dk]) S.events[dk] = [];
+  S.events[dk].push({
+    id:      mkId(),
+    title:   title,
+    time:    (document.getElementById('ev-time')||{}).value || '',
+    endTime: (document.getElementById('ev-end')||{}).value || '',
+    loc:     ((document.getElementById('ev-loc')||{}).value || '').trim(),
+    color:   (document.getElementById('ev-color')||{}).value || EV_COLORS[0]
+  });
+  save();
+  closeModal();
+  if (curPage === 'jour')       renderJour();
+  else if (curPage === 'mois')  renderMois();
+}
+
+function deleteEvent(dk, id) {
+  saveTextareas();
+  if (!S.events[dk]) return;
+  S.events[dk] = S.events[dk].filter(function(e){ return e.id !== id; });
+  save();
+  if (curPage === 'jour')       renderJour();
+  else if (curPage === 'mois')  renderMois();
+}
+
+function openEditEvent(dk, id) {
+  var evs = S.events[dk] || [];
+  var ev = null;
+  for (var i=0; i<evs.length; i++) { if (evs[i].id === id) { ev = evs[i]; break; } }
+  if (!ev) return;
+  var h = '';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:22px;color:#1e2d1e;margin-bottom:20px">Modifier l\'événement</div>';
+  h += '<div class="fgroup"><label class="flbl">Titre</label><input id="ev-title" type="text" value="'+escH(ev.title)+'" placeholder="Rendez-vous…"></div>';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" class="fgroup">';
+  h += '<div><label class="flbl">Début</label><input type="time" id="ev-time" value="'+escH(ev.time)+'"></div>';
+  h += '<div><label class="flbl">Fin</label><input type="time" id="ev-end" value="'+escH(ev.endTime||'')+'"></div>';
+  h += '</div>';
+  h += '<div class="fgroup"><label class="flbl">Lieu (optionnel)</label><input id="ev-loc" type="text" value="'+escH(ev.loc||'')+'" placeholder="Café, bureau…"></div>';
+  h += '<div class="fgroup"><label class="flbl">Couleur</label><div style="display:flex;gap:8px;margin-top:6px">';
+  for (var i=0; i<EV_COLORS.length; i++) {
+    var sel = EV_COLORS[i] === (ev.color||EV_COLORS[0]);
+    h += '<div onclick="pickEvColor(\''+EV_COLORS[i]+'\',this)" style="width:26px;height:26px;border-radius:50%;background:'+EV_COLORS[i]+';cursor:pointer;border:3px solid '+(sel?'#1e3d1e':'transparent')+';transition:border .15s"></div>';
+  }
+  h += '</div></div>';
+  h += '<input type="hidden" id="ev-color" value="'+(ev.color||EV_COLORS[0])+'">';
+  h += '<input type="hidden" id="ev-date" value="'+dk+'">';
+  h += '<input type="hidden" id="ev-edit-id" value="'+id+'">';
+  h += '<div style="display:flex;gap:8px">';
+  h += '<button class="btn btn-ghost" onclick="closeModal()" style="flex:1">Annuler</button>';
+  h += '<button class="btn btn-ghost" onclick="deleteEvent(\''+dk+'\',\''+id+'\');closeModal()" style="flex:1;color:#e07070">Supprimer</button>';
+  h += '<button class="btn btn-primary" onclick="saveEditedEvent()" style="flex:2">Enregistrer</button>';
+  h += '</div>';
+  openModal(h);
+  setTimeout(function(){ var el=document.getElementById('ev-title'); if(el)el.focus(); }, 100);
+}
+
+function saveEditedEvent() {
+  var title = (document.getElementById('ev-title')||{}).value || '';
+  title = title.trim();
+  if (!title) { var el=document.getElementById('ev-title'); if(el)el.focus(); return; }
+  var dk = (document.getElementById('ev-date')||{}).value || todayKey();
+  var id = (document.getElementById('ev-edit-id')||{}).value || '';
+  if (!S.events[dk] || !id) return;
+  for (var i=0; i<S.events[dk].length; i++) {
+    if (S.events[dk][i].id === id) {
+      S.events[dk][i].title   = title;
+      S.events[dk][i].time    = (document.getElementById('ev-time')||{}).value || '';
+      S.events[dk][i].endTime = (document.getElementById('ev-end')||{}).value || '';
+      S.events[dk][i].loc     = ((document.getElementById('ev-loc')||{}).value || '').trim();
+      S.events[dk][i].color   = (document.getElementById('ev-color')||{}).value || EV_COLORS[0];
+      break;
+    }
+  }
+  save();
+  closeModal();
+  if (curPage === 'jour')      renderJour();
+  else if (curPage === 'mois') renderMois();
+}
+
+/* ── Cycle ── */
+function openCycleModal() {
+  var h = '';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:22px;color:#1e2d1e;margin-bottom:20px">Bio-rythme</div>';
+  h += '<div class="fgroup"><label class="flbl">Premier jour de tes dernières règles</label>';
+  h += '<input type="date" id="cy-start" value="'+(S.cycle.start||'')+'"></div>';
+  h += '<div class="fgroup"><label class="flbl">Durée du cycle (jours)</label>';
+  h += '<input type="number" id="cy-len" value="'+(S.cycle.length||28)+'" min="21" max="40"></div>';
+  h += '<div style="display:flex;gap:10px">';
+  h += '<button class="btn btn-ghost" onclick="closeModal()" style="flex:1">Annuler</button>';
+  h += '<button class="btn btn-primary" onclick="saveCycle()" style="flex:2">Enregistrer</button>';
+  h += '</div>';
+  openModal(h);
+}
+
+function saveCycle() {
+  S.cycle.start  = (document.getElementById('cy-start')||{}).value || null;
+  S.cycle.length = parseInt((document.getElementById('cy-len')||{}).value)||28;
+  save();
+  closeModal();
+  renderJour();
+}
+
+/* ════════════════════════════════════════
+   RENDER MOIS
+════════════════════════════════════════ */
+function renderMois() {
+  var m   = calM, y = calY;
+  var th  = THEMES[m];
+  var CDN = 'https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/svg/';
+  var stk = CAL_STICKERS[m];
+  var dk  = todayKey();
+  if (!calSel) calSel = dk;
+
+  /* Calcul calendrier (lundi = 0) */
+  var first   = new Date(y, m, 1);
+  var daysInM = new Date(y, m+1, 0).getDate();
+  var offset  = (first.getDay() + 6) % 7;
+
+  /* Lookup stickers par jour */
+  var stickerMap = {};
+  for (var si=0; si<stk.days.length; si++) stickerMap[stk.days[si]] = stk.emojis[si];
+
+  var h = '';
+
+  /* ── EN-TÊTE ── */
+  h += '<div style="padding:8px 0 6px">';
+  h += '<div class="lbl" style="margin-bottom:4px">CALENDRIER · '+MOIS_FR[m].toUpperCase()+'</div>';
+  h += '<div style="display:flex;align-items:center;justify-content:space-between">';
+  h += '<div class="titre" style="font-size:34px">'+MOIS_FR[m]+' '+y+'</div>';
+  h += '<div style="display:flex;align-items:center;gap:6px">';
+  /* Prev */
+  h += '<button onclick="prevMois()" style="width:32px;height:32px;border-radius:50%;'
+     + 'border:1.5px solid rgba(0,0,0,0.12);background:rgba(255,255,255,0.72);'
+     + 'cursor:pointer;font-size:18px;font-family:\'DM Sans\',sans-serif;'
+     + 'display:flex;align-items:center;justify-content:center;color:#3d5d3d">‹</button>';
+  /* Aujourd'hui */
+  h += '<button onclick="todayMois()" style="padding:6px 13px;border-radius:99px;'
+     + 'border:1.5px solid rgba(0,0,0,0.12);background:rgba(255,255,255,0.72);'
+     + 'cursor:pointer;font-size:12px;font-weight:600;font-family:\'DM Sans\',sans-serif;'
+     + 'color:#2d3d2d">Aujourd\'hui</button>';
+  /* Next */
+  h += '<button onclick="nextMois()" style="width:32px;height:32px;border-radius:50%;'
+     + 'border:1.5px solid rgba(0,0,0,0.12);background:rgba(255,255,255,0.72);'
+     + 'cursor:pointer;font-size:18px;font-family:\'DM Sans\',sans-serif;'
+     + 'display:flex;align-items:center;justify-content:center;color:#3d5d3d">›</button>';
+  /* + Ajouter */
+  h += '<button onclick="openAddEvent(calSel||\''+dk+'\')" style="width:36px;height:36px;'
+     + 'border-radius:50%;background:'+th.accent+';border:none;color:#fff;font-size:22px;'
+     + 'cursor:pointer;display:flex;align-items:center;justify-content:center;'
+     + 'font-family:\'DM Sans\',sans-serif;line-height:1">+</button>';
+  h += '</div>';
+  h += '</div>';
+  h += '</div>';
+
+  /* ── GRILLE ── */
+  h += '<div class="card span2" style="position:relative;overflow:hidden;padding:14px 12px;background:rgba(255,253,248,0.92)">';
+  h += '<img src="'+CAL_IMG[m]+'" alt="" style="'
+     + 'position:absolute;inset:0;width:100%;height:100%;'
+     + 'object-fit:cover;opacity:0.55;border-radius:inherit;pointer-events:none;z-index:0">';
+
+  /* Contenu grille (au-dessus du fond botanique) */
+  h += '<div style="position:relative;z-index:1">';
+
+  /* En-têtes jours */
+  h += '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px">';
+  for (var i=0; i<JOURS_FR.length; i++) {
+    h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;'
+       + 'color:#9aaa9a;text-align:center;padding:4px 0'+(i>=5?';opacity:0.45':'')+'">';
+    h += JOURS_FR[i]+'</div>';
+  }
+  h += '</div>';
+
+  /* Cases */
+  h += '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">';
+
+  /* Cases vides avant le 1er */
+  for (var i=0; i<offset; i++) {
+    h += '<div style="aspect-ratio:1"></div>';
+  }
+
+  /* Jours du mois */
+  for (var d=1; d<=daysInM; d++) {
+    var dk2     = y+'-'+pad2(m+1)+'-'+pad2(d);
+    var isToday = dk2 === dk;
+    var isSel   = dk2 === calSel && !isToday;
+    var dayEvs  = S.events[dk2] || [];
+    var stkCp   = stickerMap[d] || null;
+
+    /* Style de la case */
+    var cs = 'aspect-ratio:1;border-radius:16px;cursor:pointer;position:relative;'
+           + 'overflow:hidden;display:flex;flex-direction:column;';
+    if (isToday) {
+      cs += 'background:rgba(255,255,255,0.62);'
+          + 'border:2px solid '+th.accent+';'
+          + 'box-shadow:0 2px 10px rgba(0,0,0,0.08);';
+    } else if (isSel) {
+      cs += 'background:rgba(255,255,255,0.58);'
+          + 'border:2px solid rgba(30,61,30,0.28);'
+          + 'box-shadow:0 0 0 2px rgba(30,61,30,0.07);';
+    } else {
+      cs += 'background:rgba(255,255,255,0.28);'
+          + 'border:1.5px solid rgba(255,255,255,0.55);'
+          + 'box-shadow:0 1px 4px rgba(0,0,0,0.03);';
+    }
+
+    var dayClass = 'cal-day' + (isToday ? ' cal-today' : '');
+    h += '<div class="'+dayClass+'" style="'+cs+'" onclick="selMoisDay(\''+dk2+'\')">';
+
+    if (isToday) {
+      /* Numéro accent + pastille pulse (top-right) */
+      h += '<div style="font-size:14px;font-weight:700;color:'+th.accent+';'
+         + 'padding:5px 0 0 6px;line-height:1;position:relative;z-index:1">'+d+'</div>';
+      h += '<div class="today-pulse" style="position:absolute;top:5px;right:5px;'
+         + 'width:7px;height:7px;border-radius:50%;background:'+th.accent+'"></div>';
+    } else {
+      /* Numéro haut-gauche */
+      h += '<div style="font-size:13px;font-weight:500;color:#1e2d1e;'
+         + 'padding:5px 0 0 6px;line-height:1;position:relative;z-index:1">'+d+'</div>';
+    }
+
+    /* Sticker centré (today + autres) */
+    if (stkCp) {
+      h += '<div style="position:absolute;inset:0;display:flex;align-items:center;'
+         + 'justify-content:center;pointer-events:none">';
+      h += '<img src="'+CDN+stkCp+'.svg" alt="" style="width:34px;height:34px;'
+         + 'object-fit:contain;opacity:0.9" onerror="this.style.display=\'none\'">';
+      h += '</div>';
+    }
+
+    /* Pill événement bas de case (today + autres) */
+    if (dayEvs.length > 0) {
+      var ev0 = dayEvs[0];
+      var titleShort = (ev0.title||'').slice(0,7);
+      h += '<div style="position:absolute;bottom:3px;left:3px;right:3px;'
+         + 'font-size:9px;font-weight:600;color:rgba(20,45,20,0.9);'
+         + 'padding:2px 4px;border-radius:6px;line-height:1.4;'
+         + 'background:'+hexRgba(ev0.color||EV_COLORS[0], 0.18)+';'
+         + 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:2">';
+      h += escH(ev0.time)+' '+escH(titleShort)+'…';
+      h += '</div>';
+    }
+
+    h += '</div>'; /* end case */
+  }
+  h += '</div>'; /* end grille */
+  h += '</div>'; /* end z-index wrapper */
+  h += '</div>'; /* end card */
+
+  /* ── JOUR SÉLECTIONNÉ ── */
+  var selDate = new Date(calSel+'T12:00:00');
+  var selEvs  = (S.events[calSel]||[]).slice().sort(function(a,b){ return (a.time||'').localeCompare(b.time||''); });
+  var selNote = escH(S.calNotes[calSel] || '');
+
+  h += '<div class="card span2">';
+  h += '<div class="row-sb" style="margin-bottom:12px">';
+  h += '<div>';
+  h += '<div class="lbl">'+JOURS_LONG[selDate.getDay()].toUpperCase()+'</div>';
+  h += '<div class="titre" style="font-size:22px">'+selDate.getDate()+' '+MOIS_FR[selDate.getMonth()].toLowerCase()+'</div>';
+  h += '</div>';
+  h += '</div>';
+
+  /* Événements */
+  if (selEvs.length === 0) {
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;'
+       + 'font-size:15px;color:#a0b4a0;line-height:1.55;margin-bottom:4px">'
+       + 'Aucun rendez-vous. Une page douce qui t\'attend.</div>';
+  } else {
+    for (var i=0; i<selEvs.length; i++) {
+      var ev = selEvs[i];
+      h += '<div class="ev-row">';
+      h += '<div style="min-width:48px">';
+      h += '<div style="font-size:14px;font-weight:700;color:#2d4d2d">'+escH(ev.time)+'</div>';
+      if (ev.endTime) h += '<div style="font-size:11px;color:#9aaa9a">'+escH(ev.endTime)+'</div>';
+      h += '</div>';
+      h += '<div class="ev-dot" style="background:'+(ev.color||EV_COLORS[0])+'"></div>';
+      h += '<div style="flex:1;cursor:pointer" onclick="openEditEvent(\''+calSel+'\',\''+ev.id+'\')">';
+      h += '<div style="font-size:15px;font-weight:500;color:#1e2d1e">'+escH(ev.title)+'</div>';
+      if (ev.loc) h += '<div style="font-size:12px;color:#8aaa8a;margin-top:2px">⊙ '+escH(ev.loc)+'</div>';
+      h += '</div>';
+      h += '<button onclick="openEditEvent(\''+calSel+'\',\''+ev.id+'\')" '
+         + 'style="border:none;background:none;color:#b0c8b0;cursor:pointer;font-size:15px;padding:0 4px;line-height:1" title="Modifier">✎</button>';
+      h += '<button onclick="deleteEvent(\''+calSel+'\',\''+ev.id+'\')" '
+         + 'style="border:none;background:none;color:#ddd;cursor:pointer;font-size:20px;padding:0">×</button>';
+      h += '</div>';
+    }
+  }
+
+  h += '<button onclick="openAddEvent(\''+calSel+'\')" '
+     + 'style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;'
+     + 'margin-top:10px;border:1.5px dashed rgba(0,0,0,0.1);background:none;cursor:pointer;'
+     + 'color:#8aaa8a;font-size:13px;font-family:\'DM Sans\',sans-serif;'
+     + 'padding:10px;border-radius:14px">+ Ajouter un rendez-vous</button>';
+
+  /* To-do du jour sélectionné */
+  h += '<div style="margin-top:16px;border-top:1px solid rgba(0,0,0,0.06);padding-top:14px">';
+  var sdTodoList = S.intentions[calSel]||[];
+  var sdDone=0; for(var i=0;i<sdTodoList.length;i++) if(sdTodoList[i].done) sdDone++;
+  h += '<div class="row-sb" style="margin-bottom:8px">';
+  h += '<div class="lbl">TÂCHES DU JOUR</div>';
+  if (sdTodoList.length) h += '<span style="font-size:12px;color:'+th.accent+';font-weight:700">'+sdDone+'/'+sdTodoList.length+'</span>';
+  h += '</div>';
+  h += '<div id="todo-day-'+calSel+'">'+buildTodoDayInner(calSel)+'</div>';
+  h += '</div>';
+
+  /* Zone de notes libres du jour */
+  h += '<div style="margin-top:16px;border-top:1px solid rgba(0,0,0,0.06);padding-top:14px">';
+  h += '<div class="lbl" style="margin-bottom:8px">NOTES DU JOUR</div>';
+  h += '<textarea id="cal-note-ta" '
+     + 'placeholder="Tâches, idées, pensées… tout ce qui passe par la tête ce jour-là." '
+     + 'oninput="saveCalNote(\''+calSel+'\',this.value);this.style.height=\'auto\';this.style.height=this.scrollHeight+\'px\'" '
+     + 'style="width:100%;min-height:90px;resize:none;border:1.5px solid rgba(0,0,0,0.08);'
+     + 'border-radius:14px;padding:12px 14px;font-family:\'DM Sans\',sans-serif;font-size:14px;'
+     + 'line-height:1.6;color:#1e2d1e;background:rgba(255,255,255,0.7);outline:none;'
+     + 'box-sizing:border-box;overflow:hidden">'+selNote+'</textarea>';
+  h += '</div>';
+
+  h += '</div>';
+
+  /* ── STATS SANTÉ DU MOIS ── */
+  var prefix = y+'-'+pad2(m+1)+'-';
+  var totalHd = 0;
+  var medCount = {};
+  for (var dk3 in S.health) {
+    if (dk3.indexOf(prefix) === 0) {
+      var dayH = S.health[dk3];
+      var dayHds = dayH.headaches || [];
+      totalHd += dayHds.length;
+      for (var i=0; i<dayHds.length; i++) {
+        var med = dayHds[i].med || 'Autre';
+        medCount[med] = (medCount[med] || 0) + 1;
+      }
+    }
+  }
+  h += '<div class="card">';
+  h += '<div class="row-sb" style="margin-bottom:12px">';
+  h += '<div><div class="lbl">SANTÉ · '+MOIS_FR[m].toUpperCase()+'</div>';
+  h += '<div class="titre" style="font-size:22px">Maux de tête</div></div>';
+  h += '<span style="font-size:26px;opacity:0.6">🧠</span>';
+  h += '</div>';
+  h += '<div style="font-size:42px;font-weight:600;letter-spacing:-2px;color:#1e2d1e;line-height:1;margin-bottom:6px">'+totalHd+'</div>';
+  h += '<div style="font-size:12px;color:#9aaa9a;margin-bottom:14px">ce mois-ci</div>';
+  if (totalHd > 0) {
+    h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#8aaa8a;margin-bottom:8px">PAR MÉDICAMENT</div>';
+    for (var med in medCount) {
+      h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-top:1px solid rgba(0,0,0,0.05)">';
+      h += '<span style="font-size:14px;color:#2d1e1e">'+escH(med)+'</span>';
+      h += '<span style="font-size:14px;font-weight:700;color:#c05050">'+medCount[med]+'×</span>';
+      h += '</div>';
+    }
+  } else {
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:14px;color:#a0b4a0">Aucun mal de tête ce mois-ci !</div>';
+  }
+  h += '</div>';
+
+  /* ── TO-DO MENSUELLE ── */
+  var mk = y+'-'+pad2(m+1);
+  var mlist = S.monthTodos[mk]||[];
+  var mdone = 0;
+  for (var i=0; i<mlist.length; i++) if(mlist[i].done) mdone++;
+  h += '<div class="card span2">';
+  h += '<div class="row-sb" style="margin-bottom:10px">';
+  h += '<div><div class="lbl">TÂCHES DE '+MOIS_FR[m].toUpperCase()+'</div>';
+  h += '<div class="titre" style="font-size:22px">To-do du mois</div></div>';
+  if (mlist.length) h += '<div style="font-size:13px;font-weight:700;color:'+th.accent+'">'+mdone+'/'+mlist.length+'</div>';
+  h += '</div>';
+  if (mlist.length) { h += '<div class="pbar" style="margin-bottom:12px"><div class="pbar-fill" style="width:'+(mlist.length?Math.round(mdone/mlist.length*100):0)+'%;background:'+th.accent+'"></div></div>'; }
+  h += '<div id="todo-month-'+mk+'">'+buildTodoMonthInner(mk)+'</div>';
+  h += '</div>';
+
+  document.getElementById('pg-mois').innerHTML = h;
+  /* Auto-resize si la note a déjà du contenu */
+  var cta = document.getElementById('cal-note-ta');
+  if (cta && cta.value) { cta.style.height = 'auto'; cta.style.height = cta.scrollHeight+'px'; }
+}
+
+/* Navigation calendrier */
+function prevMois() {
+  calM--; if (calM < 0) { calM = 11; calY--; }
+  calSel = null;
+  applyTheme(calM);
+  renderMois();
+}
+function nextMois() {
+  calM++; if (calM > 11) { calM = 0; calY++; }
+  calSel = null;
+  applyTheme(calM);
+  renderMois();
+}
+function todayMois() {
+  var now = new Date();
+  calY = now.getFullYear(); calM = now.getMonth();
+  calSel = todayKey();
+  applyTheme(calM);
+  renderMois();
+}
+function selMoisDay(dk) {
+  calSel = dk;
+  renderMois();
+}
+
+/* ════════════════════════════════════════
+   TRANSACTIONS / ENVELOPES
+════════════════════════════════════════ */
+function openAddTransaction(envId) {
+  var env = null;
+  for (var i = 0; i < S.budget.envelopes.length; i++) {
+    if (S.budget.envelopes[i].id === envId) { env = S.budget.envelopes[i]; break; }
+  }
+  if (!env) return;
+  var CDN = 'https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/svg/';
+  var h = '';
+  h += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:22px">';
+  h += '<div style="width:46px;height:46px;border-radius:50%;background:'+(env.color||'#f2ede8')+';';
+  h += 'display:flex;align-items:center;justify-content:center;flex-shrink:0">';
+  h += '<img src="'+CDN+env.emoji+'.svg" alt="" style="width:26px;height:26px" onerror="this.style.display=\'none\'">';
+  h += '</div>';
+  h += '<div>';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:20px;color:#1e2d1e">'+escH(env.name)+'</div>';
+  h += '<div style="font-size:12px;color:#9aaa9a">Ajouter une dépense</div>';
+  h += '</div></div>';
+  h += '<div class="fgroup"><label class="flbl">Montant (€)</label>';
+  h += '<input type="number" id="tx-amount" placeholder="0,00" min="0" step="0.01" inputmode="decimal"></div>';
+  h += '<div class="fgroup"><label class="flbl">Description (optionnel)</label>';
+  h += '<input type="text" id="tx-note" placeholder="Ex: Courses Monoprix…"></div>';
+  h += '<div class="fgroup"><label class="flbl">Date</label>';
+  h += '<input type="date" id="tx-date" value="'+todayKey()+'"></div>';
+  h += '<input type="hidden" id="tx-envid" value="'+envId+'">';
+  h += '<div style="display:flex;gap:10px">';
+  h += '<button class="btn btn-ghost" onclick="closeModal()" style="flex:1">Annuler</button>';
+  h += '<button class="btn btn-primary" onclick="saveTx()" style="flex:2">Enregistrer</button>';
+  h += '</div>';
+  openModal(h);
+  setTimeout(function(){ var el=document.getElementById('tx-amount'); if(el)el.focus(); }, 100);
+}
+
+function saveTx() {
+  var rawAmt = ((document.getElementById('tx-amount')||{}).value||'').replace(',','.');
+  var amt = parseFloat(rawAmt);
+  if (!amt || amt <= 0) {
+    var el = document.getElementById('tx-amount');
+    if (el) { el.focus(); el.style.borderColor='#e07070'; } return;
+  }
+  var envId = ((document.getElementById('tx-envid')||{}).value||'');
+  var note  = (((document.getElementById('tx-note')||{}).value)||'').trim();
+  var date  = ((document.getElementById('tx-date')||{}).value||todayKey());
+  if (!S.budget.transactions) S.budget.transactions = [];
+  S.budget.transactions.push({id:mkId(), envId:envId, amount:amt, note:note, date:date});
+  save();
+  closeModal();
+  renderBudget();
+}
+
+function openManageEnv() {
+  var CDN = 'https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/svg/';
+  var h = '';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:22px;color:#1e2d1e;margin-bottom:20px">Gérer les envelopes</div>';
+  for (var i = 0; i < S.budget.envelopes.length; i++) {
+    var e = S.budget.envelopes[i];
+    h += '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;';
+    h += (i > 0 ? 'border-top:1px solid rgba(0,0,0,0.05)' : '')+';">';
+    h += '<div style="width:36px;height:36px;border-radius:50%;background:'+(e.color||'#f2ede8')+';';
+    h += 'display:flex;align-items:center;justify-content:center;flex-shrink:0">';
+    h += '<img src="'+CDN+e.emoji+'.svg" alt="" style="width:20px;height:20px" onerror="this.style.display=\'none\'">';
+    h += '</div>';
+    h += '<div style="flex:1;font-size:15px;font-weight:500;color:#1e2d1e">'+escH(e.name)+'</div>';
+    h += '<input type="number" id="env-bud-'+e.id+'" value="'+e.budget+'" min="0" '
+       + 'style="width:80px;text-align:right;padding:7px 10px;font-size:14px" placeholder="0">';
+    h += '<button onclick="deleteEnvelope(\''+e.id+'\')" style="border:none;background:none;color:#ddd;cursor:pointer;font-size:22px;padding:0 2px;line-height:1;flex-shrink:0">×</button>';
+    h += '</div>';
+  }
+  h += '<div style="display:flex;gap:10px;margin-top:16px">';
+  h += '<button class="btn btn-ghost" onclick="closeModal()" style="flex:1">Fermer</button>';
+  h += '<button class="btn btn-primary" onclick="saveManageEnv()" style="flex:2">Enregistrer</button>';
+  h += '</div>';
+  openModal(h);
+}
+
+function saveManageEnv() {
+  for (var i = 0; i < S.budget.envelopes.length; i++) {
+    var e = S.budget.envelopes[i];
+    var inp = document.getElementById('env-bud-'+e.id);
+    if (inp) { var v = parseFloat(inp.value); if (!isNaN(v) && v >= 0) e.budget = v; }
+  }
+  save();
+  closeModal();
+  renderBudget();
+}
+
+/* ════════════════════════════════════════
+   RENDER BUDGET
+════════════════════════════════════════ */
+function renderBudget() {
+  var now        = new Date();
+  var m          = now.getMonth();
+  var y          = now.getFullYear();
+  var th         = THEMES[m];
+  var CDN        = 'https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/svg/';
+  var income     = S.budget.income || 2400;
+  var fixedTot   = getFixedTotal();
+  var varSpent   = 0;
+  for (var i = 0; i < S.budget.envelopes.length; i++) varSpent += getEnvSpent(S.budget.envelopes[i].id);
+  var rav        = income - fixedTot - varSpent;
+  var daysInM    = new Date(y, m+1, 0).getDate();
+  var dayPct     = Math.round(now.getDate() / daysInM * 100);
+  var paidCount  = getFixedPaidCount();
+
+  var h = '';
+
+  /* ── HÉRO ── */
+  h += '<div class="card span2" style="margin-top:8px;padding:24px 20px">';
+  h += '<div class="lbl" style="margin-bottom:10px">RESTE À VIVRE · '+MOIS_FR[m].toUpperCase()+' '+y+'</div>';
+  h += '<div style="font-size:50px;font-weight:600;letter-spacing:-2px;color:#1e2d1e;line-height:1;';
+  h += 'font-family:\'DM Sans\',sans-serif;margin-bottom:8px">'+fmtEuroCents(Math.max(0,rav))+'</div>';
+  h += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:18px">';
+  h += '<span style="font-size:12px;color:#9aaa9a">sur '+income+' € ce mois-ci</span>';
+  h += '<button onclick="openEditIncome()" style="border:none;background:rgba(0,0,0,0.05);border-radius:8px;'
+     + 'padding:3px 9px;font-size:11px;color:#7a9a7a;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-weight:600">✎ modifier</button>';
+  h += '</div>';
+  /* Mini pills */
+  h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px">';
+  h += '<div style="background:rgba(106,154,224,0.14);border-radius:16px;padding:8px 14px">';
+  h += '<div style="font-size:9px;font-weight:700;letter-spacing:0.1em;color:#4a6a9a;margin-bottom:3px">CHARGES FIXES</div>';
+  h += '<div style="font-size:15px;font-weight:700;color:#2d4d7a">'+fmtE(fixedTot)+'</div>';
+  h += '</div>';
+  h += '<div style="background:rgba(106,192,160,0.14);border-radius:16px;padding:8px 14px">';
+  h += '<div style="font-size:9px;font-weight:700;letter-spacing:0.1em;color:#2a6a4a;margin-bottom:3px">VARIABLES DÉPENSÉES</div>';
+  h += '<div style="font-size:15px;font-weight:700;color:#1e5a3a">'+fmtEuroCents(varSpent)+'</div>';
+  h += '</div>';
+  h += '</div>';
+  /* Avancement du mois */
+  h += '<div style="display:flex;justify-content:space-between;margin-bottom:5px">';
+  h += '<span style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#8aaa8a">AVANCEMENT DU MOIS</span>';
+  h += '<span style="font-size:10px;font-weight:700;color:#8aaa8a">'+dayPct+'%</span>';
+  h += '</div>';
+  h += '<div class="pbar"><div class="pbar-fill" style="width:'+dayPct+'%;background:'+th.accent+'"></div></div>';
+  h += '</div>';
+
+  /* ── DÉPENSES VARIABLES ── */
+  h += '<div class="card span2">';
+  h += '<div class="lbl" style="margin-bottom:8px">DÉPENSES VARIABLES · '+MOIS_FR[m].toUpperCase()+'</div>';
+  h += '<div class="row-sb" style="margin-bottom:16px">';
+  h += '<div class="titre" style="font-size:22px">Envelopes</div>';
+  h += '<div style="display:flex;gap:8px">';
+  h += '<button onclick="openAddEnvelope()" class="btn btn-primary btn-sm">+ Nouvelle</button>';
+  h += '<button onclick="openManageEnv()" class="btn btn-ghost btn-sm">Gérer</button>';
+  h += '</div>';
+  h += '</div>';
+  /* Grille 3 colonnes */
+  h += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">';
+  for (var i = 0; i < S.budget.envelopes.length; i++) {
+    var e   = S.budget.envelopes[i];
+    var es  = getEnvSpent(e.id);
+    var ep  = e.budget ? Math.min(100, Math.round(es/e.budget*100)) : 0;
+    var rem = Math.max(0, e.budget - es);
+    h += '<div onclick="openAddTransaction(\''+e.id+'\')" style="background:'+(e.color||'rgba(255,255,255,0.78)')+';'
+       + 'border-radius:20px;padding:14px 10px;text-align:center;cursor:pointer;'
+       + 'border:1.5px solid rgba(255,255,255,0.85);box-shadow:0 1px 8px rgba(0,0,0,0.05)">';
+    /* Icône */
+    h += '<div style="width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.75);'
+       + 'display:flex;align-items:center;justify-content:center;margin:0 auto 8px">';
+    h += '<img src="'+CDN+e.emoji+'.svg" alt="" style="width:26px;height:26px" onerror="this.style.display=\'none\'">';
+    h += '</div>';
+    h += '<div style="font-size:12px;font-weight:600;color:#1e2d1e;margin-bottom:4px">'+escH(e.name)+'</div>';
+    h += '<div style="font-size:11px;color:#7a9a7a;margin-bottom:7px">'+fmtE(es)+' / '+fmtE(e.budget)+'</div>';
+    h += '<div style="height:4px;background:rgba(0,0,0,0.08);border-radius:99px;overflow:hidden;margin-bottom:6px">';
+    h += '<div style="height:4px;border-radius:99px;width:'+ep+'%;background:'+th.accent+'"></div>';
+    h += '</div>';
+    h += '<div style="font-size:10px;color:#9aaa9a;font-weight:500">'+fmtE(rem)+' rest.</div>';
+    h += '</div>';
+  }
+  h += '</div>';
+  h += '</div>';
+
+  /* ── CHARGES FIXES ── */
+  h += '<div class="card span2">';
+  h += '<div class="lbl" style="margin-bottom:8px">CHARGES FIXES DU MOIS</div>';
+  h += '<div class="row-sb" style="margin-bottom:4px">';
+  h += '<div class="titre" style="font-size:22px">Prélèvements</div>';
+  h += '<div style="display:flex;align-items:center;gap:8px">';
+  h += '<div style="background:rgba(30,61,30,0.1);border-radius:99px;padding:5px 12px;';
+  h += 'font-size:11px;font-weight:700;color:#2a5a2a;letter-spacing:0.06em">'+paidCount+'/'+S.budget.fixed.length+' RÉGLÉS</div>';
+  h += '<button onclick="openAddFixed()" style="width:28px;height:28px;border-radius:50%;background:#1e3d1e;border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:\'DM Sans\',sans-serif;line-height:1">+</button>';
+  h += '</div>';
+  h += '</div>';
+  h += '<div style="font-size:13px;color:#7a9a7a;margin-bottom:14px">Total : <strong>'+fmtE(fixedTot)+'</strong></div>';
+  for (var i = 0; i < S.budget.fixed.length; i++) {
+    var f    = S.budget.fixed[i];
+    var paid = isFixedPaid(f.id);
+    h += '<div style="display:flex;align-items:center;gap:12px;padding:11px 0;user-select:none;'
+       + (i > 0 ? 'border-top:1px solid rgba(0,0,0,0.05)' : '')+';">';
+    h += '<div onclick="toggleFixedPaid(\''+f.id+'\')" style="width:26px;height:26px;border-radius:50%;flex-shrink:0;cursor:pointer;'
+       + 'display:flex;align-items:center;justify-content:center;transition:all .2s;'
+       + (paid ? 'background:#1e3d1e;border:2px solid #1e3d1e' : 'background:transparent;border:2px solid #c0d4c0')+';">';
+    if (paid) h += svgCheck();
+    h += '</div>';
+    h += '<div onclick="toggleFixedPaid(\''+f.id+'\')" style="flex:1;cursor:pointer">';
+    h += '<div style="font-size:15px;font-weight:500;color:'+(paid?'#aac0aa':'#1e2d1e')+';'
+       + (paid?'text-decoration:line-through':'')+'">'+escH(f.name)+'</div>';
+    h += '<div style="font-size:11px;color:#9aaa9a;margin-top:1px">Le '+f.day+' du mois</div>';
+    h += '</div>';
+    h += '<div style="font-size:16px;font-weight:700;color:'+(paid?'#9aaa9a':'#1e2d1e')+'">'+fmtE(f.amount)+'</div>';
+    h += '<button onclick="openEditFixed(\''+f.id+'\')" style="border:none;background:none;color:#b0c0b0;cursor:pointer;font-size:16px;padding:0 2px;line-height:1" title="Modifier">✎</button>';
+    h += '<button onclick="deleteFixed(\''+f.id+'\')" style="border:none;background:none;color:#ddd;cursor:pointer;font-size:20px;padding:0;line-height:1" title="Supprimer">×</button>';
+    h += '</div>';
+  }
+  h += '</div>';
+
+  /* ── HISTORIQUE DES TRANSACTIONS ── */
+  var ym = y+'-'+pad2(m+1);
+  var txMonth = [];
+  for (var i = 0; i < S.budget.transactions.length; i++) {
+    var tx = S.budget.transactions[i];
+    if (tx.date && tx.date.indexOf(ym) === 0) txMonth.push(tx);
+  }
+  txMonth.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
+
+  h += '<div class="card span2">';
+  h += '<div class="row-sb" style="margin-bottom:12px">';
+  h += '<div><div class="lbl">HISTORIQUE · '+MOIS_FR[m].toUpperCase()+'</div>';
+  h += '<div class="titre" style="font-size:22px">Transactions</div></div>';
+  h += '<span style="font-size:13px;color:#8aaa8a;font-weight:500">'+txMonth.length+' dépense'+(txMonth.length!==1?'s':'')+'</span>';
+  h += '</div>';
+  if (txMonth.length === 0) {
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:14px;color:#a0b4a0">Aucune transaction ce mois-ci.</div>';
+  }
+  for (var i = 0; i < txMonth.length; i++) {
+    var tx = txMonth[i];
+    var txEnv = null;
+    for (var j = 0; j < S.budget.envelopes.length; j++) { if (S.budget.envelopes[j].id === tx.envId) { txEnv = S.budget.envelopes[j]; break; } }
+    h += '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;'+(i>0?'border-top:1px solid rgba(0,0,0,0.05)':'')+';">';
+    h += '<div style="width:34px;height:34px;border-radius:50%;background:'+(txEnv?txEnv.color||'#f2ede8':'#f0f0f0')+';';
+    h += 'display:flex;align-items:center;justify-content:center;flex-shrink:0">';
+    if (txEnv) h += '<img src="'+CDN+txEnv.emoji+'.svg" alt="" style="width:18px;height:18px" onerror="this.style.display=\'none\'">';
+    h += '</div>';
+    h += '<div style="flex:1">';
+    h += '<div style="font-size:14px;font-weight:500;color:#1e2d1e">'+(tx.note?escH(tx.note):(txEnv?escH(txEnv.name):'Dépense'))+'</div>';
+    h += '<div style="font-size:11px;color:#9aaa9a">'+(txEnv?escH(txEnv.name)+' · ':'')+escH(tx.date||'')+'</div>';
+    h += '</div>';
+    h += '<div style="font-size:16px;font-weight:700;color:#c05050">−'+fmtEuroCents(tx.amount||0)+'</div>';
+    h += '<button onclick="deleteTx(\''+tx.id+'\')" style="border:none;background:none;color:#ddd;cursor:pointer;font-size:20px;padding:0 2px;line-height:1" title="Supprimer">×</button>';
+    h += '</div>';
+  }
+  h += '</div>';
+
+  document.getElementById('pg-budget').innerHTML = h;
+}
+
+function deleteTx(id) {
+  S.budget.transactions = S.budget.transactions.filter(function(t){ return t.id !== id; });
+  save();
+  renderBudget();
+}
+
+/* ════════════════════════════════════════
+   CUISINE — HELPERS
+════════════════════════════════════════ */
+function normCat(s) {
+  return s.toUpperCase()
+    .replace(/[ÉÈÊË]/g,'E').replace(/[ÀÂÄÃ]/g,'A')
+    .replace(/[ÎÏÌ]/g,'I').replace(/[ÔÖÕ]/g,'O')
+    .replace(/[ÙÛÜÚ]/g,'U').replace(/Ç/g,'C');
+}
+
+function hasIngredient(ing) {
+  var n = ing.toLowerCase();
+  var p = S.cuisine.pantry;
+  for (var i = 0; i < p.length; i++) {
+    var item = p[i].name.toLowerCase();
+    if (item.indexOf(n) >= 0 || n.indexOf(item) >= 0) return true;
+    var words = n.split(/[\s']+/);
+    for (var j = 0; j < words.length; j++) {
+      if (words[j].length >= 4 && item.indexOf(words[j]) >= 0) return true;
+    }
+  }
+  return false;
+}
+
+function getRecipeMatch(rec) {
+  var matched = [], count = 0;
+  for (var i = 0; i < rec.ing.length; i++) {
+    var m = hasIngredient(rec.ing[i]);
+    matched.push(m);
+    if (m) count++;
+  }
+  return {pct: rec.ing.length ? Math.round(count/rec.ing.length*100) : 0, matched: matched};
+}
+
+function setCuisineFilter(f) { cuisineFilter = f; renderCuisine(); }
+
+function renderPlacardItems(plId, items) {
+  var h = '';
+  if (items.length === 0) {
+    return '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:14px;color:#aac0aa;padding:8px 0">Placard vide — ajoute tes premiers articles.</div>';
+  }
+  for (var i = 0; i < items.length; i++) {
+    var it = items[i];
+    h += '<div id="plitem-'+it.id+'" style="display:flex;align-items:center;padding:10px 0;'+(i>0?'border-top:1px solid rgba(0,0,0,0.05)':'')+';">';
+    h += '<div style="flex:1;font-size:15px;color:#1e2d1e">'+escH(it.name)+'</div>';
+    h += '<button onclick="removePlacardItem(\''+it.id+'\',\''+plId+'\')" style="border:none;background:none;color:#ddd;cursor:pointer;font-size:20px;padding:0;line-height:1">×</button>';
+    h += '</div>';
+  }
+  return h;
+}
+
+function openPlacard(plId) {
+  var pl = null;
+  for (var i = 0; i < PLACARDS.length; i++) { if (PLACARDS[i].id === plId) { pl = PLACARDS[i]; break; } }
+  if (!pl) return;
+  var CDN = 'https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/svg/';
+  var items = [];
+  for (var i = 0; i < S.cuisine.pantry.length; i++) { if (S.cuisine.pantry[i].placardId === plId) items.push(S.cuisine.pantry[i]); }
+  var h = '';
+  h += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">';
+  h += '<div style="width:44px;height:44px;border-radius:14px;background:'+pl.color+';display:flex;align-items:center;justify-content:center;flex-shrink:0">';
+  h += '<img src="'+CDN+pl.emoji+'.svg" alt="" style="width:26px;height:26px" onerror="this.style.display=\'none\'">';
+  h += '</div>';
+  h += '<div><div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:20px;color:#1e2d1e">'+escH(pl.name)+'</div>';
+  h += '<div style="font-size:12px;color:#9aaa9a">'+escH(pl.desc)+'</div></div></div>';
+  h += '<div id="pl-items-'+plId+'">'+renderPlacardItems(plId, items)+'</div>';
+  h += '<div style="display:flex;gap:8px;margin-top:12px">';
+  h += '<input id="pl-inp-'+plId+'" type="text" placeholder="Ajouter un article…" style="flex:1;font-size:14px" onkeydown="if(event.key===\'Enter\')addPlacardItem(\''+plId+'\')">';
+  h += '<button onclick="addPlacardItem(\''+plId+'\')" class="btn btn-primary btn-sm" style="flex-shrink:0;padding:0;width:38px;height:38px;border-radius:12px;font-size:20px">+</button>';
+  h += '</div>';
+  openModal(h);
+  setTimeout(function(){ var el=document.getElementById('pl-inp-'+plId); if(el)el.focus(); }, 100);
+}
+
+function addPlacardItem(plId) {
+  var inp = document.getElementById('pl-inp-'+plId);
+  if (!inp) return;
+  var name = inp.value.trim();
+  if (!name) return;
+  S.cuisine.pantry.push({id:mkId(), name:name, placardId:plId});
+  save();
+  inp.value = '';
+  var items = [];
+  for (var i = 0; i < S.cuisine.pantry.length; i++) { if (S.cuisine.pantry[i].placardId === plId) items.push(S.cuisine.pantry[i]); }
+  var el = document.getElementById('pl-items-'+plId);
+  if (el) el.innerHTML = renderPlacardItems(plId, items);
+  renderCuisine();
+}
+
+function removePlacardItem(id, plId) {
+  S.cuisine.pantry = S.cuisine.pantry.filter(function(x){ return x.id !== id; });
+  save();
+  var items = [];
+  for (var i = 0; i < S.cuisine.pantry.length; i++) { if (S.cuisine.pantry[i].placardId === plId) items.push(S.cuisine.pantry[i]); }
+  var el = document.getElementById('pl-items-'+plId);
+  if (el) el.innerHTML = renderPlacardItems(plId, items);
+  renderCuisine();
+}
+
+function openQuickAddPantry() {
+  var CDN = 'https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/svg/';
+  var h = '';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:22px;color:#1e2d1e;margin-bottom:20px">Ajouter un article</div>';
+  h += '<div class="fgroup"><label class="flbl">Article</label>';
+  h += '<input type="text" id="qa-name" placeholder="Ex: Tomates, Yaourt…"></div>';
+  h += '<div class="fgroup"><label class="flbl">Placard</label><select id="qa-placard">';
+  for (var i = 0; i < PLACARDS.length; i++) {
+    h += '<option value="'+PLACARDS[i].id+'">'+escH(PLACARDS[i].name)+'</option>';
+  }
+  h += '</select></div>';
+  h += '<div style="display:flex;gap:10px">';
+  h += '<button class="btn btn-ghost" onclick="closeModal()" style="flex:1">Annuler</button>';
+  h += '<button class="btn btn-primary" onclick="saveQuickPantry()" style="flex:2">Ajouter</button>';
+  h += '</div>';
+  openModal(h);
+  setTimeout(function(){ var el=document.getElementById('qa-name'); if(el)el.focus(); }, 100);
+}
+
+function saveQuickPantry() {
+  var name = (((document.getElementById('qa-name')||{}).value)||'').trim();
+  var plId = ((document.getElementById('qa-placard')||{}).value||'p1');
+  if (!name) { var el=document.getElementById('qa-name'); if(el)el.focus(); return; }
+  S.cuisine.pantry.push({id:mkId(), name:name, placardId:plId});
+  save();
+  closeModal();
+  renderCuisine();
+}
+
+/* ════════════════════════════════════════
+   RENDER CUISINE
+════════════════════════════════════════ */
+function renderCuisine() {
+  var now    = new Date();
+  var m      = now.getMonth();
+  var th     = THEMES[m];
+  var CDN    = 'https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/svg/';
+  var pantry = S.cuisine.pantry;
+  var total  = pantry.length;
+
+  var h = '';
+
+  /* ── HÉRO ── */
+  h += '<div class="card span2" style="margin-top:8px;padding:24px 20px">';
+  h += '<div class="lbl" style="margin-bottom:8px">MA CUISINE</div>';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:52px;font-weight:400;line-height:1;color:#1e2d1e;margin-bottom:8px">'+total+' articles</div>';
+  h += '<div style="font-size:14px;color:#7a9a7a">rangés dans tes '+PLACARDS.length+' placards</div>';
+  h += '</div>';
+
+  /* ── MES PLACARDS ── */
+  h += '<div style="margin-bottom:12px">';
+  h += '<div class="lbl" style="margin-bottom:6px">MES PLACARDS</div>';
+  h += '<div class="titre" style="font-size:26px;margin-bottom:12px">Range, retrouve, cuisine</div>';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  for (var i = 0; i < PLACARDS.length; i++) {
+    var pl  = PLACARDS[i];
+    var its = [];
+    for (var j = 0; j < pantry.length; j++) { if (pantry[j].placardId === pl.id) its.push(pantry[j]); }
+    var prev = '';
+    for (var j = 0; j < Math.min(3, its.length); j++) { if (j > 0) prev += ' · '; prev += escH(its[j].name); }
+    if (its.length > 3) prev += ' · <span style="color:#9aaa9a">+' +(its.length-3)+'</span>';
+    h += '<div onclick="openPlacard(\''+pl.id+'\')" style="background:'+pl.color+';border-radius:20px;padding:16px 14px;cursor:pointer;border:1.5px solid rgba(255,255,255,0.85);box-shadow:0 1px 8px rgba(0,0,0,0.05)">';
+    h += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">';
+    h += '<div style="width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,0.72);display:flex;align-items:center;justify-content:center;flex-shrink:0">';
+    h += '<img src="'+CDN+pl.emoji+'.svg" alt="" style="width:26px;height:26px" onerror="this.style.display=\'none\'">';
+    h += '</div>';
+    h += '<div><div style="font-size:9px;font-weight:700;letter-spacing:0.1em;color:#7a9a7a">PLACARD</div>';
+    h += '<div class="titre" style="font-size:20px">'+escH(pl.name)+'</div></div></div>';
+    h += '<div style="font-size:11px;color:#9aaa9a;margin-bottom:12px">'+escH(pl.desc)+'</div>';
+    h += '<div style="display:flex;align-items:baseline;gap:6px;margin-bottom:4px">';
+    h += '<div style="font-size:32px;font-weight:700;color:#1e2d1e;line-height:1">'+its.length+'</div>';
+    h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#9aaa9a">ARTICLES</div>';
+    h += '</div>';
+    h += '<div style="font-size:11px;color:#5a7a5a;line-height:1.5">';
+    h += prev || '<span style="color:#c0d4c0;font-style:italic">Vide</span>';
+    h += '</div></div>';
+  }
+  h += '</div></div>';
+
+  /* ── QUE CUISINER MAINTENANT ── */
+  var matchedRecs = [];
+  for (var i = 0; i < REC_LIST.length; i++) {
+    var rec = REC_LIST[i];
+    var md  = getRecipeMatch(rec);
+    if (md.pct > 0) matchedRecs.push({rec:rec, pct:md.pct, matched:md.matched});
+  }
+  matchedRecs.sort(function(a,b){ return b.pct - a.pct; });
+
+  h += '<div class="card span2">';
+  h += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">';
+  h += '<span style="font-size:13px">🍳</span><span class="lbl">AVEC MES PLACARDS</span></div>';
+  h += '<div class="titre" style="font-size:22px;margin-bottom:4px">Que cuisiner maintenant ?</div>';
+  h += '<div style="font-size:13px;color:#7a9a7a;margin-bottom:14px">Recettes triées selon ce que tu as déjà.</div>';
+
+  if (matchedRecs.length === 0) {
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:14px;color:#a0b4a0">Ajoute des articles dans tes placards pour voir les recettes correspondantes.</div>';
+  } else {
+    var topRecs = matchedRecs.slice(0, 6);
+    for (var i = 0; i < topRecs.length; i++) {
+      var item = topRecs[i], rec = item.rec, pct = item.pct, mtch = item.matched;
+      h += '<div onclick="openRecipeModal(\''+rec.id+'\')" style="padding:13px 0;cursor:pointer;'+(i>0?'border-top:1px solid rgba(0,0,0,0.05)':'')+';">';
+      h += '<div style="display:flex;align-items:flex-start;gap:8px">';
+      h += '<div style="flex:1">';
+      h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:#9aaa9a;margin-bottom:4px">'+escH(rec.cat)+' · '+rec.time+' MIN</div>';
+      h += '<div style="font-family:\'Playfair Display\',serif;font-size:17px;color:#1e2d1e;margin-bottom:8px;line-height:1.3">'+escH(rec.title)+'</div>';
+      h += '<div style="display:flex;flex-wrap:wrap;gap:3px">';
+      for (var j = 0; j < rec.ing.length; j++) {
+        h += '<div style="display:inline-flex;align-items:center;gap:5px;background:rgba(0,0,0,0.05);border-radius:99px;padding:4px 9px">';
+        if (mtch[j]) {
+          h += '<div style="width:14px;height:14px;border-radius:50%;background:#1e3d1e;flex-shrink:0;display:flex;align-items:center;justify-content:center">';
+          h += '<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+          h += '</div>';
+        } else {
+          h += '<div style="width:14px;height:14px;border-radius:50%;border:1.5px solid #c0d4c0;flex-shrink:0"></div>';
+        }
+        h += '<span style="font-size:11px;color:#2d3d2d">'+escH(rec.ing[j])+'</span></div>';
+      }
+      h += '</div></div>';
+      /* Badge */
+      var bb, bf;
+      if (pct===100){bb='#1e3d1e';bf='#fff';}
+      else if(pct>=50){bb='rgba(220,90,80,0.14)';bf='#b03030';}
+      else{bb='rgba(0,0,0,0.07)';bf='#9aaa9a';}
+      h += '<div style="flex-shrink:0;padding:5px 11px;border-radius:99px;background:'+bb+';font-size:12px;font-weight:700;color:'+bf+'">'+pct+'%</div>';
+      h += '</div></div>';
+    }
+  }
+  h += '</div>';
+
+  /* ── INSPIRATIONS ── */
+  var CATS = ['Tout','Petit déjeuner','Snack','Déjeuner','Dîner','Dessert'];
+  var filtered = [];
+  for (var i = 0; i < REC_LIST.length; i++) {
+    var rec = REC_LIST[i];
+    if (cuisineFilter === 'Tout' || normCat(rec.cat) === normCat(cuisineFilter)) filtered.push(rec);
+  }
+
+  h += '<div class="card span2">';
+  h += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">';
+  h += '<span style="font-size:12px;color:'+th.accent+'">✦</span><span class="lbl">INSPIRATIONS</span></div>';
+  var sub = cuisineFilter === 'Tout' ? 'En 15-20 minutes' : cuisineFilter;
+  h += '<div class="titre" style="font-size:22px;margin-bottom:12px">'+escH(sub)+'</div>';
+  /* Filter tabs */
+  h += '<div style="display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px;margin-bottom:14px;scrollbar-width:none">';
+  for (var i = 0; i < CATS.length; i++) {
+    var ct  = CATS[i];
+    var isOn = cuisineFilter === ct;
+    h += '<button onclick="setCuisineFilter(\''+escH(ct)+'\')" ';
+    h += 'style="padding:7px 14px;border-radius:99px;border:none;flex-shrink:0;white-space:nowrap;';
+    h += 'background:'+(isOn?th.accent:'rgba(0,0,0,0.06)')+';';
+    h += 'color:'+(isOn?'#fff':'#5a7a5a')+';';
+    h += 'font-size:12px;font-weight:600;font-family:\'DM Sans\',sans-serif;cursor:pointer">'+escH(ct)+'</button>';
+  }
+  h += '</div>';
+  /* Recipe grid 2 colonnes */
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">';
+  for (var i = 0; i < filtered.length; i++) {
+    var rec = filtered[i];
+    h += '<div onclick="openRecipeModal(\''+rec.id+'\')" style="background:rgba(255,255,255,0.78);border-radius:16px;padding:0;border:1.5px solid rgba(255,255,255,0.85);overflow:hidden;cursor:pointer">';
+    if (rec.photo) {
+      h += '<img src="'+rec.photo+'" alt="" style="width:100%;height:90px;object-fit:cover;display:block" onerror="this.style.display=\'none\'">';
+    }
+    h += '<div style="padding:10px 12px">';
+    h += '<div style="font-size:9px;font-weight:700;letter-spacing:0.07em;color:#9aaa9a;margin-bottom:4px">'+escH(rec.cat)+'</div>';
+    h += '<div style="font-family:\'Playfair Display\',serif;font-size:13px;color:#1e2d1e;line-height:1.4;margin-bottom:6px">'+escH(rec.title)+'</div>';
+    h += '<div style="font-size:10px;color:#9aaa9a">⏱ '+rec.time+' min</div>';
+    h += '</div></div>';
+  }
+  h += '</div></div>';
+
+  document.getElementById('pg-cuisine').innerHTML = h;
+}
+
+/* ════════════════════════════════════════
+   RECETTE MODAL
+════════════════════════════════════════ */
+function openRecipeModal(recId) {
+  var rec = null;
+  for (var i=0; i<REC_LIST.length; i++) { if (REC_LIST[i].id === recId) { rec = REC_LIST[i]; break; } }
+  if (!rec) return;
+  var pantry = S.cuisine.pantry;
+  var mb = '';
+  if (rec.photo) {
+    mb += '<div style="margin:-20px -20px 16px;border-radius:20px 20px 0 0;overflow:hidden;height:180px">';
+    mb += '<img src="'+rec.photo+'" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.style.display=\'none\'">';
+    mb += '</div>';
+  }
+  mb += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#9aaa9a;margin-bottom:4px">'+escH(rec.cat)+' · '+rec.time+' MIN</div>';
+  mb += '<div style="font-family:\'Playfair Display\',serif;font-size:22px;color:#1e2d1e;margin-bottom:16px;line-height:1.3">'+escH(rec.title)+'</div>';
+  mb += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#8aaa8a;margin-bottom:8px">INGRÉDIENTS</div>';
+  var pantryNames = [];
+  for (var j=0; j<pantry.length; j++) pantryNames.push(pantry[j].name.toLowerCase());
+  for (var j=0; j<rec.ing.length; j++) {
+    var ing = rec.ing[j];
+    var inPantry = false;
+    for (var k=0; k<pantryNames.length; k++) {
+      if (pantryNames[k].indexOf(ing.toLowerCase()) !== -1 || ing.toLowerCase().indexOf(pantryNames[k]) !== -1) { inPantry = true; break; }
+    }
+    mb += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid rgba(0,0,0,0.05)">';
+    mb += '<div style="width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;';
+    mb += inPantry ? 'background:#1e3d1e">' + svgCheck() : 'border:1.5px solid #c0d4c0">';
+    mb += '</div>';
+    mb += '<span style="font-size:14px;color:'+(inPantry?'#1e2d1e':'#7a9a7a')+'">'+escH(ing)+'</span>';
+    if (!inPantry) mb += '<span style="font-size:10px;color:#c0d4c0;margin-left:auto">À acheter</span>';
+    mb += '</div>';
+  }
+  if (rec.steps && rec.steps.length) {
+    mb += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#8aaa8a;margin-top:16px;margin-bottom:8px">PRÉPARATION</div>';
+    for (var j=0; j<rec.steps.length; j++) {
+      mb += '<div style="display:flex;gap:12px;padding:8px 0;'+(j>0?'border-top:1px solid rgba(0,0,0,0.05)':'')+'">';
+      mb += '<div style="width:22px;height:22px;border-radius:50%;background:rgba(106,154,106,0.15);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#5a8a5a">'+(j+1)+'</div>';
+      mb += '<div style="font-size:14px;color:#2d3d2d;line-height:1.5;padding-top:2px">'+escH(rec.steps[j])+'</div>';
+      mb += '</div>';
+    }
+  }
+  mb += '<button onclick="closeModal()" style="display:block;width:100%;margin-top:16px;padding:13px;border:none;background:rgba(0,0,0,0.06);border-radius:14px;color:#5a7a5a;font-size:14px;font-weight:600;font-family:\'DM Sans\',sans-serif;cursor:pointer">Fermer</button>';
+  openModal(mb);
+}
+
+/* ════════════════════════════════════════
+   BUDGET CRUD — ENVELOPES
+════════════════════════════════════════ */
+var _newEnvEmoji = '1f4b0';
+var _newEnvColor = 'rgba(180,220,200,0.35)';
+var _ENVELOPE_COLORS = [
+  'rgba(180,220,200,0.35)','rgba(200,180,230,0.35)','rgba(220,200,160,0.35)',
+  'rgba(160,200,230,0.35)','rgba(240,180,160,0.35)','rgba(200,220,160,0.35)'
+];
+var _ENVELOPE_EMOJIS = ['1f4b0','1f6d2','1f96a','1f3e0','1f697','2708','1f457','1f48a','1f3cb','1f3a8'];
+
+function openAddEnvelope() {
+  var mb = '';
+  mb += '<div class="lbl" style="margin-bottom:6px">NOUVELLE ENVELOPPE</div>';
+  mb += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="ne-emojis">';
+  var CDN = 'https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/svg/';
+  for (var i=0; i<_ENVELOPE_EMOJIS.length; i++) {
+    var em = _ENVELOPE_EMOJIS[i];
+    var sel = em === _newEnvEmoji;
+    mb += '<div onclick="pickNE(\'emoji\',\''+em+'\',this)" ';
+    mb += 'style="width:40px;height:40px;border-radius:12px;background:'+(sel?'rgba(30,61,30,0.15)':'rgba(0,0,0,0.05)')+';';
+    mb += 'border:2px solid '+(sel?'#1e3d1e':'transparent')+';cursor:pointer;display:flex;align-items:center;justify-content:center">';
+    mb += '<img src="'+CDN+em+'.svg" alt="" style="width:22px;height:22px" onerror="this.style.display=\'none\'">';
+    mb += '</div>';
+  }
+  mb += '</div>';
+  mb += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px" id="ne-colors">';
+  for (var i=0; i<_ENVELOPE_COLORS.length; i++) {
+    var col = _ENVELOPE_COLORS[i];
+    var sel = col === _newEnvColor;
+    mb += '<div onclick="pickNE(\'color\',\''+col+'\',this)" ';
+    mb += 'style="width:28px;height:28px;border-radius:50%;background:'+col+';cursor:pointer;';
+    mb += 'border:2px solid '+(sel?'#1e3d1e':'rgba(0,0,0,0.1)')+'"></div>';
+  }
+  mb += '</div>';
+  mb += '<input id="ne-name" type="text" placeholder="Nom de l\'enveloppe" style="font-size:15px;padding:11px 14px;border-radius:14px;margin-bottom:10px">';
+  mb += '<input id="ne-budget" type="number" placeholder="Budget (€)" style="font-size:15px;padding:11px 14px;border-radius:14px;margin-bottom:14px">';
+  mb += '<button onclick="saveNewEnvelope()" class="btn btn-primary" style="width:100%;padding:13px;font-size:15px">Créer l\'enveloppe</button>';
+  mb += '<button onclick="closeModal()" style="display:block;width:100%;margin-top:8px;padding:10px;border:none;background:none;color:#9aaa9a;font-size:14px;font-family:\'DM Sans\',sans-serif;cursor:pointer">Annuler</button>';
+  openModal(mb);
+}
+
+function pickNE(type, val, el) {
+  if (type === 'emoji') {
+    _newEnvEmoji = val;
+    var els = document.getElementById('ne-emojis').children;
+    for (var i=0; i<els.length; i++) {
+      els[i].style.background = 'rgba(0,0,0,0.05)';
+      els[i].style.border = '2px solid transparent';
+    }
+    el.style.background = 'rgba(30,61,30,0.15)';
+    el.style.border = '2px solid #1e3d1e';
+  } else {
+    _newEnvColor = val;
+    var els = document.getElementById('ne-colors').children;
+    for (var i=0; i<els.length; i++) els[i].style.border = '2px solid rgba(0,0,0,0.1)';
+    el.style.border = '2px solid #1e3d1e';
+  }
+}
+
+function saveNewEnvelope() {
+  var name = (document.getElementById('ne-name').value || '').trim();
+  var bgt  = parseFloat(document.getElementById('ne-budget').value) || 0;
+  if (!name) { alert('Donne un nom à cette enveloppe.'); return; }
+  S.budget.envelopes.push({id:mkId(), name:name, emoji:_newEnvEmoji, color:_newEnvColor, budget:bgt});
+  save();
+  closeModal();
+  renderBudget();
+}
+
+function deleteEnvelope(id) {
+  if (!confirm('Supprimer cette enveloppe et toutes ses dépenses ?')) return;
+  S.budget.envelopes = S.budget.envelopes.filter(function(e){ return e.id !== id; });
+  for (var dk in S.budget.transactions) {
+    S.budget.transactions[dk] = S.budget.transactions[dk].filter(function(t){ return t.envelopeId !== id; });
+  }
+  save();
+  closeModal();
+  renderBudget();
+}
+
+/* ════════════════════════════════════════
+   BUDGET CRUD — FIXED CHARGES
+════════════════════════════════════════ */
+function openAddFixed() {
+  var mb = '';
+  mb += '<div class="lbl" style="margin-bottom:6px">NOUVEAU PRÉLÈVEMENT</div>';
+  mb += '<div class="titre" style="font-size:20px;margin-bottom:14px">Ajouter une charge fixe</div>';
+  mb += '<input id="af-name" type="text" placeholder="Nom (ex: Loyer)" style="font-size:15px;padding:11px 14px;border-radius:14px;margin-bottom:10px">';
+  mb += '<input id="af-amount" type="number" placeholder="Montant (€)" style="font-size:15px;padding:11px 14px;border-radius:14px;margin-bottom:10px">';
+  mb += '<input id="af-day" type="number" min="1" max="31" placeholder="Jour du mois (ex: 5)" style="font-size:15px;padding:11px 14px;border-radius:14px;margin-bottom:14px">';
+  mb += '<button onclick="saveNewFixed()" class="btn btn-primary" style="width:100%;padding:13px;font-size:15px">Ajouter</button>';
+  mb += '<button onclick="closeModal()" style="display:block;width:100%;margin-top:8px;padding:10px;border:none;background:none;color:#9aaa9a;font-size:14px;font-family:\'DM Sans\',sans-serif;cursor:pointer">Annuler</button>';
+  openModal(mb);
+}
+
+function saveNewFixed() {
+  var name   = (document.getElementById('af-name').value || '').trim();
+  var amount = parseFloat(document.getElementById('af-amount').value) || 0;
+  var day    = parseInt(document.getElementById('af-day').value) || 1;
+  if (!name) { alert('Donne un nom à ce prélèvement.'); return; }
+  S.budget.fixed.push({id:mkId(), name:name, amount:amount, day:day});
+  save();
+  closeModal();
+  renderBudget();
+}
+
+function openEditFixed(id) {
+  var f = null;
+  for (var i=0; i<S.budget.fixed.length; i++) { if (S.budget.fixed[i].id === id) { f = S.budget.fixed[i]; break; } }
+  if (!f) return;
+  var mb = '';
+  mb += '<div class="lbl" style="margin-bottom:6px">MODIFIER LE PRÉLÈVEMENT</div>';
+  mb += '<div class="titre" style="font-size:20px;margin-bottom:14px">'+escH(f.name)+'</div>';
+  mb += '<input id="ef-id" type="hidden" value="'+id+'">';
+  mb += '<input id="ef-name" type="text" value="'+escH(f.name)+'" style="font-size:15px;padding:11px 14px;border-radius:14px;margin-bottom:10px">';
+  mb += '<input id="ef-amount" type="number" value="'+f.amount+'" style="font-size:15px;padding:11px 14px;border-radius:14px;margin-bottom:10px">';
+  mb += '<input id="ef-day" type="number" min="1" max="31" value="'+f.day+'" style="font-size:15px;padding:11px 14px;border-radius:14px;margin-bottom:14px">';
+  mb += '<button onclick="saveEditFixed()" class="btn btn-primary" style="width:100%;padding:13px;font-size:15px">Enregistrer</button>';
+  mb += '<button onclick="closeModal()" style="display:block;width:100%;margin-top:8px;padding:10px;border:none;background:none;color:#9aaa9a;font-size:14px;font-family:\'DM Sans\',sans-serif;cursor:pointer">Annuler</button>';
+  openModal(mb);
+}
+
+function saveEditFixed() {
+  var id     = document.getElementById('ef-id').value;
+  var name   = (document.getElementById('ef-name').value || '').trim();
+  var amount = parseFloat(document.getElementById('ef-amount').value) || 0;
+  var day    = parseInt(document.getElementById('ef-day').value) || 1;
+  if (!name) { alert('Le nom est requis.'); return; }
+  for (var i=0; i<S.budget.fixed.length; i++) {
+    if (S.budget.fixed[i].id === id) { S.budget.fixed[i].name = name; S.budget.fixed[i].amount = amount; S.budget.fixed[i].day = day; break; }
+  }
+  save();
+  closeModal();
+  renderBudget();
+}
+
+function deleteFixed(id) {
+  if (!confirm('Supprimer ce prélèvement ?')) return;
+  S.budget.fixed = S.budget.fixed.filter(function(f){ return f.id !== id; });
+  if (S.budget.fixedPaid) {
+    var newPaid = {};
+    for (var k in S.budget.fixedPaid) { if (k !== id) newPaid[k] = S.budget.fixedPaid[k]; }
+    S.budget.fixedPaid = newPaid;
+  }
+  save();
+  renderBudget();
+}
+
+function openEditIncome() {
+  var cur = S.budget.income || 2400;
+  var h = '';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:22px;color:#1e2d1e;margin-bottom:20px">Budget mensuel</div>';
+  h += '<div class="fgroup"><label class="flbl">Revenus nets du mois (€)</label>';
+  h += '<input type="number" id="income-val" value="'+cur+'" min="0" step="10" '
+     + 'style="font-size:22px;font-weight:600;text-align:center" onkeydown="if(event.key===\'Enter\')saveIncome()"></div>';
+  h += '<div style="display:flex;gap:10px;margin-top:4px">';
+  h += '<button class="btn btn-ghost" onclick="closeModal()" style="flex:1">Annuler</button>';
+  h += '<button class="btn btn-primary" onclick="saveIncome()" style="flex:2">Enregistrer</button>';
+  h += '</div>';
+  openModal(h);
+  setTimeout(function(){ var el=document.getElementById('income-val'); if(el){ el.focus(); el.select(); } }, 100);
+}
+function saveIncome() {
+  var val = parseFloat((document.getElementById('income-val')||{}).value);
+  if (isNaN(val) || val < 0) return;
+  S.budget.income = val;
+  save();
+  closeModal();
+  renderBudget();
+}
+
+/* ════════════════════════════════════════
+   RITUELS — ÉDITION
+════════════════════════════════════════ */
+function buildRituelListHTML(arr, part) {
+  var s = '';
+  for (var i = 0; i < arr.length; i++) {
+    s += '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #e8f0e8">';
+    s += '<div style="flex:1;font-size:15px">'+escH(arr[i])+'</div>';
+    s += '<button onclick="deleteRituel(\''+part+'\','+i+')" style="background:none;border:none;color:#c97575;font-size:20px;cursor:pointer;padding:2px 8px;line-height:1">×</button>';
+    s += '</div>';
+  }
+  return s;
+}
+function openEditRituels() {
+  var rM = S.settings.ritualsM || DEF_RM;
+  var rE = S.settings.ritualsE || DEF_RE;
+  var h = '';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:22px;color:#1e2d1e;margin-bottom:20px">Modifier les rituels</div>';
+  h += '<div style="margin-bottom:20px">';
+  h += '<div style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:#8aaa8a;margin-bottom:10px">☀ MATIN</div>';
+  h += '<div id="rituel-list-m">'+buildRituelListHTML(rM,'m')+'</div>';
+  h += '<div style="display:flex;gap:8px;margin-top:10px">';
+  h += '<input id="rituel-input-m" type="text" placeholder="Ajouter un rituel matin…" style="flex:1;padding:8px 12px;border:1px solid #d0e4d0;border-radius:10px;font-size:14px" onkeydown="if(event.key===\'Enter\')addRituel(\'m\')">';
+  h += '<button onclick="addRituel(\'m\')" style="padding:8px 16px;background:#5a8a6a;color:#fff;border:none;border-radius:10px;font-size:18px;cursor:pointer;line-height:1">+</button>';
+  h += '</div>';
+  h += '</div>';
+  h += '<div style="margin-bottom:24px">';
+  h += '<div style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:#8aaa8a;margin-bottom:10px">☽ SOIR</div>';
+  h += '<div id="rituel-list-e">'+buildRituelListHTML(rE,'e')+'</div>';
+  h += '<div style="display:flex;gap:8px;margin-top:10px">';
+  h += '<input id="rituel-input-e" type="text" placeholder="Ajouter un rituel soir…" style="flex:1;padding:8px 12px;border:1px solid #d0e4d0;border-radius:10px;font-size:14px" onkeydown="if(event.key===\'Enter\')addRituel(\'e\')">';
+  h += '<button onclick="addRituel(\'e\')" style="padding:8px 16px;background:#5a8a6a;color:#fff;border:none;border-radius:10px;font-size:18px;cursor:pointer;line-height:1">+</button>';
+  h += '</div>';
+  h += '</div>';
+  h += '<button onclick="closeModal();renderJour()" style="width:100%;padding:12px;background:#5a8a6a;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer">Fermer</button>';
+  openModal(h);
+}
+function addRituel(part) {
+  var key = part === 'm' ? 'ritualsM' : 'ritualsE';
+  if (!S.settings[key]) S.settings[key] = [];
+  var inp = document.getElementById('rituel-input-' + part);
+  var val = inp ? inp.value.trim() : '';
+  if (!val) return;
+  S.settings[key].push(val);
+  save();
+  inp.value = '';
+  document.getElementById('rituel-list-' + part).innerHTML = buildRituelListHTML(S.settings[key], part);
+}
+function deleteRituel(part, idx) {
+  var key = part === 'm' ? 'ritualsM' : 'ritualsE';
+  S.settings[key].splice(idx, 1);
+  save();
+  document.getElementById('rituel-list-' + part).innerHTML = buildRituelListHTML(S.settings[key], part);
+}
+
+/* ════════════════════════════════════════
+   CUISINE FAB MENU + IMPORT COURSES
+════════════════════════════════════════ */
+function openCuisineFABMenu() {
+  var mb = '';
+  mb += '<div class="titre" style="font-size:20px;margin-bottom:16px">Ajouter des articles</div>';
+  mb += '<button onclick="closeModal();setTimeout(openQuickAddPantry,100)" ';
+  mb += 'style="display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:16px 18px;';
+  mb += 'margin-bottom:10px;border:1.5px solid rgba(0,0,0,0.08);border-radius:18px;';
+  mb += 'background:rgba(255,255,255,0.72);font-family:\'DM Sans\',sans-serif;cursor:pointer">';
+  mb += '<span style="font-size:28px">✏️</span>';
+  mb += '<div><div style="font-size:15px;font-weight:600;color:#1e2d1e">Saisir manuellement</div>';
+  mb += '<div style="font-size:12px;color:#9aaa9a">Ajouter un article dans un placard</div></div>';
+  mb += '</button>';
+  mb += '<button onclick="closeModal();setTimeout(openPasteList,100)" ';
+  mb += 'style="display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:16px 18px;';
+  mb += 'margin-bottom:10px;border:1.5px solid rgba(0,0,0,0.08);border-radius:18px;';
+  mb += 'background:rgba(255,255,255,0.72);font-family:\'DM Sans\',sans-serif;cursor:pointer">';
+  mb += '<span style="font-size:28px">📋</span>';
+  mb += '<div><div style="font-size:15px;font-weight:600;color:#1e2d1e">Coller une liste de courses</div>';
+  mb += '<div style="font-size:12px;color:#9aaa9a">Importer et distribuer automatiquement</div></div>';
+  mb += '</button>';
+  mb += '<button onclick="closeModal()" ';
+  mb += 'style="display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:16px 18px;';
+  mb += 'margin-bottom:10px;border:1.5px solid rgba(220,90,80,0.2);border-radius:18px;';
+  mb += 'background:rgba(220,90,80,0.05);font-family:\'DM Sans\',sans-serif;cursor:pointer">';
+  mb += '<span style="font-size:28px">📷</span>';
+  mb += '<div><div style="font-size:15px;font-weight:600;color:#1e2d1e">Scanner un ticket</div>';
+  mb += '<div style="font-size:12px;color:#9aaa9a">Fonctionnalité à venir…</div></div>';
+  mb += '</button>';
+  mb += '<button onclick="closeModal()" style="display:block;width:100%;margin-top:4px;padding:10px;border:none;background:none;color:#9aaa9a;font-size:14px;font-family:\'DM Sans\',sans-serif;cursor:pointer">Annuler</button>';
+  openModal(mb);
+}
+
+var _COURSE_KEYWORDS = {
+  'Sec & Conserves'  : ['riz','pâtes','farine','sucre','sel','café','thé','huile','vinaigre','boîte','conserve','lentille','pois','haricot','quinoa','couscous','semoule'],
+  'Épices & Condiments': ['poivre','cumin','paprika','curcuma','cannelle','herbe','moutarde','sauce','mayonnaise','ketchup','curry','basilic','origan','thym','romarin'],
+  'Frigo & Produits Frais': ['lait','beurre','fromage','yaourt','œuf','crème','jambon','poulet','viande','poisson','tofu','légume','salade','carotte','courgette','tomate','poireau','brocoli','épinard'],
+  'Fruits & Snacks'  : ['pomme','banane','orange','raisin','fraise','fruit','noix','amande','biscuit','chocolat','chips','gâteau','pain','baguette','brioche'],
+  'Boissons'         : ['eau','jus','soda','limonade','bière','vin','sirop']
+};
+
+function openPasteList() {
+  var mb = '';
+  mb += '<div class="lbl" style="margin-bottom:6px">IMPORTER UNE LISTE</div>';
+  mb += '<div class="titre" style="font-size:20px;margin-bottom:8px">Coller ta liste de courses</div>';
+  mb += '<div style="font-size:12px;color:#9aaa9a;margin-bottom:12px">Un article par ligne. Je les distribue automatiquement dans tes placards.</div>';
+  mb += '<textarea id="paste-list-ta" rows="10" placeholder="Yaourt x2\nRiz basmati\nHuile d\'olive\nPommes\nFromage râpé…" ';
+  mb += 'style="width:100%;font-size:14px;border:1.5px solid rgba(0,0,0,0.1);border-radius:14px;padding:12px 14px;';
+  mb += 'font-family:\'DM Sans\',sans-serif;resize:vertical;outline:none;min-height:180px"></textarea>';
+  mb += '<button onclick="parseCoursesList()" class="btn btn-primary" style="width:100%;padding:13px;font-size:15px;margin-top:12px">Importer dans les placards</button>';
+  mb += '<button onclick="closeModal()" style="display:block;width:100%;margin-top:8px;padding:10px;border:none;background:none;color:#9aaa9a;font-size:14px;font-family:\'DM Sans\',sans-serif;cursor:pointer">Annuler</button>';
+  openModal(mb);
+}
+
+function parseCoursesList() {
+  var ta = document.getElementById('paste-list-ta');
+  if (!ta) return;
+  var lines = ta.value.split('\n');
+  var added = 0;
+  for (var i=0; i<lines.length; i++) {
+    var line = lines[i].replace(/x\d+$/i,'').replace(/\d+$/,'').trim();
+    if (!line) continue;
+    var targetPlacard = PLACARDS[0].id;
+    var lineLow = line.toLowerCase();
+    for (var cat in _COURSE_KEYWORDS) {
+      var kws = _COURSE_KEYWORDS[cat];
+      var found = false;
+      for (var k=0; k<kws.length; k++) {
+        if (lineLow.indexOf(kws[k]) !== -1) { found = true; break; }
+      }
+      if (found) {
+        for (var p=0; p<PLACARDS.length; p++) {
+          if (PLACARDS[p].name === cat) { targetPlacard = PLACARDS[p].id; break; }
+        }
+        break;
+      }
+    }
+    var exists = false;
+    for (var j=0; j<S.cuisine.pantry.length; j++) {
+      if (S.cuisine.pantry[j].name.toLowerCase() === line.toLowerCase()) { exists = true; break; }
+    }
+    if (!exists) {
+      S.cuisine.pantry.push({id:mkId(), name:line, placardId:targetPlacard});
+      added++;
+    }
+  }
+  save();
+  closeModal();
+  renderCuisine();
+  if (added > 0) {
+    setTimeout(function(){ alert(added+' article'+(added>1?'s':'')+' ajouté'+(added>1?'s':'')+' dans tes placards !'); }, 200);
+  }
+}
+
+/* ════════════════════════════════════════
+   PROFILS
+════════════════════════════════════════ */
+var PROFILES_KEY = 'jcerise-profiles-v1';
+var PROFILES = {
+  laura:    { name: 'Laura',    pin: '', color: '#3a7a5a', initials: 'L', dataKey: 'jcerise-v2-laura' },
+  victoria: { name: 'Victoria', pin: '', color: '#7a5a9a', initials: 'V', dataKey: 'jcerise-v2-victoria' },
+  celiane:  { name: 'Céliane',  pin: '', color: '#a05a7a', initials: 'C', dataKey: 'jcerise-v2-celiane' }
+};
+var CURRENT_PROFILE = null;
+var _pinBuffer    = '';
+var _pinConfirm   = '';
+var _pinPhase     = 'enter';
+var _loginProfile = null;
+
+function loadProfiles() {
+  try {
+    var raw = localStorage.getItem(PROFILES_KEY);
+    if (!raw) return;
+    var saved = JSON.parse(raw);
+    for (var k in saved) { if (PROFILES[k]) PROFILES[k].pin = saved[k].pin || ''; }
+  } catch(e) {}
+}
+
+function saveProfilesMeta() {
+  var data = {};
+  for (var k in PROFILES) data[k] = { pin: PROFILES[k].pin };
+  try { localStorage.setItem(PROFILES_KEY, JSON.stringify(data)); } catch(e) {}
+}
+
+function showProfileScreen() {
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('nav').style.display = 'none';
+  document.getElementById('fab').style.display = 'none';
+  var ps = document.getElementById('profile-screen');
+  ps.style.display = 'flex';
+  renderProfileSelect();
+}
+
+function renderProfileSelect() {
+  var h = '';
+  h += '<div style="text-align:center;margin-bottom:44px">';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:36px;color:#1e2d1e;margin-bottom:8px">Mon Journal</div>';
+  h += '<div style="font-size:12px;color:#8aaa8a;letter-spacing:0.12em;font-weight:700;text-transform:uppercase">Choisissez votre profil</div>';
+  h += '</div>';
+  h += '<div style="display:flex;gap:20px;justify-content:center;flex-wrap:wrap">';
+  for (var k in PROFILES) {
+    var p = PROFILES[k];
+    h += '<div onclick="startLogin(\''+k+'\')" class="profile-card">';
+    h += '<div class="profile-avatar" style="background:'+p.color+'">'+p.initials+'</div>';
+    h += '<div class="profile-name">'+p.name+'</div>';
+    h += '<div class="profile-hint">'+(p.pin ? 'Entrer le code' : 'Créer un code')+'</div>';
+    h += '</div>';
+  }
+  h += '</div>';
+  document.getElementById('profile-screen').innerHTML = h;
+}
+
+function startLogin(profileKey) {
+  _loginProfile = profileKey;
+  _pinBuffer    = '';
+  _pinConfirm   = '';
+  _pinPhase     = PROFILES[profileKey].pin ? 'enter' : 'create';
+  renderPinScreen();
+}
+
+function renderPinScreen() {
+  var p = PROFILES[_loginProfile];
+  var label = _pinPhase === 'create'  ? 'Crée ton code secret (4 chiffres)' :
+              _pinPhase === 'confirm' ? 'Confirme ton code' :
+                                       'Entre ton code';
+  var ps = document.getElementById('profile-screen');
+  ps.style.position = 'relative';
+  var h = '';
+  h += '<button onclick="renderProfileSelect()" style="position:absolute;top:24px;left:20px;background:none;border:none;font-size:15px;color:#8aaa8a;cursor:pointer;font-family:\'DM Sans\',sans-serif;padding:8px">← Retour</button>';
+  h += '<div style="text-align:center;margin-bottom:32px">';
+  h += '<div class="profile-avatar" style="background:'+p.color+';margin:0 auto 14px">'+p.initials+'</div>';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:26px;color:#1e2d1e;margin-bottom:6px">'+p.name+'</div>';
+  h += '<div style="font-size:12px;color:#8aaa8a;font-weight:600;letter-spacing:0.06em">'+label+'</div>';
+  h += '</div>';
+  h += '<div id="pin-dots" style="display:flex;gap:16px;justify-content:center;margin-bottom:12px">';
+  for (var i = 0; i < 4; i++) {
+    h += '<div class="pin-dot"></div>';
+  }
+  h += '</div>';
+  h += '<div id="pin-error" style="text-align:center;color:#c97575;font-size:14px;min-height:22px;margin-bottom:20px"></div>';
+  h += '<div class="pin-pad">';
+  var keys = ['1','2','3','4','5','6','7','8','9','','0','⌫'];
+  for (var j = 0; j < keys.length; j++) {
+    var k = keys[j];
+    if (k === '') {
+      h += '<div></div>';
+    } else if (k === '⌫') {
+      h += '<button class="pin-key" onclick="pinBack()" style="background:rgba(0,0,0,0.05);font-size:22px">⌫</button>';
+    } else {
+      h += '<button class="pin-key" onclick="pinDigit(\''+k+'\')" style="background:rgba(255,255,255,0.85)">'+k+'</button>';
+    }
+  }
+  h += '</div>';
+  ps.innerHTML = h;
+}
+
+function refreshPinDots() {
+  var el = document.getElementById('pin-dots');
+  if (!el) return;
+  var p = PROFILES[_loginProfile];
+  var h = '';
+  for (var i = 0; i < 4; i++) {
+    var filled = i < _pinBuffer.length;
+    h += '<div class="pin-dot" style="'+(filled ? 'background:'+p.color+';border-color:'+p.color : '')+'"></div>';
+  }
+  el.innerHTML = h;
+}
+
+function pinDigit(d) {
+  if (_pinBuffer.length >= 4) return;
+  _pinBuffer += d;
+  refreshPinDots();
+  if (_pinBuffer.length === 4) setTimeout(pinComplete, 130);
+}
+
+function pinBack() {
+  if (_pinBuffer.length > 0) { _pinBuffer = _pinBuffer.slice(0,-1); refreshPinDots(); }
+}
+
+function pinError(msg) {
+  var el = document.getElementById('pin-error');
+  if (el) el.textContent = msg;
+  var dots = document.getElementById('pin-dots');
+  if (dots) { dots.style.animation = 'pinShake 0.4s ease'; setTimeout(function(){ dots.style.animation = ''; }, 450); }
+  _pinBuffer = '';
+  setTimeout(refreshPinDots, 120);
+}
+
+function pinComplete() {
+  if (_pinPhase === 'create') {
+    _pinConfirm = _pinBuffer; _pinBuffer = ''; _pinPhase = 'confirm';
+    renderPinScreen();
+  } else if (_pinPhase === 'confirm') {
+    if (_pinBuffer === _pinConfirm) {
+      PROFILES[_loginProfile].pin = _pinBuffer;
+      saveProfilesMeta();
+      loginAs(_loginProfile);
+    } else {
+      pinError('Codes différents — réessaie');
+      _pinPhase = 'create'; _pinConfirm = '';
+      setTimeout(renderPinScreen, 700);
+    }
+  } else {
+    if (_pinBuffer === PROFILES[_loginProfile].pin) {
+      loginAs(_loginProfile);
+    } else {
+      pinError('Code incorrect');
+    }
+  }
+}
+
+function resetState() {
+  S.events = {}; S.intentions = {}; S.ritualsDone = {};
+  S.health = {}; S.braindump = {}; S.calNotes = {}; S.monthTodos = {};
+  S.budget = {
+    income: 2400,
+    envelopes: [
+      {id:'e1',name:'Courses',emoji:'1f9fa',color:'#f2ede8',budget:350},
+      {id:'e2',name:'Sorties',emoji:'1f377',color:'#fce8ee',budget:150},
+      {id:'e3',name:'Beauté', emoji:'1f484',color:'#fce0ea',budget:60},
+      {id:'e4',name:'Essence',emoji:'26fd', color:'#e8f4e8',budget:120},
+      {id:'e5',name:'Divers', emoji:'1f41b',color:'#e8eef8',budget:80}
+    ],
+    fixed: [
+      {id:'f1',name:'Loyer',               day:5, amount:780},
+      {id:'f2',name:'Électricité',         day:8, amount:62},
+      {id:'f3',name:'Internet',            day:12,amount:35},
+      {id:'f4',name:'Forfait mobile',      day:15,amount:19},
+      {id:'f5',name:'Assurance habitation',day:20,amount:28},
+      {id:'f6',name:'Abonnements vidéo',   day:25,amount:22}
+    ],
+    fixedPaid: {}, transactions: []
+  };
+  S.cuisine = { pantry: [
+    {id:'ci01',name:'Pâtes complètes',     placardId:'p1'},
+    {id:'ci02',name:'Riz basmati',         placardId:'p1'},
+    {id:'ci03',name:'Pois chiches',        placardId:'p1'},
+    {id:'ci04',name:'Tomates',             placardId:'p1'},
+    {id:'ci05',name:'Huile d\'olive',      placardId:'p1'},
+    {id:'ci06',name:'Chocolat noir',       placardId:'p2'},
+    {id:'ci07',name:'Miel',               placardId:'p2'},
+    {id:'ci08',name:'Flocons d\'avoine',  placardId:'p2'},
+    {id:'ci09',name:'Œufs',              placardId:'p3'},
+    {id:'ci10',name:'Yaourt grec',        placardId:'p3'},
+    {id:'ci11',name:'Citron',             placardId:'p3'},
+    {id:'ci12',name:'Épinards',           placardId:'p3'},
+    {id:'ci13',name:'Petits pois surgelés',placardId:'p4'}
+  ]};
+  S.cycle = {start:null,length:28};
+  S.settings = {city:'Inverness', ritualsM:DEF_RM.slice(), ritualsE:DEF_RE.slice()};
+}
+
+function loginAs(profileKey) {
+  CURRENT_PROFILE = profileKey;
+  try { sessionStorage.setItem('__profile__', profileKey); } catch(e) {}
+  KEY = PROFILES[profileKey].dataKey;
+  document.getElementById('profile-screen').style.display = 'none';
+  document.getElementById('app').style.display = '';
+  document.getElementById('nav').style.display = '';
+  document.getElementById('fab').style.display = '';
+  resetState();
+  load();
+  renderProfileButton();
+  renderDarkToggle();
+  applyTheme(new Date().getMonth());
+  /* Restaurer la page où l'utilisateur était avant le refresh */
+  var _savedPage = null;
+  try { _savedPage = sessionStorage.getItem('__page__' + profileKey); } catch(e) {}
+  var _validPages = ['jour', 'mois', 'budget', 'cuisine'];
+  goPage((_savedPage && _validPages.indexOf(_savedPage) >= 0) ? _savedPage : 'jour');
+  initFirebaseForProfile();
+}
+
+function renderProfileButton() {
+  var old = document.getElementById('profile-btn-nav');
+  if (old) old.parentNode.removeChild(old);
+  if (!CURRENT_PROFILE) return;
+  var p = PROFILES[CURRENT_PROFILE];
+  var btn = document.createElement('button');
+  btn.id = 'profile-btn-nav';
+  btn.onclick = confirmLogout;
+  btn.title = 'Changer de profil';
+  btn.innerHTML = p.initials;
+  btn.style.cssText = 'position:absolute;right:14px;top:50%;transform:translateY(-50%);'
+    + 'width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;'
+    + 'background:'+p.color+';color:#fff;font-size:15px;font-weight:700;'
+    + 'font-family:\'DM Sans\',sans-serif;display:flex;align-items:center;justify-content:center;'
+    + 'box-shadow:0 2px 10px rgba(0,0,0,0.18);z-index:101';
+  document.getElementById('nav').appendChild(btn);
+}
+
+function confirmLogout() {
+  if (confirm('Changer de profil ?')) logoutProfile();
+}
+
+function logoutProfile() {
+  /* Sauvegarder les textareas en cours avant de changer de profil */
+  saveTextareas();
+  /* Annuler tout timer Firebase en attente */
+  if (fbTimer) { clearTimeout(fbTimer); fbTimer = null; }
+  if (dbRef) { try { dbRef.off(); } catch(e) {} dbRef = null; }
+  CURRENT_PROFILE = null;
+  KEY = 'jcerise-v2'; /* reset à la valeur neutre */
+  try { sessionStorage.removeItem('__profile__'); } catch(e) {}
+  showProfileScreen();
+}
+
+/* ════════════════════════════════════════
+   DARK MODE
+════════════════════════════════════════ */
+function toggleDarkMode() {
+  var isDark = document.body.classList.toggle('dark');
+  try { localStorage.setItem('dark-mode', isDark ? '1' : '0'); } catch(e) {}
+  renderDarkToggle();
+}
+function renderDarkToggle() {
+  var old = document.getElementById('dark-btn-nav');
+  if (old) old.parentNode.removeChild(old);
+  var isDark = document.body.classList.contains('dark');
+  var btn = document.createElement('button');
+  btn.id = 'dark-btn-nav';
+  btn.onclick = toggleDarkMode;
+  btn.title = isDark ? 'Mode clair' : 'Mode sombre';
+  btn.textContent = isDark ? '☀' : '🌙';
+  btn.style.cssText = 'position:absolute;left:14px;top:50%;transform:translateY(-50%);'
+    + 'width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;'
+    + 'background:rgba(0,0,0,0.06);color:#5a7a5a;font-size:18px;'
+    + 'display:flex;align-items:center;justify-content:center;z-index:101';
+  document.getElementById('nav').appendChild(btn);
+}
+
+/* ── Confettis rituels ── */
+function fireRitualConfetti() {
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9998;overflow:hidden';
+  var colors = ['#e07070','#e0a454','#8aba8a','#7a9aca','#c070a0','#f0c040'];
+  for (var i = 0; i < 24; i++) {
+    var dot = document.createElement('div');
+    dot.className = 'confetti-dot';
+    dot.style.left = (Math.random()*100)+'%';
+    dot.style.top  = '-10px';
+    dot.style.background = colors[Math.floor(Math.random()*colors.length)];
+    dot.style.width  = (7+Math.random()*7)+'px';
+    dot.style.height = (7+Math.random()*7)+'px';
+    dot.style.animationDuration = (1.2+Math.random()*0.8)+'s';
+    dot.style.animationDelay    = (Math.random()*0.4)+'s';
+    wrap.appendChild(dot);
+  }
+  document.body.appendChild(wrap);
+  setTimeout(function() { if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }, 2200);
+}
+
+/* ════════════════════════════════════════
+   BRAIN DUMP — CONVERSION
+════════════════════════════════════════ */
+var _bdConvertLines = [];
+function openBrainDumpConvert() {
+  var bd = document.getElementById('braindump-ta');
+  var dk = todayKey();
+  var text = bd ? bd.value : (S.braindump[dk] || '');
+  _bdConvertLines = [];
+  var raw = text.split('\n');
+  for (var i = 0; i < raw.length; i++) {
+    var l = raw[i].trim();
+    if (l) _bdConvertLines.push(l);
+  }
+  if (!_bdConvertLines.length) return;
+  renderBdConvertModal();
+}
+function renderBdConvertModal() {
+  if (!_bdConvertLines.length) { closeModal(); return; }
+  var h = '';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:22px;color:#1e2d1e;margin-bottom:20px">Convertir des notes</div>';
+  for (var i = 0; i < _bdConvertLines.length; i++) {
+    h += '<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #e8f0e8">';
+    h += '<div style="flex:1;font-size:14px;color:#2d3d2d">'+escH(_bdConvertLines[i])+'</div>';
+    h += '<button onclick="bdLineToTodo('+i+')" style="flex-shrink:0;padding:4px 10px;background:#4a8a6a;color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:\'DM Sans\',sans-serif">→ T\xe2che</button>';
+    h += '<button onclick="bdLineToCourses('+i+')" style="flex-shrink:0;padding:4px 10px;background:#6a7aaa;color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:\'DM Sans\',sans-serif">→ Courses</button>';
+    h += '</div>';
+  }
+  h += '<button onclick="closeModal()" style="width:100%;margin-top:16px;padding:12px;background:#5a8a6a;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif">Fermer</button>';
+  openModal(h);
+}
+function _bdRemoveLine(idx) {
+  var dk = todayKey();
+  var bd = document.getElementById('braindump-ta');
+  var text = bd ? bd.value : (S.braindump[dk] || '');
+  var target = _bdConvertLines[idx];
+  var lines = text.split('\n');
+  var removed = false;
+  var newLines = [];
+  for (var i = 0; i < lines.length; i++) {
+    if (!removed && lines[i].trim() === target) { removed = true; continue; }
+    newLines.push(lines[i]);
+  }
+  var newText = newLines.join('\n').trim();
+  S.braindump[dk] = newText;
+  if (bd) { bd.value = newText; bd.style.height = 'auto'; bd.style.height = bd.scrollHeight+'px'; }
+  save();
+  _bdConvertLines.splice(idx, 1);
+  renderBdConvertModal();
+}
+function bdLineToTodo(idx) {
+  var text = _bdConvertLines[idx];
+  var dk = todayKey();
+  if (!S.intentions[dk]) S.intentions[dk] = [];
+  S.intentions[dk].push({id:mkId(), text:text, done:false, priority:'normal'});
+  _bdRemoveLine(idx);
+}
+function bdLineToCourses(idx) {
+  var text = _bdConvertLines[idx];
+  var pId = (PLACARDS && PLACARDS.length > 0) ? PLACARDS[0].id : 'p1';
+  S.cuisine.pantry.push({id:mkId(), name:text, placardId:pId});
+  _bdRemoveLine(idx);
+}
+
+/* ════════════════════════════════════════
+   INIT
+════════════════════════════════════════ */
+/* Restaurer dark mode avant tout affichage */
+(function() {
+  try { if (localStorage.getItem('dark-mode') === '1') document.body.classList.add('dark'); } catch(e) {}
+}());
+loadProfiles();
+initFirebaseApp();
+var _savedProfile = null;
+try { _savedProfile = sessionStorage.getItem('__profile__'); } catch(e) {}
+if (_savedProfile && PROFILES[_savedProfile]) {
+  loginAs(_savedProfile);
+} else {
+  showProfileScreen();
+}
+
+/* Sauvegarde de secours si l'onglet est fermé brutalement */
+window.addEventListener('beforeunload', function() {
+  if (!CURRENT_PROFILE) return; /* pas de profil actif, rien à sauver */
+  var bd = document.getElementById('braindump-ta');
+  if (bd) S.braindump[todayKey()] = bd.value;
+  var cn = document.getElementById('cal-note-ta');
+  if (cn && calSel) S.calNotes[calSel] = cn.value;
+  /* Sauvegarde synchrone localStorage uniquement (Firebase async ne peut pas finir) */
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {}
+});
+</script>
+</body>
+</html>
