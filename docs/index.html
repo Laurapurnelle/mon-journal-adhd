@@ -1993,6 +1993,74 @@ function renderMois() {
   h += '</div>';
   h += '</div>';
 
+  /* ── SEMAINIER ── */
+  var swToday = new Date();
+  var swTodayDk = todayKey();
+  var swDow = swToday.getDay();
+  var swMondayDiff = (swDow === 0) ? -6 : 1 - swDow;
+  var swStart = new Date(swToday);
+  swStart.setDate(swStart.getDate() + swMondayDiff);
+  var swEnd = new Date(swStart);
+  swEnd.setDate(swEnd.getDate() + 6);
+  var swStartFmt = swStart.getDate() + ' ' + MOIS_FR[swStart.getMonth()].toLowerCase();
+  var swEndFmt = swEnd.getDate() + ' ' + MOIS_FR[swEnd.getMonth()].toLowerCase();
+  var swShortDays = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+  h += '<div class="card span2">';
+  h += '<div class="row-sb" style="margin-bottom:14px">';
+  h += '<div><div class="lbl">SEMAINIER</div>';
+  h += '<div class="titre" style="font-size:22px">Cette semaine</div></div>';
+  h += '<div style="font-size:11px;color:#9aaa9a;text-align:right;line-height:1.7">' + swStartFmt + '<br>' + swEndFmt + '</div>';
+  h += '</div>';
+  for (var swi = 0; swi < 7; swi++) {
+    var swDay = new Date(swStart);
+    swDay.setDate(swDay.getDate() + swi);
+    var swDk = swDay.getFullYear() + '-' + pad2(swDay.getMonth()+1) + '-' + pad2(swDay.getDate());
+    var swEvs = (S.events[swDk] || []).slice().sort(function(a,b){ return (a.time||'').localeCompare(b.time||''); });
+    var swInts = S.intentions[swDk] || [];
+    var swIsToday = (swDk === swTodayDk);
+    var swIsSel = (swDk === calSel);
+    var swIsWe = (swDay.getDay() === 0 || swDay.getDay() === 6);
+    var swDayN = swShortDays[swDay.getDay()];
+    var swDbg, swDnc, swDlc;
+    if (swIsToday) {
+      swDbg = 'background:' + th.accent + ';border-radius:14px;padding:7px 10px;';
+      swDnc = '#fff'; swDlc = 'rgba(255,255,255,0.75)';
+    } else if (swIsSel) {
+      swDbg = 'background:' + hexToRgba(th.accent,0.12) + ';border-radius:14px;padding:7px 10px;';
+      swDnc = th.accent; swDlc = th.accent;
+    } else {
+      swDbg = 'padding:7px 10px;';
+      swDnc = swIsWe ? '#9aaa9a' : '#1e2d1e'; swDlc = '#9aaa9a';
+    }
+    h += '<div onclick="selMoisDay(\'' + swDk + '\')" style="display:flex;gap:12px;align-items:flex-start;padding:8px 0;cursor:pointer;'
+       + (swi > 0 ? 'border-top:1px solid rgba(0,0,0,0.04)' : '') + '">';
+    h += '<div style="min-width:52px;text-align:center;flex-shrink:0;' + swDbg + '">';
+    h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:' + swDlc + '">' + swDayN.toUpperCase() + '</div>';
+    h += '<div style="font-size:20px;font-weight:600;line-height:1.2;color:' + swDnc + '">' + swDay.getDate() + '</div>';
+    h += '</div>';
+    h += '<div style="flex:1;padding-top:8px">';
+    if (swEvs.length === 0 && swInts.length === 0) {
+      h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:13px;color:#c8d8c8">Journée libre</div>';
+    } else {
+      for (var swEi = 0; swEi < Math.min(3, swEvs.length); swEi++) {
+        var swEv = swEvs[swEi];
+        h += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">';
+        h += '<div style="width:7px;height:7px;border-radius:50%;background:' + (swEv.color||EV_COLORS[0]) + ';flex-shrink:0"></div>';
+        h += '<span style="font-size:13px;color:#1e2d1e;line-height:1.4">';
+        if (swEv.time) h += '<span style="font-size:11px;color:#9aaa9a;margin-right:4px">' + escH(swEv.time) + '</span>';
+        h += escH(swEv.title) + '</span>';
+        h += '</div>';
+      }
+      if (swEvs.length > 3) h += '<div style="font-size:11px;color:#9aaa9a">+' + (swEvs.length-3) + ' \xe9v\xe9nement'+(swEvs.length-3>1?'s':'')+'</div>';
+      var swTdone = 0;
+      for (var swTi = 0; swTi < swInts.length; swTi++) { if (swInts[swTi].done) swTdone++; }
+      if (swInts.length > 0) h += '<div style="font-size:11px;color:#9aaa9a;margin-top:2px">' + swTdone + '/' + swInts.length + ' t\xe2che'+(swInts.length>1?'s':'')+'</div>';
+    }
+    h += '</div>';
+    h += '</div>';
+  }
+  h += '</div>';
+
   /* ── GRILLE ── */
   h += '<div class="card span2" style="position:relative;overflow:hidden;padding:14px 12px;background:rgba(255,253,248,0.92)">';
   h += '<img src="'+CAL_IMG[m]+'" alt="" style="'
