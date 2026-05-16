@@ -779,13 +779,14 @@ function save() {
   }
 }
 
+function toArr(v) {
+  if (!v) return [];
+  if (Array.isArray(v)) return v;
+  return Object.keys(v).sort(function(a,b){ return +a - +b; }).map(function(k){ return v[k]; });
+}
+
 function applyLoadedData(p) {
   /* Firebase convertit parfois les tableaux en objets {0:..,1:..} → on normalise */
-  function toArr(v) {
-    if (!v) return [];
-    if (Array.isArray(v)) return v;
-    return Object.keys(v).sort(function(a,b){ return +a - +b; }).map(function(k){ return v[k]; });
-  }
   function fixDayArrays(obj) {
     if (!obj) return obj;
     for (var k in obj) { if (Object.prototype.hasOwnProperty.call(obj, k)) obj[k] = toArr(obj[k]); }
@@ -1374,7 +1375,7 @@ function renderJour() {
   h += '</div>';
 
   /* ── CARTE 5B : SYMPTÔMES DU JOUR ── */
-  var sympLogToday = S.sympLog[dk] || [];
+  var sympLogToday = Array.isArray(S.sympLog[dk]) ? S.sympLog[dk] : (S.sympLog[dk] ? toArr(S.sympLog[dk]) : []);
   var symList      = S.symptoms || [];
   var cycPhToday   = getCyclePhasForDate(dk);
   var sympHint;
@@ -1564,7 +1565,7 @@ function renderJour() {
 
   /* ── CARTE 10 : MES HABITUDES ── */
   var habList      = (S.habits || []).slice().sort(function(a,b){ return (a.order||0)-(b.order||0); });
-  var habDoneToday = S.habDone[dk] || [];
+  var habDoneToday = Array.isArray(S.habDone[dk]) ? S.habDone[dk] : (S.habDone[dk] ? toArr(S.habDone[dk]) : []);
   var habDoneCount = 0;
   for (var hbi=0; hbi<habList.length; hbi++) {
     if (habDoneToday.indexOf(habList[hbi].id) !== -1) habDoneCount++;
