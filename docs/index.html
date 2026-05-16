@@ -838,9 +838,15 @@ function applyLoadedData(p) {
   }
   if (p.cycle)    S.cycle    = p.cycle;
   if (p.habits)   S.habits   = toArr(p.habits);
-  if (p.habDone)  S.habDone  = p.habDone;
+  if (p.habDone) {
+    S.habDone = p.habDone;
+    for (var hdk in S.habDone) { if (!Array.isArray(S.habDone[hdk])) S.habDone[hdk] = toArr(S.habDone[hdk]); }
+  }
   if (p.symptoms) S.symptoms = toArr(p.symptoms);
-  if (p.sympLog)  S.sympLog  = p.sympLog;
+  if (p.sympLog) {
+    S.sympLog = p.sympLog;
+    for (var slk in S.sympLog) { if (!Array.isArray(S.sympLog[slk])) S.sympLog[slk] = toArr(S.sympLog[slk]); }
+  }
   if (p.settings) {
     S.settings = Object.assign({}, S.settings, p.settings);
     S.settings.ritualsM = toArr(S.settings.ritualsM);
@@ -987,6 +993,24 @@ function getCyclePhase(day) {
   }
   return PHASES[PHASES.length-1];
 }
+function getSympPatternForPhase(phaseKey) {
+  /* Analyse S.sympLog pour trouver les symptômes les plus fréquents dans une phase */
+  var counts = {};
+  var log = S.sympLog || {};
+  for (var dk in log) {
+    var entries = Array.isArray(log[dk]) ? log[dk] : toArr(log[dk]);
+    for (var i=0; i<entries.length; i++) {
+      var e = entries[i];
+      if (e.phase === phaseKey) {
+        counts[e.label] = (counts[e.label] || 0) + 1;
+      }
+    }
+  }
+  var result = [];
+  for (var lbl in counts) { result.push({label:lbl, count:counts[lbl]}); }
+  result.sort(function(a,b){ return b.count - a.count; });
+  return result.slice(0, 3);
+}
 function getCyclePhasForDate(dk) {
   if (!S.cycle || !S.cycle.start) return null;
   var pLen = S.cycle.periodLength || 5;
@@ -1078,8 +1102,9 @@ var clockTick = null;
 var calM   = new Date().getMonth();
 var calY   = new Date().getFullYear();
 var calSel = null;
-var calCycFilter  = 'tout';
+var calCycFilter   = 'tout';
 var bouclierActive = false;
+var swWeekOffset   = 0;
 var cuisineFilter = 'Tout';
 
 function hexToRgba(hex, a) {
@@ -1376,7 +1401,21 @@ function renderJour() {
     h += '<div style="padding:4px 10px;border-radius:99px;background:'+hexRgba(cycPhToday.color,0.12)+';font-size:11px;font-weight:700;color:'+cycPhToday.color+'">'+cycPhToday.label+'</div>';
   }
   h += '</div>';
-  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:13px;color:#8aaa8a;margin-bottom:12px;line-height:1.5">'+escH(sympHint)+'</div>';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:13px;color:#8aaa8a;margin-bottom:10px;line-height:1.5">'+escH(sympHint)+'</div>';
+  /* Pattern mémoire : symptômes habituels de cette phase */
+  if (cycPhToday) {
+    var patterns = getSympPatternForPhase(cycPhToday.key);
+    if (patterns.length > 0) {
+      h += '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:12px;padding:9px 12px;';
+      h += 'background:'+hexRgba(cycPhToday.color,0.07)+';border-radius:12px;border:1px solid '+hexRgba(cycPhToday.color,0.15)+'">';
+      h += '<span style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:'+cycPhToday.color+';white-space:nowrap">🧠 HABITUELLEMENT ·</span>';
+      for (var pi=0; pi<patterns.length; pi++) {
+        h += '<span style="font-size:12px;color:'+cycPhToday.color+';font-weight:600">'+escH(patterns[pi].label)+'</span>';
+        if (pi < patterns.length-1) h += '<span style="color:#ccc;font-size:10px">·</span>';
+      }
+      h += '</div>';
+    }
+  }
   h += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">';
   for (var syi=0; syi<symList.length; syi++) {
     var sym = symList[syi];
@@ -2203,22 +2242,30 @@ function renderMois() {
   h += '</div>';
 
   /* ── SEMAINIER ── */
-  var swToday = new Date();
-  var swTodayDk = todayKey();
-  var swDow = swToday.getDay();
-  var swMondayDiff = (swDow === 0) ? -6 : 1 - swDow;
-  var swStart = new Date(swToday);
-  swStart.setDate(swStart.getDate() + swMondayDiff);
+  var swToday     = new Date();
+  var swTodayDk   = todayKey();
+  var swDow       = swToday.getDay();
+  var swMondayOff = (swDow === 0) ? -6 : 1 - swDow;
+  var swStart     = new Date(swToday);
+  swStart.setDate(swStart.getDate() + swMondayOff + swWeekOffset * 7);
   var swEnd = new Date(swStart);
   swEnd.setDate(swEnd.getDate() + 6);
   var swStartFmt = swStart.getDate() + ' ' + MOIS_FR[swStart.getMonth()].toLowerCase();
-  var swEndFmt = swEnd.getDate() + ' ' + MOIS_FR[swEnd.getMonth()].toLowerCase();
+  var swEndFmt   = swEnd.getDate()   + ' ' + MOIS_FR[swEnd.getMonth()].toLowerCase();
   var swShortDays = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+  var swTitle = swWeekOffset === 0 ? 'Cette semaine' : (swWeekOffset > 0 ? 'Dans ' + swWeekOffset + ' semaine' + (swWeekOffset > 1 ? 's' : '') : 'Il y a ' + Math.abs(swWeekOffset) + ' semaine' + (Math.abs(swWeekOffset) > 1 ? 's' : ''));
   h += '<div class="card span2">';
   h += '<div class="row-sb" style="margin-bottom:14px">';
   h += '<div><div class="lbl">SEMAINIER</div>';
-  h += '<div class="titre" style="font-size:22px">Cette semaine</div></div>';
-  h += '<div style="font-size:11px;color:#9aaa9a;text-align:right;line-height:1.7">' + swStartFmt + '<br>' + swEndFmt + '</div>';
+  h += '<div class="titre" style="font-size:22px">'+swTitle+'</div></div>';
+  h += '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">';
+  h += '<div style="display:flex;gap:4px;align-items:center">';
+  h += '<button onclick="swGo(-1)" style="width:28px;height:28px;border-radius:50%;border:1.5px solid rgba(0,0,0,0.1);background:rgba(255,255,255,0.8);cursor:pointer;font-size:15px;font-family:\'DM Sans\',sans-serif;display:flex;align-items:center;justify-content:center;color:#3d5d3d">‹</button>';
+  if (swWeekOffset !== 0) h += '<button onclick="swGo(0)" style="padding:4px 8px;border-radius:99px;border:1.5px solid rgba(0,0,0,0.1);background:rgba(255,255,255,0.8);cursor:pointer;font-size:10px;font-weight:700;font-family:\'DM Sans\',sans-serif;color:#5a7a5a">Auj.</button>';
+  h += '<button onclick="swGo(1)" style="width:28px;height:28px;border-radius:50%;border:1.5px solid rgba(0,0,0,0.1);background:rgba(255,255,255,0.8);cursor:pointer;font-size:15px;font-family:\'DM Sans\',sans-serif;display:flex;align-items:center;justify-content:center;color:#3d5d3d">›</button>';
+  h += '</div>';
+  h += '<div style="font-size:11px;color:#9aaa9a;text-align:right;line-height:1.7">' + swStartFmt + ' → ' + swEndFmt + '</div>';
+  h += '</div>';
   h += '</div>';
   for (var swi = 0; swi < 7; swi++) {
     var swDay = new Date(swStart);
@@ -2591,13 +2638,13 @@ function renderMois() {
 /* Navigation calendrier */
 function prevMois() {
   calM--; if (calM < 0) { calM = 11; calY--; }
-  calSel = null;
+  calSel = null; swWeekOffset = 0;
   applyTheme(calM);
   renderMois();
 }
 function nextMois() {
   calM++; if (calM > 11) { calM = 0; calY++; }
-  calSel = null;
+  calSel = null; swWeekOffset = 0;
   applyTheme(calM);
   renderMois();
 }
@@ -2616,10 +2663,16 @@ function setCycFilter(f) {
   calCycFilter = f;
   renderMois();
 }
+function swGo(delta) {
+  if (delta === 0) { swWeekOffset = 0; }
+  else { swWeekOffset += delta; }
+  renderMois();
+}
 
 /* ════ HABIT TRACKER ════ */
 function toggleHabit(dk, habId) {
-  if (!S.habDone[dk]) S.habDone[dk] = [];
+  if (!S.habDone) S.habDone = {};
+  if (!Array.isArray(S.habDone[dk])) S.habDone[dk] = S.habDone[dk] ? toArr(S.habDone[dk]) : [];
   var idx = S.habDone[dk].indexOf(habId);
   if (idx === -1) S.habDone[dk].push(habId);
   else            S.habDone[dk].splice(idx, 1);
@@ -2647,7 +2700,8 @@ function deleteHabit(habId) {
 
 /* ════ SYMPTOM CLOUD ════ */
 function toggleSympLog(dk, symId) {
-  if (!S.sympLog[dk]) S.sympLog[dk] = [];
+  if (!S.sympLog) S.sympLog = {};
+  if (!Array.isArray(S.sympLog[dk])) S.sympLog[dk] = S.sympLog[dk] ? toArr(S.sympLog[dk]) : [];
   var found = -1;
   for (var i=0; i<S.sympLog[dk].length; i++) { if (S.sympLog[dk][i].id === symId) { found = i; break; } }
   if (found !== -1) {
