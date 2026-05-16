@@ -2677,7 +2677,7 @@ function toggleHabit(dk, habId) {
   var idx = S.habDone[dk].indexOf(habId);
   if (idx === -1) S.habDone[dk].push(habId);
   else            S.habDone[dk].splice(idx, 1);
-  saveData();
+  save();
   renderJour();
 }
 function saveNewHabit() {
@@ -2689,13 +2689,13 @@ function saveNewHabit() {
   var newId   = 'hab' + Date.now();
   if (!S.habits) S.habits = [];
   S.habits.push({id:newId, title:title, emoji:emoji, order:S.habits.length});
-  saveData();
+  save();
   renderJour();
 }
 function deleteHabit(habId) {
   if (!S.habits) return;
   S.habits = S.habits.filter(function(h){ return h.id !== habId; });
-  saveData();
+  save();
   renderJour();
 }
 
@@ -2718,7 +2718,7 @@ function toggleSympLog(dk, symId) {
       time: pad2(new Date().getHours())+':'+pad2(new Date().getMinutes())
     });
   }
-  saveData();
+  save();
   renderJour();
 }
 function saveNewSymptom() {
@@ -2728,7 +2728,7 @@ function saveNewSymptom() {
   if (!S.symptoms) S.symptoms = [];
   var newId = 'sym' + (Date.now() % 100000 + 10);
   S.symptoms.push({id:newId, label:label});
-  saveData();
+  save();
   renderJour();
 }
 function removeCustomSymptom(symId) {
@@ -2739,7 +2739,7 @@ function removeCustomSymptom(symId) {
       S.sympLog[dk] = S.sympLog[dk].filter(function(e){ return e.id !== symId; });
     }
   }
-  saveData();
+  save();
   renderJour();
 }
 
@@ -2765,7 +2765,7 @@ function reportBouclierToTomorrow(dk) {
     S.intentions[tom].push(cloned);
     toMove[i].reported = true;
   }
-  saveData();
+  save();
   renderJour();
 }
 function adjustCyc(field, delta) {
@@ -2777,7 +2777,7 @@ function adjustCyc(field, delta) {
     var v = (S.cycle.periodLength || 5) + delta;
     S.cycle.periodLength = v < 2 ? 2 : v > 10 ? 10 : v;
   }
-  saveData();
+  save();
   renderMois();
 }
 
