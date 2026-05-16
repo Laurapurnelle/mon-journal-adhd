@@ -1377,27 +1377,26 @@ function renderJour() {
   }
   h += '</div>';
   h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:13px;color:#8aaa8a;margin-bottom:12px;line-height:1.5">'+escH(sympHint)+'</div>';
-  h += '<div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px">';
+  h += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px">';
   for (var syi=0; syi<symList.length; syi++) {
     var sym = symList[syi];
     var isLogged = false;
     for (var syj=0; syj<sympLogToday.length; syj++) { if (sympLogToday[syj].id === sym.id) { isLogged = true; break; } }
-    var sBg    = isLogged ? (cycPhToday ? cycPhToday.color : '#c0427a') : 'rgba(0,0,0,0.05)';
-    var sBord  = isLogged ? (cycPhToday ? cycPhToday.color : '#c0427a') : 'rgba(0,0,0,0.08)';
-    var sCol   = isLogged ? '#fff' : '#5a7a5a';
-    var isCustom = (parseInt(sym.id.replace('sym',''),10) > 7);
-    h += '<div style="display:inline-flex;align-items:center;gap:0">';
-    h += '<button onclick="toggleSympLog(\''+dk+'\',\''+sym.id+'\',\''+escH(sym.label)+'\')" ';
-    h += 'style="padding:6px 13px;border-radius:99px 0 0 99px;border:1.5px solid '+sBord+';border-right:none;';
-    if (!isCustom) h += 'border-radius:99px;';
-    h += 'background:'+sBg+';color:'+sCol+';font-size:12px;font-weight:600;font-family:\'DM Sans\',sans-serif;cursor:pointer;transition:all 0.15s">';
-    h += (isLogged ? '✓ ' : '') + escH(sym.label) + '</button>';
+    var sBg   = isLogged ? (cycPhToday ? cycPhToday.color : '#c0427a') : 'rgba(0,0,0,0.06)';
+    var sBord = isLogged ? (cycPhToday ? cycPhToday.color : '#c0427a') : 'rgba(0,0,0,0.12)';
+    var sCol  = isLogged ? '#fff' : '#4a6a4a';
+    var isCustom = (sym.id.indexOf('sym') === 0 && parseInt(sym.id.replace('sym',''),10) > 7);
+    h += '<button onclick="toggleSympLog(\''+dk+'\',\''+sym.id+'\')" ';
+    h += 'style="padding:8px 16px;border-radius:99px;border:1.5px solid '+sBord+';';
+    h += 'background:'+sBg+';color:'+sCol+';font-size:13px;font-weight:600;';
+    h += 'font-family:\'DM Sans\',sans-serif;cursor:pointer;transition:all 0.18s;display:inline-flex;align-items:center;gap:6px">';
+    if (isLogged) h += '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    h += escH(sym.label);
     if (isCustom) {
-      h += '<button onclick="removeCustomSymptom(\''+sym.id+'\')" ';
-      h += 'style="padding:6px 8px;border-radius:0 99px 99px 0;border:1.5px solid '+sBord+';border-left:none;';
-      h += 'background:'+sBg+';color:'+sCol+';font-size:13px;cursor:pointer;line-height:1">×</button>';
+      h += '<span onclick="event.stopPropagation();removeCustomSymptom(\''+sym.id+'\')" ';
+      h += 'style="font-size:15px;line-height:1;opacity:0.65;cursor:pointer;margin-left:2px">×</span>';
     }
-    h += '</div>';
+    h += '</button>';
   }
   h += '</div>';
   if (sympLogToday.length > 0) {
@@ -2647,13 +2646,15 @@ function deleteHabit(habId) {
 }
 
 /* ════ SYMPTOM CLOUD ════ */
-function toggleSympLog(dk, symId, symLabel) {
+function toggleSympLog(dk, symId) {
   if (!S.sympLog[dk]) S.sympLog[dk] = [];
   var found = -1;
   for (var i=0; i<S.sympLog[dk].length; i++) { if (S.sympLog[dk][i].id === symId) { found = i; break; } }
   if (found !== -1) {
     S.sympLog[dk].splice(found, 1);
   } else {
+    var symLabel = '';
+    for (var i=0; i<(S.symptoms||[]).length; i++) { if (S.symptoms[i].id === symId) { symLabel = S.symptoms[i].label; break; } }
     var phNow = getCyclePhasForDate(dk);
     S.sympLog[dk].push({
       id: symId,
