@@ -1523,7 +1523,7 @@ function renderJour() {
       h += '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;'+(i>0?'border-top:1px solid rgba(0,0,0,0.05)':'')+'">';
       h += '<div style="width:32px;height:32px;border-radius:50%;background:rgba(220,90,80,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px">\U0001f9e0</div>';
       h += '<div style="flex:1">';
-      h += '<div style="font-size:14px;font-weight:600;color:#2d1e1e">'+(hd.med===\'Aucun\'?\'Sans m\xe9dicament\':escH(hd.med))+'</div>';
+      h += '<div style="font-size:14px;font-weight:600;color:#2d1e1e">'+(hd.med==='Aucun'?'Sans m\xe9dicament':escH(hd.med))+'</div>';
       h += '<div style="font-size:11px;color:#9aaa9a">'+escH(hd.time)+'</div>';
       h += '</div>';
       h += '<button onclick="removeHeadache(\''+dk+'\',\''+hd.id+'\')" style="border:none;background:none;color:#ddd;cursor:pointer;font-size:20px;padding:0;line-height:1">\xd7</button>';
