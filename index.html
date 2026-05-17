@@ -1473,17 +1473,17 @@ function renderJour() {
   h += '<div class="lbl" style="margin-bottom:4px">BUDGET</div>';
   h += '<div class="titre" style="font-size:20px;margin-bottom:10px">Ce mois-ci</div>';
   var budFixed = 0;
-  for (var i=0; i<(S.budget.fixed||[]).length; i++) budFixed += (S.budget.fixed[i].amount||0);
+  var _bud=S.budget||{}; for (var i=0; i<(_bud.fixed||[]).length; i++) budFixed += (_bud.fixed[i].amount||0);
   var budEnv = 0;
-  for (var i=0; i<(S.budget.envelopes||[]).length; i++) budEnv += (S.budget.envelopes[i].budget||0);
-  var reste = Math.max(0, (S.budget.income||0) - budFixed - budEnv);
+  for (var i=0; i<(_bud.envelopes||[]).length; i++) budEnv += (_bud.envelopes[i].budget||0);
+  var reste = Math.max(0, (_bud.income||0) - budFixed - budEnv);
   h += '<div style="font-size:28px;font-weight:700;color:'+th.accent+';letter-spacing:-1px;line-height:1">'+reste.toFixed(0)+'€</div>';
   h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#9aaa9a;margin-top:2px;margin-bottom:12px">RESTE \xc0 VIVRE</div>';
-  var envTop = (S.budget.envelopes||[]).slice(0,3);
+  var envTop = (_bud.envelopes||[]).slice(0,3);
   for (var i=0; i<envTop.length; i++) {
     var env = envTop[i];
     var spent = 0;
-    var trs = (S.budget.transactions||[]);
+    var trs = (_bud.transactions||[]);
     for (var j=0; j<trs.length; j++) { if (trs[j].env === env.id) spent += (trs[j].amount||0); }
     var envPct = env.budget ? Math.min(100, Math.round(spent/env.budget*100)) : 0;
     h += '<div style="margin-bottom:8px">';
@@ -1513,7 +1513,7 @@ function renderJour() {
   h += '<div class="row-sb" style="margin-bottom:12px">';
   h += '<div><div class="lbl">SANT\xc9 DU JOUR</div>';
   h += '<div class="titre" style="font-size:22px">Maux de t\xeate</div></div>';
-  h += '<span style="font-size:26px;opacity:0.65">\U0001f9e0</span>';
+  h += '<span style="font-size:26px;opacity:0.65">🧠</span>';
   h += '</div>';
   if (hds.length === 0) {
     h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:14px;color:#a0b4a0;padding:4px 0 10px">Aucun mal de t\xeate aujourd\'hui — c\'est bon signe !</div>';
@@ -1521,7 +1521,7 @@ function renderJour() {
     for (var i=0; i<hds.length; i++) {
       var hd = hds[i];
       h += '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;'+(i>0?'border-top:1px solid rgba(0,0,0,0.05)':'')+'">';
-      h += '<div style="width:32px;height:32px;border-radius:50%;background:rgba(220,90,80,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px">\U0001f9e0</div>';
+      h += '<div style="width:32px;height:32px;border-radius:50%;background:rgba(220,90,80,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px">🧠</div>';
       h += '<div style="flex:1">';
       h += '<div style="font-size:14px;font-weight:600;color:#2d1e1e">'+(hd.med==='Aucun'?'Sans m\xe9dicament':escH(hd.med))+'</div>';
       h += '<div style="font-size:11px;color:#9aaa9a">'+escH(hd.time)+'</div>';
@@ -1575,7 +1575,7 @@ function renderJour() {
     if (patterns.length > 0) {
       h += '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:12px;padding:9px 12px;';
       h += 'background:'+hexRgba(cycPhToday.color,0.07)+';border-radius:12px;border:1px solid '+hexRgba(cycPhToday.color,0.15)+'">';
-      h += '<span style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:'+cycPhToday.color+';white-space:nowrap">\U0001f9e0 HABITUELLEMENT \xb7</span>';
+      h += '<span style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:'+cycPhToday.color+';white-space:nowrap">🧠 HABITUELLEMENT \xb7</span>';
       for (var pi=0; pi<patterns.length; pi++) {
         h += '<span style="font-size:12px;color:'+cycPhToday.color+';font-weight:600">'+escH(patterns[pi].label)+'</span>';
         if (pi < patterns.length-1) h += '<span style="color:#ccc;font-size:10px">\xb7</span>';
@@ -1622,7 +1622,7 @@ function renderJour() {
   if (hasBouclierPhase && hasHeavySymp) {
     if (bouclierActive) {
       h += '<div style="margin-top:12px;padding:11px 14px;background:rgba(154,106,176,0.1);border:1.5px solid rgba(154,106,176,0.28);border-radius:14px;display:flex;align-items:center;gap:10px">';
-      h += '<span style="font-size:18px">\U0001f6e1️</span>';
+      h += '<span style="font-size:18px">🛡️</span>';
       h += '<div style="flex:1"><div style="font-size:13px;font-weight:700;color:#7a50a0">Bouclier d\'Énergie actif</div>';
       h += '<div style="font-size:11px;color:#9a8ab0;margin-top:2px">Seules les t\xe2ches essentielles sont visibles.</div></div>';
       h += '<button onclick="deactivateBouclier()" style="border:1.5px solid rgba(154,106,176,0.4);background:none;border-radius:10px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;color:#7a50a0;font-family:\'DM Sans\',sans-serif">D\xe9sactiver</button>';
@@ -1630,12 +1630,12 @@ function renderJour() {
     } else {
       h += '<div style="margin-top:12px;padding:12px 14px;background:rgba(154,106,176,0.06);border:1.5px solid rgba(154,106,176,0.16);border-radius:14px">';
       h += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">';
-      h += '<span style="font-size:16px">\U0001f6e1️</span>';
+      h += '<span style="font-size:16px">🛡️</span>';
       h += '<div style="font-size:13px;font-weight:700;color:#7a50a0">Bouclier d\'Énergie disponible</div>';
       h += '</div>';
       h += '<div style="font-size:12px;color:#8a7a9a;margin-bottom:10px;line-height:1.5">Ton corps traverse une p\xe9riode difficile. Active le bouclier pour masquer les t\xe2ches non essentielles.</div>';
       h += '<button onclick="activateBouclier()" ';
-      h += 'style="width:100%;padding:10px;border-radius:12px;border:none;background:linear-gradient(135deg,#9a6ab0,#c0427a);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:\'DM Sans\',sans-serif">\U0001f6e1️ Activer le Bouclier d\'Énergie</button>';
+      h += 'style="width:100%;padding:10px;border-radius:12px;border:none;background:linear-gradient(135deg,#9a6ab0,#c0427a);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:\'DM Sans\',sans-serif">🛡️ Activer le Bouclier d\'Énergie</button>';
       h += '</div>';
     }
   }
@@ -1646,10 +1646,10 @@ function renderJour() {
   h += '<div class="jour-x-brain">';
   h += '<div class="card">';
   h += '<div class="row-sb" style="margin-bottom:8px">';
-  h += '<div style="display:flex;align-items:center;gap:6px"><span style="font-size:14px">\U0001f4dd</span><span class="lbl">BRAIN DUMP</span></div>';
+  h += '<div style="display:flex;align-items:center;gap:6px"><span style="font-size:14px">📝</span><span class="lbl">BRAIN DUMP</span></div>';
   h += '<div style="display:flex;align-items:center;gap:8px">';
   h += '<span style="font-size:11px;color:#9aaa9a;font-style:italic">Auto-sauvegard\xe9</span>';
-  h += '<button onclick="openBrainDumpConvert()" style="background:none;border:1px solid rgba(0,0,0,0.12);border-radius:8px;padding:3px 8px;font-size:12px;cursor:pointer;color:#7a9a7a;font-family:\'DM Sans\',sans-serif">\U0001f4e4 Convertir</button>';
+  h += '<button onclick="openBrainDumpConvert()" style="background:none;border:1px solid rgba(0,0,0,0.12);border-radius:8px;padding:3px 8px;font-size:12px;cursor:pointer;color:#7a9a7a;font-family:\'DM Sans\',sans-serif">📤 Convertir</button>';
   h += '</div>';
   h += '</div>';
   h += '<textarea id="braindump-ta" placeholder="D\xe9pose ici tout ce qui encombre ton esprit…" '
