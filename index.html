@@ -338,6 +338,46 @@ body.dark .pbar     { background: rgba(255,255,255,0.08) !important; }
 body.dark .profile-card { background: rgba(18,28,18,0.9) !important; border-color: rgba(255,255,255,0.08) !important; }
 body.dark .profile-name { color: #d8ecd8 !important; }
 body.dark #dark-btn-nav { background: rgba(255,255,255,0.08) !important; color: #9aaa9a !important; }
+
+/* ══ PAGE JOUR : LAYOUT RESPONSIVE ══ */
+.jour-top, .jour-bottom, .jour-extra {
+  display: flex; flex-direction: column; gap: 16px; margin-bottom: 16px;
+}
+/* Ordre mobile : héro en premier, bio en dernier */
+.jour-col-hero   { order: 1; }
+.jour-col-agenda { order: 2; }
+.jour-col-bio    { order: 3; }
+.jour-b-todo     { order: 1; }
+.jour-b-rituels  { order: 2; }
+.jour-b-recipe   { order: 3; }
+.jour-b-budget   { order: 4; }
+
+@media (min-width: 768px) {
+  #pg-jour { max-width: 1440px !important; padding: 24px 28px 60px; }
+  .jour-top {
+    display: grid !important;
+    grid-template-columns: 260px 1fr 300px;
+    gap: 20px; align-items: start;
+  }
+  .jour-col-bio { order: 1; }
+  .jour-col-hero { order: 2; }
+  .jour-col-agenda { order: 3; }
+  .jour-bottom {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px; align-items: start;
+  }
+  .jour-b-rituels { order: 1; }
+  .jour-b-todo { order: 2; }
+  .jour-b-recipe { order: 3; }
+  .jour-b-budget { order: 4; }
+  .jour-extra {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px; align-items: start;
+  }
+  .jour-x-brain, .jour-x-hab { grid-column: 1 / -1; }
+}
 </style>
 <!-- Firebase SDK (compat) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -1251,57 +1291,88 @@ function renderJour() {
 
   var h = '';
 
-  /* ── CARTE 1 : HÉRO ── */
-  h += '<div class="card span2" style="margin-top:8px;padding:0;overflow:hidden;position:relative">';
+  h += '<div class="jour-top">';
+
+  /* ── COL BIO-RYTHME (gauche desktop) ── */
+  h += '<div class="jour-col-bio">';
+  if (cycleDay) {
+    var r = 58, circ = 2*Math.PI*r;
+    var offset = circ * (1 - cycleDay/S.cycle.length);
+    h += '<div class="card">';
+    h += '<div class="row-sb" style="margin-bottom:8px">';
+    h += '<div><div class="lbl">BIO-RYTHME</div>';
+    h += '<div class="titre" style="font-size:22px">'+(phase?phase.name:'')+'</div></div>';
+    h += '<button onclick="openCycleModal()" class="btn-icon" style="border:none;font-family:\'DM Sans\',sans-serif;cursor:pointer">&#9881;</button>';
+    h += '</div>';
+    h += '<svg width="160" height="160" viewBox="0 0 160 160" style="display:block;margin:8px auto">';
+    h += '<circle cx="80" cy="80" r="'+r+'" fill="none" stroke="rgba(0,0,0,0.07)" stroke-width="10"/>';
+    h += '<circle cx="80" cy="80" r="'+r+'" fill="none" stroke="'+th.accent+'" stroke-width="10" stroke-linecap="round"'
+       + ' stroke-dasharray="'+circ.toFixed(1)+'" stroke-dashoffset="'+offset.toFixed(1)+'" transform="rotate(-90 80 80)"/>';
+    h += '<text x="80" y="68" text-anchor="middle" font-size="14" fill="#9aaa9a">&#9671;</text>';
+    h += '<text x="80" y="96" text-anchor="middle" font-size="34" font-weight="600" fill="#1e2d1e" font-family="DM Sans,sans-serif">'+cycleDay+'</text>';
+    h += '<text x="80" y="114" text-anchor="middle" font-size="9" fill="#9aaa9a" letter-spacing="2">JOUR DU CYCLE</text>';
+    h += '</svg>';
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:14px;color:#5a7a5a;text-align:center;line-height:1.6;margin-top:4px">'+(phase?escH(phase.desc):'')+'</div>';
+    h += '</div>';
+  } else {
+    h += '<div class="card" onclick="openCycleModal()" style="cursor:pointer">';
+    h += '<div class="lbl" style="margin-bottom:6px">BIO-RYTHME</div>';
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:15px;color:#8aaa8a">Configure ton cycle pour suivre ton \xe9nergie naturelle →</div>';
+    h += '</div>';
+  }
+  h += '</div>';
+
+  /* ── COL HERO (centre desktop) ── */
+  h += '<div class="jour-col-hero">';
+  h += '<div class="card" style="margin-top:0;padding:0;overflow:hidden;position:relative">';
   h += '<div style="height:4px;background:linear-gradient(90deg,'+th.accent+' 0%,'+hexToRgba(th.accent,0.25)+' 100%)"></div>';
   h += '<div style="padding:22px 24px 20px">';
-  /* date pill */
   h += '<div style="display:inline-flex;align-items:center;gap:6px;background:'+hexToRgba(th.accent,0.08)+';border-radius:99px;padding:4px 13px;margin-bottom:16px">';
   h += '<div style="width:6px;height:6px;border-radius:50%;background:'+th.accent+'"></div>';
   h += '<span style="font-size:10px;font-weight:700;letter-spacing:0.12em;color:'+th.accent+'">'+jourStr+'</span>';
   h += '</div>';
-  /* horloge + météo */
-  h += '<div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:14px">';
-  h += '<div>';
-  h += '<div id="clock-display" style="font-size:72px;font-weight:300;letter-spacing:-4px;line-height:1;color:#1e2d1e;font-family:\'DM Sans\',sans-serif">'+hh+':'+mm+'</div>';
+  h += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">';
+  h += '<div style="flex:1">';
+  h += '<div id="clock-display" style="font-size:72px;font-weight:300;letter-spacing:-4px;line-height:1;color:'+th.accent+';font-family:\'DM Sans\',sans-serif">'+hh+':'+mm+'</div>';
   h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:13px;color:#7a9a7a;margin-top:6px;line-height:1.4;max-width:220px">'+escH(met.desc)+'</div>';
   h += '</div>';
-  h += '<div style="text-align:right;flex-shrink:0;padding-left:16px">';
-  h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.14em;color:#8aaa8a;margin-bottom:4px">'+escH(S.settings.city).toUpperCase()+'</div>';
-  h += '<div style="display:flex;align-items:center;gap:5px;justify-content:flex-end;margin-bottom:3px">';
-  h += '<span style="font-size:24px">'+met.ic+'</span>';
-  h += '<span style="font-size:38px;font-weight:600;color:#1e2d1e;letter-spacing:-2px;line-height:1">'+met.t+'°</span>';
-  h += '</div>';
-  h += '<div style="font-size:11px;color:#9aaa9a">H : '+met.h+'° · L : '+met.l+'°</div>';
-  h += '<div style="font-size:11px;color:#9aaa9a;margin-top:2px">↑ '+met.lever+' · '+met.vent+'</div>';
+  h += '<div style="width:84px;height:84px;border-radius:50%;background:'+hexToRgba(th.accent,0.07)+';border:2px solid '+hexToRgba(th.accent,0.14)+';display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0">';
+  h += '<span style="font-size:32px;line-height:1">'+met.ic+'</span>';
+  h += '<span style="font-size:8px;font-weight:700;letter-spacing:0.1em;color:'+th.accent+';margin-top:4px;text-transform:uppercase">'+MOIS_FR[m]+'</span>';
   h += '</div>';
   h += '</div>';
-  /* citation */
   h += '<div style="background:'+hexToRgba(th.accent,0.07)+';border-radius:18px;padding:14px 16px;margin-bottom:14px;border-left:3px solid '+hexToRgba(th.accent,0.32)+'">';
   var qPool = DAILY_QUOTES[m] || [th.quote];
   var todayQuote = qPool[(now.getDate() - 1) % qPool.length];
-  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:15px;line-height:1.6;color:#2d3d2d">« '+escH(todayQuote)+' »</div>';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:15px;line-height:1.6;color:#2d3d2d">« '+escH(todayQuote)+' »</div>';
   h += '<div style="font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:'+th.accent+';margin-top:7px;opacity:0.75">'+escH(th.quoteSub)+'</div>';
   h += '</div>';
-  /* rituels progress */
   h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
   h += '<span style="font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#8aaa8a">RITUELS DU JOUR</span>';
   h += '<span style="font-size:13px;font-weight:700;color:'+th.accent+'">'+rPct+'%</span>';
   h += '</div>';
   h += '<div class="pbar"><div class="pbar-fill" style="width:'+rPct+'%;background:'+th.accent+'"></div></div>';
+  h += '<div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;margin-top:8px;border-top:1px solid rgba(0,0,0,0.05);font-size:11px;color:#9aaa9a">';
+  h += '<span>☀ Lever '+escH(met.lever)+'</span>';
+  h += '<span style="font-size:13px">'+met.ic+'</span>';
+  h += '<span style="font-style:italic">'+met.t+'°C</span>';
   h += '</div>';
   h += '</div>';
-  /* ── CARTE 2 : AGENDA ── */
+  h += '</div>';
+  h += '</div>';
+
+  /* ── COL AGENDA (droite desktop) ── */
+  h += '<div class="jour-col-agenda">';
   h += '<div class="card">';
   h += '<div class="row-sb" style="margin-bottom:14px">';
   h += '<div style="display:flex;align-items:center;gap:8px">';
   h += '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8aaa8a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
   h += '<span class="lbl">AGENDA DU JOUR</span>';
   h += '</div>';
-  h += '<span style="font-size:12px;color:#8aaa8a">'+evs.length+' événement'+(evs.length!==1?'s':'')+'</span>';
+  h += '<span style="font-size:12px;color:#8aaa8a">'+evs.length+' \xe9v\xe9nement'+(evs.length!==1?'s':'')+'</span>';
   h += '</div>';
   if (evs.length === 0) {
-    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:15px;color:#a0b4a0;padding:4px 0">Aucun événement — une page douce qui t\'attend.</div>';
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:15px;color:#a0b4a0;padding:4px 0">Aucun \xe9v\xe9nement — une page douce qui t\'attend.</div>';
   } else {
     for (var i=0; i<evs.length; i++) {
       var ev = evs[i];
@@ -1316,20 +1387,60 @@ function renderJour() {
       if (ev.loc) h += '<div style="font-size:12px;color:#8aaa8a;margin-top:2px">⊙ '+escH(ev.loc)+'</div>';
       h += '</div>';
       h += '<button onclick="openEditEvent(\''+dk+'\',\''+ev.id+'\')" style="border:none;background:none;color:#b0c8b0;cursor:pointer;font-size:15px;padding:0 4px;line-height:1" title="Modifier">✎</button>';
-      h += '<button onclick="deleteEvent(\''+dk+'\',\''+ev.id+'\')" style="border:none;background:none;color:#ccc;cursor:pointer;font-size:20px;padding:0;line-height:1" title="Supprimer">×</button>';
+      h += '<button onclick="deleteEvent(\''+dk+'\',\''+ev.id+'\')" style="border:none;background:none;color:#ccc;cursor:pointer;font-size:20px;padding:0;line-height:1" title="Supprimer">\xd7</button>';
       h += '</div>';
     }
   }
-  h += '<button onclick="openAddEvent(\''+dk+'\')" style="display:flex;align-items:center;gap:6px;width:100%;margin-top:10px;border:none;background:none;cursor:pointer;color:#8aaa8a;font-size:13px;font-family:\'DM Sans\',sans-serif;padding:4px 0">+ Ajouter un événement</button>';
+  h += '<button onclick="openAddEvent(\''+dk+'\')" style="display:flex;align-items:center;gap:6px;width:100%;margin-top:10px;border:none;background:none;cursor:pointer;color:#8aaa8a;font-size:13px;font-family:\'DM Sans\',sans-serif;padding:4px 0">+ Ajouter un \xe9v\xe9nement</button>';
+  h += '</div>';
   h += '</div>';
 
-  /* ── CARTE 3 : TO-DO JOURNALIÈRE ── */
+  h += '</div>';
+
+  /* ══ SECTION BOTTOM ══ */
+  h += '<div class="jour-bottom">';
+
+  /* ── RITUELS ── */
+  h += '<div class="jour-b-rituels">';
+  h += '<div class="card">';
+  h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">';
+  h += '<div class="lbl">RITUELS</div>';
+  h += '<button onclick="openEditRituels()" style="background:none;border:none;color:#8aaa8a;font-size:13px;cursor:pointer;padding:0;font-family:inherit">✎ modifier</button>';
+  h += '</div>';
+  h += '<div class="titre" style="font-size:22px;margin-bottom:16px">Ancrer la journ\xe9e</div>';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">';
+  h += '<div>';
+  h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#8aaa8a;margin-bottom:10px">☀ MATIN</div>';
+  for (var i=0; i<rM.length; i++) {
+    var done = rDone.m && rDone.m[i];
+    h += '<div class="rit-row" onclick="toggleRitual(\''+dk+'\',\'m\','+i+')">';
+    h += '<div class="rit-chk'+(done?' done':'')+'">'+( done ? svgCheck() : '')+'</div>';
+    h += '<div class="rit-txt'+(done?' done':'')+'">'+escH(rM[i])+'</div>';
+    h += '</div>';
+  }
+  h += '</div>';
+  h += '<div>';
+  h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#8aaa8a;margin-bottom:10px">☽ SOIR</div>';
+  for (var i=0; i<rE.length; i++) {
+    var done = rDone.e && rDone.e[i];
+    h += '<div class="rit-row" onclick="toggleRitual(\''+dk+'\',\'e\','+i+')">';
+    h += '<div class="rit-chk'+(done?' done':'')+'">'+( done ? svgCheck() : '')+'</div>';
+    h += '<div class="rit-txt'+(done?' done':'')+'">'+escH(rE[i])+'</div>';
+    h += '</div>';
+  }
+  h += '</div>';
+  h += '</div>';
+  h += '</div>';
+  h += '</div>';
+
+  /* ── TO-DO ── */
   var todoDone = 0;
   for (var i=0; i<ints.length; i++) if(ints[i].done) todoDone++;
   var todoPct = ints.length ? Math.round(todoDone/ints.length*100) : 0;
+  h += '<div class="jour-b-todo">';
   h += '<div class="card">';
   h += '<div class="row-sb" style="margin-bottom:10px">';
-  h += '<div><div class="lbl">TÂCHES DU JOUR</div>';
+  h += '<div><div class="lbl">T\xc2CHES DU JOUR</div>';
   h += '<div class="titre" style="font-size:22px">To-do</div></div>';
   if (ints.length) {
     h += '<div style="text-align:right">';
@@ -1341,27 +1452,81 @@ function renderJour() {
   if (ints.length) { h += '<div class="pbar" style="margin-bottom:12px"><div class="pbar-fill" style="width:'+todoPct+'%;background:'+th.accent+'"></div></div>'; }
   h += '<div id="todo-day-'+dk+'">'+buildTodoDayInner(dk)+'</div>';
   h += '</div>';
+  h += '</div>';
 
-  /* ── CARTE 5 : SANTÉ ── */
+  /* ── RECETTE ── */
+  h += '<div class="jour-b-recipe">';
+  h += '<div class="card" onclick="openRecipeModal(\''+rec.id+'\')" style="padding:0;overflow:hidden;cursor:pointer">';
+  h += '<img src="'+rec.photo+'" alt="" style="width:100%;height:110px;object-fit:cover;display:block" onerror="this.style.display=\'none\'">';
+  h += '<div style="padding:14px 16px">';
+  h += '<div class="lbl" style="margin-bottom:4px">'+escH(rec.cat)+' \xb7 '+rec.time+' MIN</div>';
+  h += '<div class="titre" style="font-size:18px;margin-bottom:5px">'+escH(rec.title)+'</div>';
+  h += '<div style="font-size:12px;color:#7a9a7a;line-height:1.5">'+escH(rec.desc)+'</div>';
+  h += '<div onclick="event.stopPropagation();goPage(\'cuisine\')" style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:'+th.accent+';margin-top:10px;cursor:pointer">Voir les recettes →</div>';
+  h += '</div>';
+  h += '</div>';
+  h += '</div>';
+
+  /* ── MINI BUDGET ── */
+  h += '<div class="jour-b-budget">';
+  h += '<div class="card" onclick="goPage(\'budget\')" style="cursor:pointer">';
+  h += '<div class="lbl" style="margin-bottom:4px">BUDGET</div>';
+  h += '<div class="titre" style="font-size:20px;margin-bottom:10px">Ce mois-ci</div>';
+  var budFixed = 0;
+  for (var i=0; i<(S.budget.fixed||[]).length; i++) budFixed += (S.budget.fixed[i].amount||0);
+  var budEnv = 0;
+  for (var i=0; i<(S.budget.envelopes||[]).length; i++) budEnv += (S.budget.envelopes[i].budget||0);
+  var reste = Math.max(0, (S.budget.income||0) - budFixed - budEnv);
+  h += '<div style="font-size:28px;font-weight:700;color:'+th.accent+';letter-spacing:-1px;line-height:1">'+reste.toFixed(0)+'€</div>';
+  h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#9aaa9a;margin-top:2px;margin-bottom:12px">RESTE \xc0 VIVRE</div>';
+  var envTop = (S.budget.envelopes||[]).slice(0,3);
+  for (var i=0; i<envTop.length; i++) {
+    var env = envTop[i];
+    var spent = 0;
+    var trs = (S.budget.transactions||[]);
+    for (var j=0; j<trs.length; j++) { if (trs[j].env === env.id) spent += (trs[j].amount||0); }
+    var envPct = env.budget ? Math.min(100, Math.round(spent/env.budget*100)) : 0;
+    h += '<div style="margin-bottom:8px">';
+    h += '<div style="display:flex;justify-content:space-between;font-size:11px;color:#6a8a6a;margin-bottom:3px">';
+    h += '<span>'+escH(env.name)+'</span><span>'+spent.toFixed(0)+'/'+env.budget+'€</span>';
+    h += '</div>';
+    h += '<div style="height:4px;background:rgba(0,0,0,0.07);border-radius:2px">';
+    h += '<div style="height:4px;background:'+th.accent+';border-radius:2px;width:'+envPct+'%"></div>';
+    h += '</div>';
+    h += '</div>';
+  }
+  if (!envTop.length) {
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:13px;color:#a0b4a0">Configure ton budget →</div>';
+  }
+  h += '</div>';
+  h += '</div>';
+
+  h += '</div>';
+
+  /* ══ SECTION EXTRA ══ */
+  h += '<div class="jour-extra">';
+
+  /* ── SANTE ── */
   var hds = (hlth.headaches || []);
+  h += '<div class="jour-x-sante">';
   h += '<div class="card">';
   h += '<div class="row-sb" style="margin-bottom:12px">';
-  h += '<div><div class="lbl">SANTÉ DU JOUR</div>';
-  h += '<div class="titre" style="font-size:22px">Maux de tête</div></div>';
-  h += '<span style="font-size:26px;opacity:0.65">🧠</span>';
+  h += '<div><div class="lbl">SANT\xc9 DU JOUR</div>';
+  h += '<div class="titre" style="font-size:22px">Maux de t\xeate</div></div>';
+  h += '<span style="font-size:26px;opacity:0.65">\U0001f9e0</span>';
   h += '</div>';
   if (hds.length === 0) {
-    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:14px;color:#a0b4a0;padding:4px 0 10px">Aucun mal de tête aujourd\'hui — c\'est bon signe !</div>';
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:14px;color:#a0b4a0;padding:4px 0 10px">Aucun mal de t\xeate aujourd\'hui — c\'est bon signe !</div>';
   } else {
     for (var i=0; i<hds.length; i++) {
       var hd = hds[i];
       h += '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;'+(i>0?'border-top:1px solid rgba(0,0,0,0.05)':'')+'">';
-      h += '<div style="width:32px;height:32px;border-radius:50%;background:rgba(220,90,80,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px">🧠</div>';
+      h += '<div style="width:32px;height:32px;border-radius:50%;background:rgba(220,90,80,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px">\U0001f9e0</div>';
       h += '<div style="flex:1">';
-      h += '<div style="font-size:14px;font-weight:600;color:#2d1e1e">'+(hd.med==='Aucun'?'Sans médicament':escH(hd.med))+'</div>';
+      h += '<div style="font-size:14px;font-weight:600;color:#2d1e1e">'+(hd.med===\'Aucun\'?\'Sans m\xe9dicament\':escH(hd.med))+'</div>';
       h += '<div style="font-size:11px;color:#9aaa9a">'+escH(hd.time)+'</div>';
       h += '</div>';
-      h += '<button onclick="removeHeadache(\''+dk+'\',\''+hd.id+'\')" style="border:none;background:none;color:#ddd;cursor:pointer;font-size:20px;padding:0;line-height:1">×</button>';
+      h += '<button onclick="removeHeadache(\''+dk+'\',\''+hd.id+'\')" style="border:none;background:none;color:#ddd;cursor:pointer;font-size:20px;padding:0;line-height:1">\xd7</button>';
       h += '</div>';
     }
   }
@@ -1370,20 +1535,21 @@ function renderJour() {
     h += 'style="display:flex;align-items:center;gap:6px;width:100%;margin-top:8px;border:1.5px dashed rgba(220,90,80,0.3);';
     h += 'background:rgba(220,90,80,0.04);cursor:pointer;color:#c05050;font-size:13px;';
     h += 'font-family:\'DM Sans\',sans-serif;padding:9px 14px;border-radius:14px;font-weight:600">';
-    h += '+ Ajouter un mal de tête ('+hds.length+'/4)</button>';
+    h += '+ Ajouter un mal de t\xeate ('+hds.length+'/4)</button>';
   }
   h += '</div>';
+  h += '</div>';
 
-  /* ── CARTE 5B : SYMPTÔMES DU JOUR ── */
+  /* ── SYMPTOMES ── */
   var sympLogToday = Array.isArray(S.sympLog[dk]) ? S.sympLog[dk] : (S.sympLog[dk] ? toArr(S.sympLog[dk]) : []);
   var symList      = S.symptoms || [];
   var cycPhToday   = getCyclePhasForDate(dk);
   var sympHint;
   if (cycPhToday) {
     if      (cycPhToday.key === 'regles')    sympHint = 'Tu es en phase menstruelle — note tes sympt\xf4mes pour mieux te conna\xeetre.';
-    else if (cycPhToday.key === 'fertilite') sympHint = 'Phase fertile — comment se sent ton \xe9nergie aujourd\'hui ?';
-    else if (cycPhToday.key === 'spm')       sympHint = 'Tu es en SPM — des sympt\xf4mes \xe0 signaler ?';
-    else                                     sympHint = 'Comment tu te sens aujourd\'hui ?';
+    else if (cycPhToday.key === 'fertilite') sympHint = 'Phase fertile — comment se sent ton \xe9nergie aujourd\'hui ?';
+    else if (cycPhToday.key === 'spm')       sympHint = 'Tu es en SPM — des sympt\xf4mes \xe0 signaler ?';
+    else                                     sympHint = 'Comment tu te sens aujourd\'hui ?';
   } else {
     sympHint = 'Note tes sympt\xf4mes du jour.';
   }
@@ -1394,6 +1560,7 @@ function renderJour() {
   }
   var hasBouclierPhase = cycPhToday && (cycPhToday.key === 'regles' || cycPhToday.key === 'spm');
 
+  h += '<div class="jour-x-symp">';
   h += '<div class="card" id="symp-card">';
   h += '<div class="row-sb" style="margin-bottom:8px">';
   h += '<div><div class="lbl">SYMPT\xd4MES DU JOUR</div>';
@@ -1403,16 +1570,15 @@ function renderJour() {
   }
   h += '</div>';
   h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:13px;color:#8aaa8a;margin-bottom:10px;line-height:1.5">'+escH(sympHint)+'</div>';
-  /* Pattern mémoire : symptômes habituels de cette phase */
   if (cycPhToday) {
     var patterns = getSympPatternForPhase(cycPhToday.key);
     if (patterns.length > 0) {
       h += '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:12px;padding:9px 12px;';
       h += 'background:'+hexRgba(cycPhToday.color,0.07)+';border-radius:12px;border:1px solid '+hexRgba(cycPhToday.color,0.15)+'">';
-      h += '<span style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:'+cycPhToday.color+';white-space:nowrap">🧠 HABITUELLEMENT ·</span>';
+      h += '<span style="font-size:10px;font-weight:700;letter-spacing:0.08em;color:'+cycPhToday.color+';white-space:nowrap">\U0001f9e0 HABITUELLEMENT \xb7</span>';
       for (var pi=0; pi<patterns.length; pi++) {
         h += '<span style="font-size:12px;color:'+cycPhToday.color+';font-weight:600">'+escH(patterns[pi].label)+'</span>';
-        if (pi < patterns.length-1) h += '<span style="color:#ccc;font-size:10px">·</span>';
+        if (pi < patterns.length-1) h += '<span style="color:#ccc;font-size:10px">\xb7</span>';
       }
       h += '</div>';
     }
@@ -1434,7 +1600,7 @@ function renderJour() {
     h += escH(sym.label);
     if (isCustom) {
       h += '<span onclick="event.stopPropagation();removeCustomSymptom(\''+sym.id+'\')" ';
-      h += 'style="font-size:15px;line-height:1;opacity:0.65;cursor:pointer;margin-left:2px">×</span>';
+      h += 'style="font-size:15px;line-height:1;opacity:0.65;cursor:pointer;margin-left:2px">\xd7</span>';
     }
     h += '</button>';
   }
@@ -1453,11 +1619,10 @@ function renderJour() {
   h += '</div>';
   h += '<button onclick="document.getElementById(\'symp-add-form\').style.display=\'block\';document.getElementById(\'symp-new-label\').focus()" ';
   h += 'style="border:none;background:none;cursor:pointer;font-size:12px;color:#9aaa9a;padding:0;font-family:\'DM Sans\',sans-serif">+ sympt\xf4me perso</button>';
-  /* Bouclier d'Énergie */
   if (hasBouclierPhase && hasHeavySymp) {
     if (bouclierActive) {
       h += '<div style="margin-top:12px;padding:11px 14px;background:rgba(154,106,176,0.1);border:1.5px solid rgba(154,106,176,0.28);border-radius:14px;display:flex;align-items:center;gap:10px">';
-      h += '<span style="font-size:18px">🛡️</span>';
+      h += '<span style="font-size:18px">\U0001f6e1️</span>';
       h += '<div style="flex:1"><div style="font-size:13px;font-weight:700;color:#7a50a0">Bouclier d\'Énergie actif</div>';
       h += '<div style="font-size:11px;color:#9a8ab0;margin-top:2px">Seules les t\xe2ches essentielles sont visibles.</div></div>';
       h += '<button onclick="deactivateBouclier()" style="border:1.5px solid rgba(154,106,176,0.4);background:none;border-radius:10px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;color:#7a50a0;font-family:\'DM Sans\',sans-serif">D\xe9sactiver</button>';
@@ -1465,105 +1630,37 @@ function renderJour() {
     } else {
       h += '<div style="margin-top:12px;padding:12px 14px;background:rgba(154,106,176,0.06);border:1.5px solid rgba(154,106,176,0.16);border-radius:14px">';
       h += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">';
-      h += '<span style="font-size:16px">🛡️</span>';
+      h += '<span style="font-size:16px">\U0001f6e1️</span>';
       h += '<div style="font-size:13px;font-weight:700;color:#7a50a0">Bouclier d\'Énergie disponible</div>';
       h += '</div>';
       h += '<div style="font-size:12px;color:#8a7a9a;margin-bottom:10px;line-height:1.5">Ton corps traverse une p\xe9riode difficile. Active le bouclier pour masquer les t\xe2ches non essentielles.</div>';
       h += '<button onclick="activateBouclier()" ';
-      h += 'style="width:100%;padding:10px;border-radius:12px;border:none;background:linear-gradient(135deg,#9a6ab0,#c0427a);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:\'DM Sans\',sans-serif">🛡️ Activer le Bouclier d\'Énergie</button>';
+      h += 'style="width:100%;padding:10px;border-radius:12px;border:none;background:linear-gradient(135deg,#9a6ab0,#c0427a);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:\'DM Sans\',sans-serif">\U0001f6e1️ Activer le Bouclier d\'Énergie</button>';
       h += '</div>';
     }
   }
   h += '</div>';
+  h += '</div>';
 
-  /* ── CARTE 6 : BRAIN DUMP ── */
+  /* ── BRAIN DUMP (pleine largeur) ── */
+  h += '<div class="jour-x-brain">';
   h += '<div class="card">';
   h += '<div class="row-sb" style="margin-bottom:8px">';
-  h += '<div style="display:flex;align-items:center;gap:6px"><span style="font-size:14px">📝</span><span class="lbl">BRAIN DUMP</span></div>';
+  h += '<div style="display:flex;align-items:center;gap:6px"><span style="font-size:14px">\U0001f4dd</span><span class="lbl">BRAIN DUMP</span></div>';
   h += '<div style="display:flex;align-items:center;gap:8px">';
-  h += '<span style="font-size:11px;color:#9aaa9a;font-style:italic">Auto-sauvegardé</span>';
-  h += '<button onclick="openBrainDumpConvert()" style="background:none;border:1px solid rgba(0,0,0,0.12);border-radius:8px;padding:3px 8px;font-size:12px;cursor:pointer;color:#7a9a7a;font-family:\'DM Sans\',sans-serif">📤 Convertir</button>';
+  h += '<span style="font-size:11px;color:#9aaa9a;font-style:italic">Auto-sauvegard\xe9</span>';
+  h += '<button onclick="openBrainDumpConvert()" style="background:none;border:1px solid rgba(0,0,0,0.12);border-radius:8px;padding:3px 8px;font-size:12px;cursor:pointer;color:#7a9a7a;font-family:\'DM Sans\',sans-serif">\U0001f4e4 Convertir</button>';
   h += '</div>';
   h += '</div>';
-  h += '<textarea id="braindump-ta" placeholder="Dépose ici tout ce qui encombre ton esprit…" '
+  h += '<textarea id="braindump-ta" placeholder="D\xe9pose ici tout ce qui encombre ton esprit…" '
      + 'oninput="saveBraindump(\''+dk+'\',this.value);this.style.height=\'auto\';this.style.height=this.scrollHeight+\'px\'" '
      + 'style="width:100%;border:none;background:transparent;font-family:\'Caveat\',cursive;'
      + 'font-size:17px;color:#2d3d2d;resize:none;outline:none;min-height:72px;line-height:1.5;display:block">'
      + escH(bd)+'</textarea>';
   h += '</div>';
-
-  /* ── CARTE 7 : CUISINE ── */
-  h += '<div class="card" onclick="openRecipeModal(\''+rec.id+'\')" style="padding:0;overflow:hidden;cursor:pointer">';
-  h += '<img src="'+rec.photo+'" alt="" style="width:100%;height:150px;object-fit:cover;display:block" onerror="this.style.display=\'none\'">';
-  h += '<div style="padding:16px 18px">';
-  h += '<div class="lbl" style="margin-bottom:4px">'+escH(rec.cat)+' · '+rec.time+' MIN</div>';
-  h += '<div class="titre" style="font-size:20px;margin-bottom:6px">'+escH(rec.title)+'</div>';
-  h += '<div style="font-size:13px;color:#7a9a7a;line-height:1.5">'+escH(rec.desc)+'</div>';
-  h += '<div onclick="event.stopPropagation();goPage(\'cuisine\')" style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:700;color:'+th.accent+';margin-top:12px;cursor:pointer">Voir toutes les recettes <span>→</span></div>';
-  h += '</div>';
   h += '</div>';
 
-  /* ── CARTE 8 : BIO-RYTHME ── */
-  if (cycleDay) {
-    var r = 58, circ = 2*Math.PI*r;
-    var offset = circ * (1 - cycleDay/S.cycle.length);
-    h += '<div class="card">';
-    h += '<div class="row-sb" style="margin-bottom:8px">';
-    h += '<div><div class="lbl">BIO-RYTHME</div>';
-    h += '<div class="titre" style="font-size:22px">'+(phase?phase.name:'')+'</div></div>';
-    h += '<button onclick="openCycleModal()" class="btn-icon" style="border:none;font-family:\'DM Sans\',sans-serif;cursor:pointer">⚙</button>';
-    h += '</div>';
-    h += '<svg width="160" height="160" viewBox="0 0 160 160" style="display:block;margin:8px auto">';
-    h += '<circle cx="80" cy="80" r="'+r+'" fill="none" stroke="rgba(0,0,0,0.07)" stroke-width="10"/>';
-    h += '<circle cx="80" cy="80" r="'+r+'" fill="none" stroke="'+th.accent+'" stroke-width="10" stroke-linecap="round"'
-       + ' stroke-dasharray="'+circ.toFixed(1)+'" stroke-dashoffset="'+offset.toFixed(1)+'" transform="rotate(-90 80 80)"/>';
-    h += '<text x="80" y="68" text-anchor="middle" font-size="14" fill="#9aaa9a">◇</text>';
-    h += '<text x="80" y="96" text-anchor="middle" font-size="34" font-weight="600" fill="#1e2d1e" font-family="DM Sans,sans-serif">'+cycleDay+'</text>';
-    h += '<text x="80" y="114" text-anchor="middle" font-size="9" fill="#9aaa9a" letter-spacing="2">JOUR DU CYCLE</text>';
-    h += '</svg>';
-    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:14px;color:#5a7a5a;text-align:center;line-height:1.6;margin-top:4px">'+(phase?escH(phase.desc):'')+'</div>';
-    h += '</div>';
-  } else {
-    h += '<div class="card" onclick="openCycleModal()" style="cursor:pointer">';
-    h += '<div class="lbl" style="margin-bottom:6px">BIO-RYTHME</div>';
-    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:15px;color:#8aaa8a">Configure ton cycle pour suivre ton énergie naturelle →</div>';
-    h += '</div>';
-  }
-
-  /* ── CARTE 9 : RITUELS ── */
-  h += '<div class="card span2">';
-  h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">';
-  h += '<div class="lbl">RITUELS</div>';
-  h += '<button onclick="openEditRituels()" style="background:none;border:none;color:#8aaa8a;font-size:13px;cursor:pointer;padding:0;font-family:inherit">✎ modifier</button>';
-  h += '</div>';
-  h += '<div class="titre" style="font-size:22px;margin-bottom:16px">Ancrer la journée</div>';
-  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">';
-  /* Matin */
-  h += '<div>';
-  h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#8aaa8a;margin-bottom:10px">☀ MATIN</div>';
-  for (var i=0; i<rM.length; i++) {
-    var done = rDone.m && rDone.m[i];
-    h += '<div class="rit-row" onclick="toggleRitual(\''+dk+'\',\'m\','+i+')">';
-    h += '<div class="rit-chk'+(done?' done':'')+'">'+( done ? svgCheck() : '')+'</div>';
-    h += '<div class="rit-txt'+(done?' done':'')+'">'+escH(rM[i])+'</div>';
-    h += '</div>';
-  }
-  h += '</div>';
-  /* Soir */
-  h += '<div>';
-  h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#8aaa8a;margin-bottom:10px">☽ SOIR</div>';
-  for (var i=0; i<rE.length; i++) {
-    var done = rDone.e && rDone.e[i];
-    h += '<div class="rit-row" onclick="toggleRitual(\''+dk+'\',\'e\','+i+')">';
-    h += '<div class="rit-chk'+(done?' done':'')+'">'+( done ? svgCheck() : '')+'</div>';
-    h += '<div class="rit-txt'+(done?' done':'')+'">'+escH(rE[i])+'</div>';
-    h += '</div>';
-  }
-  h += '</div>';
-  h += '</div>';
-  h += '</div>';
-
-  /* ── CARTE 10 : MES HABITUDES ── */
+  /* ── HABITUDES (pleine largeur) ── */
   var habList      = (S.habits || []).slice().sort(function(a,b){ return (a.order||0)-(b.order||0); });
   var habDoneToday = Array.isArray(S.habDone[dk]) ? S.habDone[dk] : (S.habDone[dk] ? toArr(S.habDone[dk]) : []);
   var habDoneCount = 0;
@@ -1571,7 +1668,8 @@ function renderJour() {
     if (habDoneToday.indexOf(habList[hbi].id) !== -1) habDoneCount++;
   }
   var habPct = habList.length ? Math.round(habDoneCount/habList.length*100) : 0;
-  h += '<div class="card span2">';
+  h += '<div class="jour-x-hab">';
+  h += '<div class="card">';
   h += '<div class="row-sb" style="margin-bottom:6px">';
   h += '<div><div class="lbl">MES HABITUDES</div>';
   h += '<div class="titre" style="font-size:22px">Aujourd\'hui</div></div>';
@@ -1586,7 +1684,7 @@ function renderJour() {
     h += '<div class="pbar" style="margin-bottom:14px"><div class="pbar-fill" style="width:'+habPct+'%;background:'+th.accent+'"></div></div>';
   }
   if (habList.length === 0) {
-    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:14px;color:#a0b4a0;padding:4px 0 10px">Aucune habitude — ajoute la tienne ci-dessous !</div>';
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:14px;color:#a0b4a0;padding:4px 0 10px">Aucune habitude — ajoute la tienne ci-dessous !</div>';
   }
   for (var hbi=0; hbi<habList.length; hbi++) {
     var hab    = habList[hbi];
@@ -1600,12 +1698,12 @@ function renderJour() {
     h += '</div>';
     h += '<div style="font-size:17px;flex-shrink:0">'+escH(hab.emoji||'✦')+'</div>';
     h += '<div style="flex:1;font-size:15px;font-weight:500;color:'+(hbDone?'#aaa':'#1e2d1e')+';'+(hbDone?'text-decoration:line-through;':'')+'line-height:1.3">'+escH(hab.title)+'</div>';
-    h += '<button onclick="deleteHabit(\''+hab.id+'\')" style="border:none;background:none;color:#ddd;cursor:pointer;font-size:20px;padding:0;line-height:1" title="Supprimer">×</button>';
+    h += '<button onclick="deleteHabit(\''+hab.id+'\')" style="border:none;background:none;color:#ddd;cursor:pointer;font-size:20px;padding:0;line-height:1" title="Supprimer">\xd7</button>';
     h += '</div>';
   }
   h += '<div id="hab-add-form" style="display:none;margin-top:10px;padding:12px;background:rgba(0,0,0,0.03);border-radius:14px">';
   h += '<div style="display:flex;gap:8px;margin-bottom:8px">';
-  h += '<input id="hab-new-emoji" type="text" placeholder="✦" maxlength="2" ';
+  h += '<input id="hab-new-emoji" type="text" placeholder="✶" maxlength="2" ';
   h += 'style="width:44px;border:1.5px solid rgba(0,0,0,0.1);border-radius:10px;padding:8px;font-size:18px;text-align:center;background:rgba(255,255,255,0.8)">';
   h += '<input id="hab-new-title" type="text" placeholder="Nom de l\'habitude…" ';
   h += 'onkeydown="if(event.key===\'Enter\')saveNewHabit()" ';
@@ -1619,7 +1717,9 @@ function renderJour() {
   h += '<button onclick="document.getElementById(\'hab-add-form\').style.display=\'block\';document.getElementById(\'hab-new-title\').focus()" ';
   h += 'style="display:flex;align-items:center;gap:6px;width:100%;margin-top:10px;border:1.5px dashed rgba(0,0,0,0.1);background:none;cursor:pointer;color:#8aaa8a;font-size:13px;font-family:\'DM Sans\',sans-serif;padding:10px;border-radius:14px">+ Ajouter une habitude</button>';
   h += '</div>';
+  h += '</div>';
 
+  h += '</div>';
   document.getElementById('pg-jour').innerHTML = h;
 
   /* Horloge live */
