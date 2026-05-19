@@ -2301,13 +2301,6 @@ function renderMois() {
      + 'border:1.5px solid rgba(0,0,0,0.12);background:rgba(255,255,255,0.72);'
      + 'cursor:pointer;font-size:18px;font-family:\'DM Sans\',sans-serif;'
      + 'display:flex;align-items:center;justify-content:center;color:#3d5d3d">›</button>';
-  /* Toggle cycle */
-  h += '<button onclick="toggleCycleColors()" style="padding:6px 12px;border-radius:99px;'
-     + 'border:1.5px solid '+(showCycleColors?'rgba(139,53,192,0.55)':'rgba(0,0,0,0.12)')+';'
-     + 'background:'+(showCycleColors?'rgba(139,53,192,0.12)':'rgba(255,255,255,0.72)')+';'
-     + 'cursor:pointer;font-size:11px;font-weight:700;font-family:\'DM Sans\',sans-serif;'
-     + 'color:'+(showCycleColors?'#8B35C0':'#6a5a7a')+';white-space:nowrap'
-     + '>'+(showCycleColors?'🔮 Cacher le cycle':'🔮 Mon cycle')+'</button>';
   /* + Ajouter */
   h += '<button onclick="openAddEvent(calSel||\''+dk+'\'" style="width:36px;height:36px;'
      + 'border-radius:50%;background:'+th.accent+';border:none;color:#fff;font-size:22px;'
@@ -2465,7 +2458,12 @@ function renderMois() {
 
     var dayClass = 'cal-day' + (isToday ? ' cal-today' : '');
     h += '<div class="'+dayClass+'" style="'+cs+dimOp+'" onclick="selMoisDay(\''+dk2+'\')">';
-    if (showCycleColors && cycPh2) h += '<div style="position:absolute;top:0;left:0;right:0;height:3px;background:'+cycPh2.color+';opacity:0.85;z-index:3;border-radius:14px 14px 0 0"></div>';
+    if (showCycleColors && cycPh2) {
+      /* Full pastel tint overlay (below content, above cell bg) */
+      h += '<div style="position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;background:'+cycPh2.color+';opacity:0.17"></div>';
+      /* Thin color strip on top for identity */
+      h += '<div style="position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0;pointer-events:none;z-index:4;background:'+cycPh2.color+';opacity:0.9"></div>';
+    }
 
     if (isToday) {
       /* Numéro accent + pastille pulse (top-right) */
@@ -2547,12 +2545,40 @@ function renderMois() {
   h += '</div>';
   } /* end if showCycleColors */
 
-  /* ── BOUTON PARAMÈTRES CYCLE ── */
-  h += '<div style="text-align:center;margin:4px 0 8px">';
-  h += '<button onclick="openCycleSettings()" style="padding:8px 18px;border-radius:99px;'
-     + 'border:1.5px solid rgba(192,66,122,0.25);background:rgba(192,66,122,0.06);'
-     + 'color:#c0427a;font-size:12px;font-weight:700;font-family:\'DM Sans\',sans-serif;'
-     + 'cursor:pointer;letter-spacing:0.04em">⚙️ Paramètres du cycle</button>';
+  /* ── BOUTONS BAS DE CALENDRIER ── */
+  h += '<div style="display:flex;align-items:center;justify-content:center;gap:10px;margin:12px 0 4px">';
+  /* Toggle cycle — ON/OFF pill */
+  h += '<button onclick="toggleCycleColors()" style="'
+     + 'display:flex;align-items:center;gap:7px;'
+     + 'padding:9px 16px;border-radius:99px;cursor:pointer;'
+     + 'font-size:12px;font-weight:700;letter-spacing:0.03em;'
+     + 'font-family:\'DM Sans\',sans-serif;transition:all 0.2s;'
+     + (showCycleColors
+        ? 'background:linear-gradient(135deg,rgba(192,66,122,0.15),rgba(154,106,176,0.18));'
+          + 'border:1.5px solid rgba(154,106,176,0.45);color:#8B35C0;'
+          + 'box-shadow:0 2px 10px rgba(139,53,192,0.15)'
+        : 'background:rgba(255,255,255,0.7);border:1.5px solid rgba(0,0,0,0.1);color:#8a8a9a')
+     + '">';
+  h += '<span style="font-size:14px">👁️</span>';
+  h += '<span>'+(showCycleColors ? 'Masquer le cycle' : 'Afficher mon cycle')+'</span>';
+  /* mini switch indicator */
+  h += '<span style="display:inline-flex;align-items:center;width:28px;height:16px;'
+     + 'border-radius:99px;padding:2px;box-sizing:border-box;transition:all 0.2s;'
+     + (showCycleColors
+        ? 'background:#8B35C0'
+        : 'background:rgba(0,0,0,0.15)')
+     + '"><span style="display:block;width:12px;height:12px;border-radius:50%;'
+     + 'background:#fff;transition:transform 0.2s;'
+     + (showCycleColors ? 'transform:translateX(12px)' : 'transform:translateX(0)')
+     + '"></span></span>';
+  h += '</button>';
+  /* Settings */
+  h += '<button onclick="openCycleSettings()" style="'
+     + 'padding:9px 14px;border-radius:99px;cursor:pointer;'
+     + 'font-size:12px;font-weight:700;letter-spacing:0.03em;'
+     + 'font-family:\'DM Sans\',sans-serif;'
+     + 'background:rgba(192,66,122,0.06);border:1.5px solid rgba(192,66,122,0.22);'
+     + 'color:#c0427a">⚙️ Paramètres</button>';
   h += '</div>';
 
   } /* end moisView mois */
