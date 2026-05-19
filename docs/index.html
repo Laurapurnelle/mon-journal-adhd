@@ -2136,7 +2136,7 @@ function openAddEvent(dk) {
   }
   h += '</div></div>';
   h += '<input type="hidden" id="ev-color" value="'+EV_COLORS[0]+'">';
-  h += '<input type="hidden" id="ev-date" value="'+dk+'">';
+  h += '<div class="fgroup"><label class="flbl">Date</label><input type="date" id="ev-date" value="'+dk+'" style="font-size:15px"></div>';
   h += '<div style="display:flex;gap:10px">';
   h += '<button class="btn btn-ghost" onclick="closeModal()" style="flex:1">Annuler</button>';
   h += '<button class="btn btn-primary" onclick="saveEvent()" style="flex:2">Enregistrer</button>';
@@ -2302,7 +2302,7 @@ function renderMois() {
      + 'cursor:pointer;font-size:18px;font-family:\'DM Sans\',sans-serif;'
      + 'display:flex;align-items:center;justify-content:center;color:#3d5d3d">›</button>';
   /* + Ajouter */
-  h += '<button onclick="openAddEvent(calSel||\''+dk+'\'" style="width:36px;height:36px;'
+  h += '<button onclick="openAddEvent(calSel||\''+dk+'\')" style="width:36px;height:36px;'
      + 'border-radius:50%;background:'+th.accent+';border:none;color:#fff;font-size:22px;'
      + 'cursor:pointer;display:flex;align-items:center;justify-content:center;'
      + 'font-family:\'DM Sans\',sans-serif;line-height:1">+</button>';
@@ -2663,6 +2663,42 @@ function todayMois() {
 function selMoisDay(dk) {
   calSel = dk;
   renderMois();
+  openDaySheet(dk);
+}
+function openDaySheet(dk) {
+  var selDate = new Date(dk + 'T12:00:00');
+  var evs = (S.events[dk] || []).slice().sort(function(a,b){ return (a.time||'').localeCompare(b.time||''); });
+  var th = THEMES[calM];
+  var dayName = JOURS_LONG[selDate.getDay()];
+  var dateStr = selDate.getDate() + ' ' + MOIS_FR[selDate.getMonth()].toLowerCase() + ' ' + selDate.getFullYear();
+  var h = '<div>';
+  h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#9aaa9a;margin-bottom:2px">' + dayName.toUpperCase() + '</div>';
+  h += '<div style="font-family:\'Playfair Display\',serif;font-size:24px;color:#1e2d1e;margin-bottom:18px">' + dateStr + '</div>';
+  if (evs.length === 0) {
+    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:14px;color:#a0b4a0;margin-bottom:14px">Aucun rendez-vous ce jour.</div>';
+  } else {
+    for (var i = 0; i < evs.length; i++) {
+      var ev = evs[i];
+      h += '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(0,0,0,0.05)">';
+      h += '<div style="width:8px;height:8px;border-radius:50%;background:' + (ev.color||EV_COLORS[0]) + ';flex-shrink:0"></div>';
+      h += '<div style="flex:1">';
+      h += '<div style="font-size:15px;font-weight:500;color:#1e2d1e">' + escH(ev.title) + '</div>';
+      if (ev.time) h += '<div style="font-size:12px;color:#9aaa9a;margin-top:1px">' + escH(ev.time) + (ev.endTime ? ' → ' + escH(ev.endTime) : '') + '</div>';
+      if (ev.loc) h += '<div style="font-size:12px;color:#8aaa8a;margin-top:1px">⊙ ' + escH(ev.loc) + '</div>';
+      h += '</div>';
+      h += '<button onclick="openEditEvent(\'' + dk + '\',\'' + ev.id + '\')" style="border:none;background:rgba(0,0,0,0.04);color:#7a9a7a;cursor:pointer;font-size:14px;padding:6px 10px;border-radius:10px;line-height:1" title="Modifier">✎</button>';
+      h += '<button onclick="deleteEvent(\'' + dk + '\',\'' + ev.id + '\');openDaySheet(\'' + dk + '\')" style="border:none;background:rgba(0,0,0,0.04);color:#c07070;cursor:pointer;font-size:18px;padding:4px 8px;border-radius:10px;line-height:1" title="Supprimer">×</button>';
+      h += '</div>';
+    }
+  }
+  h += '<button onclick="openAddEvent(\'' + dk + '\')" '
+     + 'style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;'
+     + 'margin-top:16px;padding:14px;border-radius:16px;'
+     + 'border:1.5px dashed rgba(0,0,0,0.12);background:none;cursor:pointer;'
+     + 'color:' + th.accent + ';font-size:14px;font-weight:700;font-family:\'DM Sans\',sans-serif;'
+     + 'box-sizing:border-box">+ Ajouter un rendez-vous</button>';
+  h += '</div>';
+  openModal(h);
 }
 function setCycFilter(f) {
   calCycFilter = f;
