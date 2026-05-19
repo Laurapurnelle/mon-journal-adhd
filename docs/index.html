@@ -1145,6 +1145,7 @@ var calCycFilter   = 'tout';
 var bouclierActive = false;
 var swWeekOffset   = 0;
 var showCycleColors = false;
+var moisView = 'mois';
 var cuisineFilter = 'Tout';
 
 function hexToRgba(hex, a) {
@@ -2316,7 +2317,23 @@ function renderMois() {
   h += '</div>';
   h += '</div>';
 
+  /* ── TOGGLE SEMAINE / MOIS ── */
+  h += '<div style="display:flex;justify-content:center;margin:8px 0 16px">';
+  h += '<div style="display:flex;background:rgba(255,255,255,0.6);border:1.5px solid rgba(0,0,0,0.1);'
+     + 'border-radius:99px;padding:3px;gap:2px;backdrop-filter:blur(6px)">';
+  var svStyles = 'padding:7px 22px;border-radius:99px;border:none;cursor:pointer;'
+               + 'font-size:13px;font-weight:700;font-family:\'DM Sans\',sans-serif;transition:all 0.15s;';
+  h += '<button onclick="toggleMoisView(\'semaine\')" style="'+svStyles
+     + (moisView==='semaine' ? ';background:'+th.accent+';color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.12)'
+                             : ';background:transparent;color:#6a7a6a')+'">Semaine</button>';
+  h += '<button onclick="toggleMoisView(\'mois\')" style="'+svStyles
+     + (moisView==='mois' ? ';background:'+th.accent+';color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.12)'
+                          : ';background:transparent;color:#6a7a6a')+'">Mois</button>';
+  h += '</div>';
+  h += '</div>';
+
   /* ── SEMAINIER ── */
+  if (moisView === 'semaine') {
   var swToday     = new Date();
   var swTodayDk   = todayKey();
   var swDow       = swToday.getDay();
@@ -2391,15 +2408,14 @@ function renderMois() {
     h += '</div>';
   }
   h += '</div>';
+  } /* end moisView semaine */
 
   /* ── GRILLE ── */
-  h += '<div class="card span2" style="position:relative;overflow:hidden;padding:14px 12px;background:rgba(255,253,248,0.92)">';
-  h += '<img src="'+CAL_IMG[m]+'" alt="" style="'
-     + 'position:absolute;inset:0;width:100%;height:100%;'
-     + 'object-fit:cover;opacity:0.55;border-radius:inherit;pointer-events:none;z-index:0">';
+  if (moisView === 'mois') {
+  h += '<div class="card span2" style="padding:14px 12px;background:rgba(255,255,255,0.72);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)">';
 
-  /* Contenu grille (au-dessus du fond botanique) */
-  h += '<div style="position:relative;z-index:1">';
+  /* Contenu grille */
+  h += '<div>';
 
   /* En-têtes jours */
   h += '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px">';
@@ -2531,129 +2547,18 @@ function renderMois() {
   h += '</div>';
   } /* end if showCycleColors */
 
-  /* ── PARAMÈTRES CYCLE ── */
-  var cycLen = S.cycle.length || 28;
-  var cycPer = S.cycle.periodLength || 5;
-  h += '<div class="card span2" style="background:linear-gradient(135deg,rgba(192,66,122,0.04),rgba(122,106,189,0.06))">';
-  h += '<div class="lbl" style="margin-bottom:4px">À PROPOS DE TON CYCLE</div>';
-  h += '<div class="titre" style="font-size:18px;margin-bottom:16px">Paramètres</div>';
-  h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">';
-  /* Carte durée cycle */
-  h += '<div style="background:rgba(255,255,255,0.55);border:1.5px solid rgba(192,66,122,0.15);border-radius:16px;padding:16px;text-align:center;backdrop-filter:blur(4px)">';
-  h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#9aaa9a;margin-bottom:10px">DURÉE DU CYCLE</div>';
-  h += '<div style="display:flex;align-items:center;justify-content:center;gap:10px">';
-  h += '<button onclick="adjustCyc(\'length\',-1)" style="width:30px;height:30px;border-radius:50%;border:1.5px solid rgba(0,0,0,0.1);background:rgba(255,255,255,0.8);cursor:pointer;font-size:18px;line-height:1;color:#5a3a5a;font-family:\'DM Sans\',sans-serif">−</button>';
-  h += '<div style="font-size:36px;font-weight:700;color:#c0427a;line-height:1;min-width:44px;text-align:center" id="cyc-len-disp">'+cycLen+'</div>';
-  h += '<button onclick="adjustCyc(\'length\',1)" style="width:30px;height:30px;border-radius:50%;border:1.5px solid rgba(0,0,0,0.1);background:rgba(255,255,255,0.8);cursor:pointer;font-size:18px;line-height:1;color:#5a3a5a;font-family:\'DM Sans\',sans-serif">+</button>';
-  h += '</div>';
-  h += '<div style="font-size:12px;color:#9aaa9a;margin-top:6px">jours</div>';
-  h += '</div>';
-  /* Carte durée règles */
-  h += '<div style="background:rgba(255,255,255,0.55);border:1.5px solid rgba(192,66,122,0.15);border-radius:16px;padding:16px;text-align:center;backdrop-filter:blur(4px)">';
-  h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#9aaa9a;margin-bottom:10px">DURÉE DES RÈGLES</div>';
-  h += '<div style="display:flex;align-items:center;justify-content:center;gap:10px">';
-  h += '<button onclick="adjustCyc(\'periodLength\',-1)" style="width:30px;height:30px;border-radius:50%;border:1.5px solid rgba(0,0,0,0.1);background:rgba(255,255,255,0.8);cursor:pointer;font-size:18px;line-height:1;color:#5a3a5a;font-family:\'DM Sans\',sans-serif">−</button>';
-  h += '<div style="font-size:36px;font-weight:700;color:#c0427a;line-height:1;min-width:44px;text-align:center" id="cyc-per-disp">'+cycPer+'</div>';
-  h += '<button onclick="adjustCyc(\'periodLength\',1)" style="width:30px;height:30px;border-radius:50%;border:1.5px solid rgba(0,0,0,0.1);background:rgba(255,255,255,0.8);cursor:pointer;font-size:18px;line-height:1;color:#5a3a5a;font-family:\'DM Sans\',sans-serif">+</button>';
-  h += '</div>';
-  h += '<div style="font-size:12px;color:#9aaa9a;margin-top:6px">jours</div>';
-  h += '</div>';
-  h += '</div>'; /* end grid */
-  /* Info phases calculées */
-  if (S.cycle.start) {
-    var infoLen = S.cycle.length || 28;
-    var infoPer = S.cycle.periodLength || 5;
-    var infoOv  = infoLen - 14;
-    if (infoOv <= infoPer) infoOv = infoPer + 2;
-    var infoFs  = infoOv - 5;
-    var infoFe  = infoOv + 1;
-    var infoSs  = infoLen - 6;
-    h += '<div style="margin-top:12px;padding:10px 14px;background:rgba(0,0,0,0.025);border-radius:12px;font-size:11px;color:#8a9a8a;line-height:1.8">';
-    h += '<span style="color:#c0427a;font-weight:700">Règles</span> J1–J'+infoPer+'  ·  ';
-    h += '<span style="color:#7a6abd;font-weight:700">Fertilité</span> J'+infoFs+'–J'+infoFe+'  ·  ';
-    h += '<span style="color:#9a6ab0;font-weight:700">SPM</span> J'+infoSs+'–J'+infoLen;
-    h += '</div>';
-  }
+  /* ── BOUTON PARAMÈTRES CYCLE ── */
+  h += '<div style="text-align:center;margin:4px 0 8px">';
+  h += '<button onclick="openCycleSettings()" style="padding:8px 18px;border-radius:99px;'
+     + 'border:1.5px solid rgba(192,66,122,0.25);background:rgba(192,66,122,0.06);'
+     + 'color:#c0427a;font-size:12px;font-weight:700;font-family:\'DM Sans\',sans-serif;'
+     + 'cursor:pointer;letter-spacing:0.04em">⚙️ Paramètres du cycle</button>';
   h += '</div>';
 
-  /* ── JOUR SÉLECTIONNÉ ── */
-  var selDate = new Date(calSel+'T12:00:00');
-  var selEvs  = (S.events[calSel]||[]).slice().sort(function(a,b){ return (a.time||'').localeCompare(b.time||''); });
-  var selNote = escH(S.calNotes[calSel] || '');
+  } /* end moisView mois */
 
-  var selCycPh = getCyclePhasForDate(calSel);
-  h += '<div class="card span2">';
-  h += '<div class="row-sb" style="margin-bottom:12px">';
-  h += '<div>';
-  h += '<div class="lbl">'+JOURS_LONG[selDate.getDay()].toUpperCase()+'</div>';
-  h += '<div class="titre" style="font-size:22px">'+selDate.getDate()+' '+MOIS_FR[selDate.getMonth()].toLowerCase()+'</div>';
-  h += '</div>';
-  if (selCycPh) {
-    var spIcon = selCycPh.key === 'regles' ? '🌸' : selCycPh.key === 'fertilite' ? '✦' : '◐';
-    h += '<div style="display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:99px;'
-       + 'background:'+hexRgba(selCycPh.color, 0.12)+';border:1.5px solid '+hexRgba(selCycPh.color, 0.25)+'">';
-    h += '<span style="font-size:13px">'+spIcon+'</span>';
-    h += '<span style="font-size:12px;font-weight:700;color:'+selCycPh.color+'">'+selCycPh.label+'</span>';
-    h += '</div>';
-  }
-  h += '</div>';
+  /* ── PARAMÈTRES CYCLE (modal) — section supprimée, voir openCycleSettings() ── */
 
-  /* Événements */
-  if (selEvs.length === 0) {
-    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;'
-       + 'font-size:15px;color:#a0b4a0;line-height:1.55;margin-bottom:4px">'
-       + 'Aucun rendez-vous. Une page douce qui t\'attend.</div>';
-  } else {
-    for (var i=0; i<selEvs.length; i++) {
-      var ev = selEvs[i];
-      h += '<div class="ev-row">';
-      h += '<div style="min-width:48px">';
-      h += '<div style="font-size:14px;font-weight:700;color:#2d4d2d">'+escH(ev.time)+'</div>';
-      if (ev.endTime) h += '<div style="font-size:11px;color:#9aaa9a">'+escH(ev.endTime)+'</div>';
-      h += '</div>';
-      h += '<div class="ev-dot" style="background:'+(ev.color||EV_COLORS[0])+'"></div>';
-      h += '<div style="flex:1;cursor:pointer" onclick="openEditEvent(\''+calSel+'\',\''+ev.id+'\')">';
-      h += '<div style="font-size:15px;font-weight:500;color:#1e2d1e">'+escH(ev.title)+'</div>';
-      if (ev.loc) h += '<div style="font-size:12px;color:#8aaa8a;margin-top:2px">⊙ '+escH(ev.loc)+'</div>';
-      h += '</div>';
-      h += '<button onclick="openEditEvent(\''+calSel+'\',\''+ev.id+'\')" '
-         + 'style="border:none;background:none;color:#b0c8b0;cursor:pointer;font-size:15px;padding:0 4px;line-height:1" title="Modifier">✎</button>';
-      h += '<button onclick="deleteEvent(\''+calSel+'\',\''+ev.id+'\')" '
-         + 'style="border:none;background:none;color:#ddd;cursor:pointer;font-size:20px;padding:0">×</button>';
-      h += '</div>';
-    }
-  }
-
-  h += '<button onclick="openAddEvent(\''+calSel+'\')" '
-     + 'style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;'
-     + 'margin-top:10px;border:1.5px dashed rgba(0,0,0,0.1);background:none;cursor:pointer;'
-     + 'color:#8aaa8a;font-size:13px;font-family:\'DM Sans\',sans-serif;'
-     + 'padding:10px;border-radius:14px">+ Ajouter un rendez-vous</button>';
-
-  /* To-do du jour sélectionné */
-  h += '<div style="margin-top:16px;border-top:1px solid rgba(0,0,0,0.06);padding-top:14px">';
-  var sdTodoList = S.intentions[calSel]||[];
-  var sdDone=0; for(var i=0;i<sdTodoList.length;i++) if(sdTodoList[i].done) sdDone++;
-  h += '<div class="row-sb" style="margin-bottom:8px">';
-  h += '<div class="lbl">TÂCHES DU JOUR</div>';
-  if (sdTodoList.length) h += '<span style="font-size:12px;color:'+th.accent+';font-weight:700">'+sdDone+'/'+sdTodoList.length+'</span>';
-  h += '</div>';
-  h += '<div id="todo-day-'+calSel+'">'+buildTodoDayInner(calSel)+'</div>';
-  h += '</div>';
-
-  /* Zone de notes libres du jour */
-  h += '<div style="margin-top:16px;border-top:1px solid rgba(0,0,0,0.06);padding-top:14px">';
-  h += '<div class="lbl" style="margin-bottom:8px">NOTES DU JOUR</div>';
-  h += '<textarea id="cal-note-ta" '
-     + 'placeholder="Tâches, idées, pensées… tout ce qui passe par la tête ce jour-là." '
-     + 'oninput="saveCalNote(\''+calSel+'\',this.value);this.style.height=\'auto\';this.style.height=this.scrollHeight+\'px\'" '
-     + 'style="width:100%;min-height:90px;resize:none;border:1.5px solid rgba(0,0,0,0.08);'
-     + 'border-radius:14px;padding:12px 14px;font-family:\'DM Sans\',sans-serif;font-size:14px;'
-     + 'line-height:1.6;color:#1e2d1e;background:rgba(255,255,255,0.7);outline:none;'
-     + 'box-sizing:border-box;overflow:hidden">'+selNote+'</textarea>';
-  h += '</div>';
-
-  h += '</div>';
 
   /* ── STATS SANTÉ DU MOIS ── */
   var prefix = y+'-'+pad2(m+1)+'-';
@@ -2707,9 +2612,6 @@ function renderMois() {
   h += '</div>';
 
   document.getElementById('pg-mois').innerHTML = h;
-  /* Auto-resize si la note a déjà du contenu */
-  var cta = document.getElementById('cal-note-ta');
-  if (cta && cta.value) { cta.style.height = 'auto'; cta.style.height = cta.scrollHeight+'px'; }
 }
 
 /* Navigation calendrier */
@@ -2739,6 +2641,56 @@ function selMoisDay(dk) {
 function setCycFilter(f) {
   calCycFilter = f;
   renderMois();
+}
+function toggleMoisView(v) { moisView = v; renderMois(); }
+function openCycleSettings() {
+  var cycLen = S.cycle ? (S.cycle.length || 28) : 28;
+  var cycPer = S.cycle ? (S.cycle.periodLength || 5) : 5;
+  var infoLen = cycLen, infoPer = cycPer;
+  var infoOv = infoLen - 14;
+  if (infoOv <= infoPer) infoOv = infoPer + 2;
+  var infoFs = infoOv - 5, infoFe = infoOv + 1;
+  var infoSs = infoLen - 6;
+  var html = '<div style="padding:4px 0">';
+  html += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#9aaa9a;margin-bottom:4px">À PROPOS DE TON CYCLE</div>';
+  html += '<div style="font-size:22px;font-weight:700;color:#1e2d1e;margin-bottom:20px">Paramètres</div>';
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">';
+  html += '<div style="background:rgba(192,66,122,0.06);border:1.5px solid rgba(192,66,122,0.15);border-radius:16px;padding:16px;text-align:center">';
+  html += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#9aaa9a;margin-bottom:10px">DURÉE DU CYCLE</div>';
+  html += '<div style="display:flex;align-items:center;justify-content:center;gap:10px">';
+  html += '<button onclick="adjustCycModal(\'length\',-1)" style="width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(0,0,0,0.1);background:rgba(255,255,255,0.8);cursor:pointer;font-size:20px;line-height:1;color:#5a3a5a;font-family:inherit">−</button>';
+  html += '<div style="font-size:38px;font-weight:700;color:#c0427a;line-height:1;min-width:48px;text-align:center">' + cycLen + '</div>';
+  html += '<button onclick="adjustCycModal(\'length\',1)" style="width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(0,0,0,0.1);background:rgba(255,255,255,0.8);cursor:pointer;font-size:20px;line-height:1;color:#5a3a5a;font-family:inherit">+</button>';
+  html += '</div><div style="font-size:12px;color:#9aaa9a;margin-top:6px">jours</div></div>';
+  html += '<div style="background:rgba(192,66,122,0.06);border:1.5px solid rgba(192,66,122,0.15);border-radius:16px;padding:16px;text-align:center">';
+  html += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#9aaa9a;margin-bottom:10px">DURÉE DES RÈGLES</div>';
+  html += '<div style="display:flex;align-items:center;justify-content:center;gap:10px">';
+  html += '<button onclick="adjustCycModal(\'periodLength\',-1)" style="width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(0,0,0,0.1);background:rgba(255,255,255,0.8);cursor:pointer;font-size:20px;line-height:1;color:#5a3a5a;font-family:inherit">−</button>';
+  html += '<div style="font-size:38px;font-weight:700;color:#c0427a;line-height:1;min-width:48px;text-align:center">' + cycPer + '</div>';
+  html += '<button onclick="adjustCycModal(\'periodLength\',1)" style="width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(0,0,0,0.1);background:rgba(255,255,255,0.8);cursor:pointer;font-size:20px;line-height:1;color:#5a3a5a;font-family:inherit">+</button>';
+  html += '</div><div style="font-size:12px;color:#9aaa9a;margin-top:6px">jours</div></div>';
+  html += '</div>';
+  if (S.cycle && S.cycle.start) {
+    html += '<div style="padding:10px 14px;background:rgba(0,0,0,0.025);border-radius:12px;font-size:11px;color:#8a9a8a;line-height:1.8">';
+    html += '<span style="color:#c0427a;font-weight:700">Règles</span> J1–J' + infoPer + '  ·  ';
+    html += '<span style="color:#7a6abd;font-weight:700">Fertilité</span> J' + infoFs + '–J' + infoFe + '  ·  ';
+    html += '<span style="color:#9a6ab0;font-weight:700">SPM</span> J' + infoSs + '–J' + infoLen;
+    html += '</div>';
+  }
+  html += '</div>';
+  openModal(html);
+}
+function adjustCycModal(field, delta) {
+  if (!S.cycle) S.cycle = {start:null, length:28, periodLength:5};
+  if (field === 'length') {
+    var v = (S.cycle.length || 28) + delta;
+    S.cycle.length = v < 21 ? 21 : v > 45 ? 45 : v;
+  } else {
+    var v = (S.cycle.periodLength || 5) + delta;
+    S.cycle.periodLength = v < 2 ? 2 : v > 10 ? 10 : v;
+  }
+  save();
+  openCycleSettings();
 }
 function toggleCycleColors() {
   showCycleColors = !showCycleColors;
