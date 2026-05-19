@@ -350,7 +350,6 @@ body.dark #dark-btn-nav { background: rgba(255,255,255,0.08) !important; color: 
 .jour-b-todo     { order: 1; }
 .jour-b-rituels  { order: 2; }
 .jour-b-recipe   { order: 3; }
-.jour-b-budget   { order: 4; }
 
 @media (min-width: 768px) {
   #pg-jour { max-width: 1440px !important; padding: 24px 28px 60px; }
@@ -364,13 +363,12 @@ body.dark #dark-btn-nav { background: rgba(255,255,255,0.08) !important; color: 
   .jour-col-agenda { order: 3; }
   .jour-bottom {
     display: grid !important;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px; align-items: start;
   }
   .jour-b-rituels { order: 1; }
   .jour-b-todo { order: 2; }
   .jour-b-recipe { order: 3; }
-  .jour-b-budget { order: 4; }
   .jour-extra {
     display: grid !important;
     grid-template-columns: 1fr 1fr;
@@ -495,10 +493,10 @@ var THEMES = [
  blobL:'rgba(218,148,185,0.38)',blobR:'rgba(238,172,205,0.28)',
  quote:'Avril pluvieux, jardin pétillant de promesses.',quoteSub:'Avril · Cerisier'},
 /* 4 Mai – Muguet & fraîcheur */
-{bg:'linear-gradient(150deg,#d8f0e4,#f0fdf6)',accent:'#1e7048',
- mesh:[['rgba(108,198,158,0.58)','12%','28%'],['rgba(135,218,178,0.42)','84%','58%'],['rgba(120,208,168,0.32)','52%','8%']],
- blobL:'rgba(108,198,158,0.40)',blobR:'rgba(135,218,178,0.28)',
- quote:"Que mai t'apporte des matins clairs et la promesse douce du muguet.",quoteSub:'Mai · Muguet'},
+{bg:'linear-gradient(160deg,#fce4f4,#ede4fc)',accent:'#8B35C0',
+ mesh:[['rgba(208,140,228,0.55)','12%','28%'],['rgba(228,160,248,0.42)','84%','58%'],['rgba(218,140,218,0.32)','52%','8%']],
+ blobL:'rgba(208,140,228,0.40)',blobR:'rgba(228,160,248,0.28)',
+ quote:"Que mai t'apporte des matins clairs et la promesse douce du muguet.",quoteSub:'Mai · Muguet & Rose'},
 /* 5 Juin – Lavande & soleil */
 {bg:'linear-gradient(150deg,#eae0f5,#f8f5ff)',accent:'#7840b8',
  mesh:[['rgba(188,148,228,0.55)','14%','28%'],['rgba(208,172,248,0.40)','80%','62%'],['rgba(198,160,238,0.28)','50%','8%']],
@@ -1156,6 +1154,7 @@ function hexToRgba(hex, a) {
 function applyTheme(m) {
   var th  = THEMES[m];
   var root = document.documentElement;
+  root.style.setProperty('--accent', th.accent);
 
   /* CSS variables */
   root.style.setProperty('--accent',      th.accent);
@@ -1467,39 +1466,6 @@ function renderJour() {
   h += '</div>';
   h += '</div>';
 
-  /* ── MINI BUDGET ── */
-  h += '<div class="jour-b-budget">';
-  h += '<div class="card" onclick="goPage(\'budget\')" style="cursor:pointer">';
-  h += '<div class="lbl" style="margin-bottom:4px">BUDGET</div>';
-  h += '<div class="titre" style="font-size:20px;margin-bottom:10px">Ce mois-ci</div>';
-  var budFixed = 0;
-  var _bud=S.budget||{}; for (var i=0; i<(_bud.fixed||[]).length; i++) budFixed += (_bud.fixed[i].amount||0);
-  var budEnv = 0;
-  for (var i=0; i<(_bud.envelopes||[]).length; i++) budEnv += (_bud.envelopes[i].budget||0);
-  var reste = Math.max(0, (_bud.income||0) - budFixed - budEnv);
-  h += '<div style="font-size:28px;font-weight:700;color:'+th.accent+';letter-spacing:-1px;line-height:1">'+reste.toFixed(0)+'€</div>';
-  h += '<div style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#9aaa9a;margin-top:2px;margin-bottom:12px">RESTE \xc0 VIVRE</div>';
-  var envTop = (_bud.envelopes||[]).slice(0,3);
-  for (var i=0; i<envTop.length; i++) {
-    var env = envTop[i];
-    var spent = 0;
-    var trs = (_bud.transactions||[]);
-    for (var j=0; j<trs.length; j++) { if (trs[j].env === env.id) spent += (trs[j].amount||0); }
-    var envPct = env.budget ? Math.min(100, Math.round(spent/env.budget*100)) : 0;
-    h += '<div style="margin-bottom:8px">';
-    h += '<div style="display:flex;justify-content:space-between;font-size:11px;color:#6a8a6a;margin-bottom:3px">';
-    h += '<span>'+escH(env.name)+'</span><span>'+spent.toFixed(0)+'/'+env.budget+'€</span>';
-    h += '</div>';
-    h += '<div style="height:4px;background:rgba(0,0,0,0.07);border-radius:2px">';
-    h += '<div style="height:4px;background:'+th.accent+';border-radius:2px;width:'+envPct+'%"></div>';
-    h += '</div>';
-    h += '</div>';
-  }
-  if (!envTop.length) {
-    h += '<div style="font-family:\'Playfair Display\',serif;font-style:italic;font-size:13px;color:#a0b4a0">Configure ton budget →</div>';
-  }
-  h += '</div>';
-  h += '</div>';
 
   h += '</div>';
 
