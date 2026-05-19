@@ -1144,6 +1144,7 @@ var calSel = null;
 var calCycFilter   = 'tout';
 var bouclierActive = false;
 var swWeekOffset   = 0;
+var showCycleColors = false;
 var cuisineFilter = 'Tout';
 
 function hexToRgba(hex, a) {
@@ -2299,8 +2300,15 @@ function renderMois() {
      + 'border:1.5px solid rgba(0,0,0,0.12);background:rgba(255,255,255,0.72);'
      + 'cursor:pointer;font-size:18px;font-family:\'DM Sans\',sans-serif;'
      + 'display:flex;align-items:center;justify-content:center;color:#3d5d3d">›</button>';
+  /* Toggle cycle */
+  h += '<button onclick="toggleCycleColors()" style="padding:6px 12px;border-radius:99px;'
+     + 'border:1.5px solid '+(showCycleColors?'rgba(139,53,192,0.55)':'rgba(0,0,0,0.12)')+';'
+     + 'background:'+(showCycleColors?'rgba(139,53,192,0.12)':'rgba(255,255,255,0.72)')+';'
+     + 'cursor:pointer;font-size:11px;font-weight:700;font-family:\'DM Sans\',sans-serif;'
+     + 'color:'+(showCycleColors?'#8B35C0':'#6a5a7a')+';white-space:nowrap'
+     + '>'+(showCycleColors?'🔮 Cacher le cycle':'🔮 Mon cycle')+'</button>';
   /* + Ajouter */
-  h += '<button onclick="openAddEvent(calSel||\''+dk+'\')" style="width:36px;height:36px;'
+  h += '<button onclick="openAddEvent(calSel||\''+dk+'\'" style="width:36px;height:36px;'
      + 'border-radius:50%;background:'+th.accent+';border:none;color:#fff;font-size:22px;'
      + 'cursor:pointer;display:flex;align-items:center;justify-content:center;'
      + 'font-family:\'DM Sans\',sans-serif;line-height:1">+</button>';
@@ -2420,7 +2428,7 @@ function renderMois() {
     var cycPh2  = getCyclePhasForDate(dk2);
     var dimOp   = '';
     if (calCycFilter === 'agenda') { if (dayEvs.length === 0) dimOp = 'opacity:0.22;'; }
-    else if (calCycFilter !== 'tout') { if (!cycPh2 || cycPh2.key !== calCycFilter) dimOp = 'opacity:0.22;'; }
+    else if (showCycleColors && calCycFilter !== 'tout') { if (!cycPh2 || cycPh2.key !== calCycFilter) dimOp = 'opacity:0.22;'; }
 
     /* Style de la case */
     var cs = 'aspect-ratio:1;border-radius:16px;cursor:pointer;position:relative;'
@@ -2441,7 +2449,7 @@ function renderMois() {
 
     var dayClass = 'cal-day' + (isToday ? ' cal-today' : '');
     h += '<div class="'+dayClass+'" style="'+cs+dimOp+'" onclick="selMoisDay(\''+dk2+'\')">';
-    if (cycPh2) h += '<div style="position:absolute;top:0;left:0;right:0;height:3px;background:'+cycPh2.color+';opacity:0.85;z-index:3;border-radius:14px 14px 0 0"></div>';
+    if (showCycleColors && cycPh2) h += '<div style="position:absolute;top:0;left:0;right:0;height:3px;background:'+cycPh2.color+';opacity:0.85;z-index:3;border-radius:14px 14px 0 0"></div>';
 
     if (isToday) {
       /* Numéro accent + pastille pulse (top-right) */
@@ -2484,6 +2492,7 @@ function renderMois() {
   h += '</div>'; /* end card */
 
   /* ── FILTRES CYCLE ── */
+  if (showCycleColors) {
   var filters = [
     {key:'tout',      label:'Tout'},
     {key:'regles',    label:'🌸 Règles'},
@@ -2520,6 +2529,7 @@ function renderMois() {
   h += '<div style="display:flex;align-items:center;gap:6px"><div style="width:22px;height:4px;border-radius:2px;background:#9a6ab0"></div><span style="font-size:11px;color:#7a7a7a">SPM</span></div>';
   h += '</div>';
   h += '</div>';
+  } /* end if showCycleColors */
 
   /* ── PARAMÈTRES CYCLE ── */
   var cycLen = S.cycle.length || 28;
@@ -2728,6 +2738,13 @@ function selMoisDay(dk) {
 }
 function setCycFilter(f) {
   calCycFilter = f;
+  renderMois();
+}
+function toggleCycleColors() {
+  showCycleColors = !showCycleColors;
+  if (!showCycleColors && calCycFilter !== 'tout' && calCycFilter !== 'agenda') {
+    calCycFilter = 'tout';
+  }
   renderMois();
 }
 function swGo(delta) {
